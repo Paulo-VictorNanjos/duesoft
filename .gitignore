@@ -3,6 +3,11 @@ node_modules/
 
 # Arquivos de ambiente
 .env
+.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Arquivos de upload
 public/uploads/*
@@ -15,7 +20,15 @@ npm-debug.log*
 
 # Arquivos do sistema
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local 
+
+# PM2
+pm2-logs/
+.pm2/
+
+# Arquivos temporários
+tmp/
+.tmp/
+.cache/
+
+# Arquivos de cobertura de testes
+coverage/ 
