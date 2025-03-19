@@ -1,0 +1,102 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-shield fa-3x text-danger mb-3"></i>
+                        <h2 class="card-title">Solicitar Exclusão de Dados</h2>
+                        <p class="text-muted">
+                            Esta ação iniciará o processo de exclusão da sua conta e dados pessoais.
+                        </p>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Importante:
+                        </h5>
+                        <ul class="mb-0">
+                            <li>A exclusão é irreversível após confirmada</li>
+                            <li>Todos os seus dados serão removidos em até 30 dias</li>
+                            <li>Seus certificados não estarão mais disponíveis</li>
+                            <li>Seu progresso em cursos será perdido</li>
+                            <li>Suas conquistas serão removidas</li>
+                        </ul>
+                    </div>
+
+                    <form action="/account/delete-request" method="POST" class="mt-4" id="deleteForm">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Motivo da Solicitação</label>
+                            <select class="form-select" name="reason" id="reason" required>
+                                <option value="">Selecione um motivo</option>
+                                <option value="privacy">Privacidade</option>
+                                <option value="not_using">Não estou mais usando a plataforma</option>
+                                <option value="data_concerns">Preocupações com dados pessoais</option>
+                                <option value="other">Outro motivo</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="otherReasonField" style="display: none;">
+                            <label for="otherReason" class="form-label">Especifique o Motivo</label>
+                            <textarea class="form-control" name="otherReason" id="otherReason" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="feedback" class="form-label">Feedback (opcional)</label>
+                            <textarea class="form-control" name="feedback" id="feedback" rows="3" 
+                                    placeholder="Conte-nos como podemos melhorar"></textarea>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmDelete" required>
+                            <label class="form-check-label" for="confirmDelete">
+                                Confirmo que desejo solicitar a exclusão da minha conta e dados pessoais
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash-alt"></i>
+                                Solicitar Exclusão
+                            </button>
+                            <a href="/profile" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i>
+                                Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reasonSelect = document.getElementById('reason');
+    const otherReasonField = document.getElementById('otherReasonField');
+    const otherReasonInput = document.getElementById('otherReason');
+    const deleteForm = document.getElementById('deleteForm');
+
+    reasonSelect.addEventListener('change', function() {
+        if (this.value === 'other') {
+            otherReasonField.style.display = 'block';
+            otherReasonInput.required = true;
+        } else {
+            otherReasonField.style.display = 'none';
+            otherReasonInput.required = false;
+        }
+    });
+
+    deleteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const confirmed = confirm('Tem certeza que deseja solicitar a exclusão da sua conta? Esta ação não pode ser desfeita.');
+        
+        if (confirmed) {
+            this.submit();
+        }
+    });
+});
+</script> 

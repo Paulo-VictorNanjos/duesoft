@@ -1,0 +1,299 @@
+<style>
+.item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.item-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.item-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.item-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.table td {
+    vertical-align: middle;
+}
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Gerenciar Itens da Loja</h5>
+                    <div>
+                        <a href="/admin/store/orders" class="btn btn-info me-2">
+                            <i class="fas fa-shopping-cart me-2"></i>Gerenciar Pedidos
+                            <% if (orders.filter(o => o.deliveryStatus === 'awaiting_approval').length > 0) { %>
+                                <span class="badge bg-danger ms-2"><%= orders.filter(o => o.deliveryStatus === 'awaiting_approval').length %></span>
+                            <% } %>
+                        </a>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                            <i class="fas fa-plus me-2"></i>Adicionar Item
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Descrição</th>
+                                    <th>Preço (Moedas)</th>
+                                    <th>Estoque</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof items !== 'undefined' && items.length > 0) { %>
+                                    <% items.forEach(item => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="item-info">
+                                                    <img src="<%= item.image %>" class="item-image" alt="<%= item.name %>">
+                                                    <div>
+                                                        <div class="item-name"><%= item.name %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="item-description"><%= item.description %></div>
+                                            </td>
+                                            <td><%= item.price %></td>
+                                            <td><%= item.stock %></td>
+                                            <td>
+                                                <span class="badge bg-<%= item.active ? 'success' : 'danger' %>">
+                                                    <%= item.active ? 'Ativo' : 'Inativo' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info me-2" onclick="editItem('<%= item._id %>')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteItem('<%= item._id %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Nenhum item encontrado</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Adicionar Item -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Novo Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addItemForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Item</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço (Moedas)</label>
+                        <input type="number" class="form-control" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estoque</label>
+                        <input type="number" class="form-control" name="stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagem</label>
+                        <input type="file" class="form-control" name="image" accept="image/*" required>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="active" checked>
+                        <label class="form-check-label">Item Ativo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Item -->
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editItemForm" enctype="multipart/form-data">
+                <input type="hidden" name="itemId" id="editItemId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Item</label>
+                        <input type="text" class="form-control" name="name" id="editItemName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" id="editItemDescription" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço (Moedas)</label>
+                        <input type="number" class="form-control" name="price" id="editItemPrice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estoque</label>
+                        <input type="number" class="form-control" name="stock" id="editItemStock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagem</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <small class="text-muted">Deixe em branco para manter a imagem atual</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="active" id="editItemActive">
+                        <label class="form-check-label">Item Ativo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar Item
+    const addItemForm = document.getElementById('addItemForm');
+    addItemForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('/admin/store/items', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                toastr.success('Item adicionado com sucesso!');
+                location.reload();
+            } else {
+                const data = await response.json();
+                toastr.error(data.error || 'Erro ao adicionar item');
+            }
+        } catch (error) {
+            toastr.error('Erro ao processar a requisição');
+        }
+    });
+
+    // Editar Item - Form Submit
+    const editItemForm = document.getElementById('editItemForm');
+    editItemForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const itemId = document.getElementById('editItemId').value;
+        
+        try {
+            const response = await fetch(`/admin/store/items/${itemId}`, {
+                method: 'PUT',
+                body: formData
+            });
+            
+            if (response.ok) {
+                toastr.success('Item atualizado com sucesso!');
+                location.reload();
+            } else {
+                const data = await response.json();
+                toastr.error(data.error || 'Erro ao atualizar item');
+            }
+        } catch (error) {
+            toastr.error('Erro ao processar a requisição');
+        }
+    });
+});
+
+// Editar Item - Abrir Modal
+async function editItem(id) {
+    try {
+        const response = await fetch(`/admin/store/items/${id}`);
+        if (response.ok) {
+            const data = await response.json();
+            const item = data.item;
+
+            // Preencher o formulário
+            document.getElementById('editItemId').value = item._id;
+            document.getElementById('editItemName').value = item.name;
+            document.getElementById('editItemDescription').value = item.description;
+            document.getElementById('editItemPrice').value = item.price;
+            document.getElementById('editItemStock').value = item.stock;
+            document.getElementById('editItemActive').checked = item.active;
+
+            // Abrir o modal
+            const modal = new bootstrap.Modal(document.getElementById('editItemModal'));
+            modal.show();
+        } else {
+            toastr.error('Erro ao carregar dados do item');
+        }
+    } catch (error) {
+        toastr.error('Erro ao processar a requisição');
+    }
+}
+
+// Deletar Item
+async function deleteItem(id) {
+    if (confirm('Tem certeza que deseja excluir este item?')) {
+        try {
+            const response = await fetch(`/admin/store/items/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                toastr.success('Item excluído com sucesso!');
+                location.reload();
+            } else {
+                const data = await response.json();
+                toastr.error(data.error || 'Erro ao excluir item');
+            }
+        } catch (error) {
+            toastr.error('Erro ao processar a requisição');
+        }
+    }
+}
+</script> 

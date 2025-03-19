@@ -1,0 +1,556 @@
+<%- contentFor('body') %>
+
+<div class="payment-info-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h1 class="payment-info-title">Dados de Pagamento</h1>
+                <p class="payment-info-description">Gerencie suas chaves PIX e contas bancárias para receber seus saques</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="payment-info-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Chaves PIX -->
+                <div class="info-card mb-4">
+                    <div class="info-header">
+                        <h5><i class="fab fa-pix me-2"></i>Chaves PIX</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPixKeyModal">
+                            <i class="fas fa-plus me-2"></i>Adicionar Chave PIX
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>TIPO</th>
+                                    <th>CHAVE</th>
+                                    <th>PADRÃO</th>
+                                    <th>AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (paymentInfo?.pixKeys?.length > 0) { %>
+                                    <% paymentInfo.pixKeys.forEach(key => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="key-type">
+                                                    <i class="fas <%= 
+                                                        key.type === 'CPF' ? 'fa-id-card' : 
+                                                        key.type === 'CNPJ' ? 'fa-building' :
+                                                        key.type === 'EMAIL' ? 'fa-envelope' :
+                                                        key.type === 'PHONE' ? 'fa-phone' :
+                                                        'fa-key' %>">
+                                                    </i>
+                                                    <span><%= key.type %></span>
+                                                </div>
+                                            </td>
+                                            <td><%= key.key %></td>
+                                            <td>
+                                                <% if (key.isDefault) { %>
+                                                    <span class="badge bg-success">Padrão</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-link text-danger" onclick="deletePixKey('<%= key._id %>')" title="Excluir">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <% if (!key.isDefault) { %>
+                                                        <button class="btn btn-link text-primary" onclick="setDefaultPixKey('<%= key._id %>')" title="Definir como padrão">
+                                                            <i class="fas fa-star"></i>
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="empty-state">
+                                                <i class="fab fa-pix"></i>
+                                                <p>Nenhuma chave PIX cadastrada</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Contas Bancárias -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <h5><i class="fas fa-university me-2"></i>Contas Bancárias</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBankAccountModal">
+                            <i class="fas fa-plus me-2"></i>Adicionar Conta Bancária
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>BANCO</th>
+                                    <th>AGÊNCIA</th>
+                                    <th>CONTA</th>
+                                    <th>TIPO</th>
+                                    <th>TITULAR</th>
+                                    <th>PADRÃO</th>
+                                    <th>AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (paymentInfo?.bankAccounts?.length > 0) { %>
+                                    <% paymentInfo.bankAccounts.forEach(account => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="bank-info">
+                                                    <i class="fas fa-university"></i>
+                                                    <span><%= account.bankName %></span>
+                                                </div>
+                                            </td>
+                                            <td><%= account.agency %></td>
+                                            <td><%= account.account %></td>
+                                            <td>
+                                                <span class="badge <%= account.accountType === 'CHECKING' ? 'bg-info' : 'bg-warning' %>">
+                                                    <%= account.accountType === 'CHECKING' ? 'Corrente' : 'Poupança' %>
+                                                </span>
+                                            </td>
+                                            <td><%= account.holderName %></td>
+                                            <td>
+                                                <% if (account.isDefault) { %>
+                                                    <span class="badge bg-success">Padrão</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-link text-danger" onclick="deleteBankAccount('<%= account._id %>')" title="Excluir">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <% if (!account.isDefault) { %>
+                                                        <button class="btn btn-link text-primary" onclick="setDefaultBankAccount('<%= account._id %>')" title="Definir como padrão">
+                                                            <i class="fas fa-star"></i>
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="fas fa-university"></i>
+                                                <p>Nenhuma conta bancária cadastrada</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Adicionar Chave PIX -->
+<div class="modal fade" id="addPixKeyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Chave PIX</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="pixKeyForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Chave</label>
+                        <select class="form-select" name="type" required>
+                            <option value="CPF">CPF</option>
+                            <option value="CNPJ">CNPJ</option>
+                            <option value="EMAIL">E-mail</option>
+                            <option value="PHONE">Telefone</option>
+                            <option value="RANDOM">Chave Aleatória</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chave</label>
+                        <input type="text" class="form-control" name="key" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="isDefault" id="pixIsDefault">
+                        <label class="form-check-label" for="pixIsDefault">Definir como padrão</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="savePixKey()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Adicionar Conta Bancária -->
+<div class="modal fade" id="addBankAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Conta Bancária</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bankAccountForm">
+                    <div class="mb-3">
+                        <label class="form-label">Banco</label>
+                        <select class="form-select" name="bankCode" required>
+                            <option value="001">Banco do Brasil</option>
+                            <option value="104">Caixa Econômica Federal</option>
+                            <option value="033">Santander</option>
+                            <option value="341">Itaú</option>
+                            <option value="237">Bradesco</option>
+                            <option value="260">Nubank</option>
+                            <option value="077">Inter</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Agência</label>
+                        <input type="text" class="form-control" name="agency" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Conta</label>
+                        <input type="text" class="form-control" name="account" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Conta</label>
+                        <select class="form-select" name="accountType" required>
+                            <option value="CHECKING">Corrente</option>
+                            <option value="SAVINGS">Poupança</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">CPF/CNPJ do Titular</label>
+                        <input type="text" class="form-control" name="document" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Titular</label>
+                        <input type="text" class="form-control" name="holderName" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="isDefault" id="bankIsDefault">
+                        <label class="form-check-label" for="bankIsDefault">Definir como padrão</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveBankAccount()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Header */
+.payment-info-header {
+    background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.payment-info-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.payment-info-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Cards */
+.info-card {
+    background: var(--bs-body-bg);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.info-header h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.info-header h5 i {
+    font-size: 1.2rem;
+}
+
+/* Tabelas */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--bs-gray-600);
+    padding: 0.75rem;
+}
+
+.table td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.key-type, .bank-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.key-type i, .bank-info i {
+    font-size: 1.1rem;
+    color: var(--bs-gray-600);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons .btn-link {
+    padding: 0.25rem;
+    font-size: 1rem;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: var(--bs-gray-500);
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+}
+
+/* Modais */
+.modal-content {
+    border-radius: 16px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--bs-gray-200);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--bs-gray-200);
+    padding: 1.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+}
+
+.form-check-label {
+    font-weight: 500;
+}
+</style>
+
+<script>
+// Funções para gerenciar chaves PIX
+async function savePixKey() {
+    const form = document.getElementById('pixKeyForm');
+    const formData = new FormData(form);
+    const data = {
+        type: formData.get('type'),
+        key: formData.get('key'),
+        isDefault: formData.get('isDefault') === 'on'
+    };
+
+    try {
+        const response = await fetch('/virtual-currency/payment-info/pix', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao salvar chave PIX');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar chave PIX');
+    }
+}
+
+async function deletePixKey(keyId) {
+    if (!confirm('Tem certeza que deseja excluir esta chave PIX?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/virtual-currency/payment-info/pix/${keyId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao excluir chave PIX');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir chave PIX');
+    }
+}
+
+async function setDefaultPixKey(keyId) {
+    try {
+        const response = await fetch(`/virtual-currency/payment-info/pix/${keyId}/default`, {
+            method: 'PUT'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao definir chave PIX padrão');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao definir chave PIX padrão');
+    }
+}
+
+// Funções para gerenciar contas bancárias
+async function saveBankAccount() {
+    const form = document.getElementById('bankAccountForm');
+    const formData = new FormData(form);
+    const data = {
+        bankCode: formData.get('bankCode'),
+        bankName: form.querySelector('select[name="bankCode"] option:checked').text,
+        agency: formData.get('agency'),
+        account: formData.get('account'),
+        accountType: formData.get('accountType'),
+        document: formData.get('document'),
+        holderName: formData.get('holderName'),
+        isDefault: formData.get('isDefault') === 'on'
+    };
+
+    try {
+        const response = await fetch('/virtual-currency/payment-info/bank', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao salvar conta bancária');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar conta bancária');
+    }
+}
+
+async function deleteBankAccount(accountId) {
+    if (!confirm('Tem certeza que deseja excluir esta conta bancária?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/virtual-currency/payment-info/bank/${accountId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao excluir conta bancária');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir conta bancária');
+    }
+}
+
+async function setDefaultBankAccount(accountId) {
+    try {
+        const response = await fetch(`/virtual-currency/payment-info/bank/${accountId}/default`, {
+            method: 'PUT'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Erro ao definir conta bancária padrão');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao definir conta bancária padrão');
+    }
+}
+</script> 

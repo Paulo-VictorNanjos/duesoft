@@ -1,0 +1,918 @@
+<div class="profile-container">
+    <!-- Cover Section -->
+    <div class="cover-section">
+        <div class="cover-image" style="background-image: url('<%= user.coverPicture || '/images/default-cover.jpg' %>')">
+            <div class="cover-overlay"></div>
+            <label class="cover-upload-btn" for="coverUpload">
+                <i class="fas fa-camera"></i>
+                <span>Alterar Capa</span>
+                <input type="file" id="coverUpload" accept="image/*" hidden>
+            </label>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Profile Info -->
+        <div class="profile-sidebar">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar-container">
+                        <% if (user.profilePicture) { %>
+                            <img src="<%= user.profilePicture %>" alt="<%= user.name %>" class="profile-avatar">
+                        <% } else { %>
+                            <div class="profile-avatar-placeholder">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        <label class="avatar-upload-btn" for="avatarUpload">
+                            <i class="fas fa-camera"></i>
+                            <input type="file" id="avatarUpload" accept="image/*" hidden>
+                        </label>
+                        <div class="level-badge">
+                            <i class="fas fa-star"></i>
+                            <%= level %>
+                        </div>
+                    </div>
+                    <h2 class="profile-name"><%= user.name %></h2>
+                    <p class="profile-email"><%= user.email %></p>
+                    <div class="category-badge">
+                        <i class="fas <%= category === 'Senior' ? 'fa-crown' : category === 'Pleno' ? 'fa-star' : 'fa-user' %>"></i>
+                        <%= category %>
+                        <% if (category !== 'Senior') { %>
+                            <small class="d-block">
+                                <% if (category === 'Junior') { %>
+                                    Faça a prova específica para Pleno
+                                <% } else if (category === 'Pleno') { %>
+                                    Faça a prova específica para Senior
+                                <% } %>
+                            </small>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <% if (category !== 'Senior') { %>
+                            <span>
+                                <i class="fas fa-info-circle me-2"></i>
+                                <% if (category === 'Junior') { %>
+                                    Faça a prova específica para se tornar Pleno
+                                <% } else if (category === 'Pleno') { %>
+                                    Faça a prova específica para se tornar Senior
+                                <% } %>
+                            </span>
+                        <% } else { %>
+                            <span>
+                                <i class="fas fa-crown me-2"></i>
+                                Categoria máxima atingida
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon courses">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3><%= user.completedCourses ? user.completedCourses.length : 0 %></h3>
+                            <p>Cursos Concluídos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon xp">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3><%= user.experience %></h3>
+                            <p>XP Total</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon achievements">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3><%= user.achievements ? user.achievements.length : 0 %></h3>
+                            <p>Conquistas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Forms -->
+        <div class="profile-content">
+            <!-- Alert Messages -->
+            <% if (success && success.length > 0) { %>
+                <div class="alert alert-success alert-modern">
+                    <i class="fas fa-check-circle"></i>
+                    <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <% if (error && error.length > 0) { %>
+                <div class="alert alert-danger alert-modern">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <!-- Tabs Navigation -->
+            <div class="profile-tabs">
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="profile">
+                        <i class="fas fa-user"></i>
+                        Informações do Perfil
+                    </button>
+                    <button class="tab-btn" data-tab="security">
+                        <i class="fas fa-shield-alt"></i>
+                        Segurança
+                    </button>
+                </div>
+
+                <!-- Profile Info Tab -->
+                <div class="tab-content active" id="profile-tab">
+                    <form action="/profile/update" method="POST" enctype="multipart/form-data" class="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nome Completo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" name="name" value="<%= user.name %>" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" value="<%= user.email %>" class="form-control" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Empresa</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-building"></i>
+                                    </span>
+                                    <input type="text" name="company" value="<%= user.company ? user.company.name : '' %>" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Telefone</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <input type="tel" name="phone" value="<%= user.phone || '' %>" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-update">
+                            <i class="fas fa-save"></i>
+                            Atualizar Perfil
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-content" id="security-tab">
+                    <form action="/profile/change-password" method="POST" class="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Senha Atual</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" name="currentPassword" class="form-control" required>
+                                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nova Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-key"></i>
+                                    </span>
+                                    <input type="password" name="newPassword" class="form-control" required minlength="6">
+                                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                    <small class="strength-text">Força da senha: Fraca</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Confirmar Nova Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-key"></i>
+                                    </span>
+                                    <input type="password" name="confirmPassword" class="form-control" required>
+                                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-update">
+                            <i class="fas fa-shield-alt"></i>
+                            Alterar Senha
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --card-bg: var(--bg-card, #ffffff);
+    --hover-bg: rgba(79, 70, 229, 0.1);
+    --border-color: var(--border-color, #e5e7eb);
+}
+
+.profile-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Cover Section */
+.cover-section {
+    position: relative;
+    height: 300px;
+    margin-bottom: -100px;
+}
+
+.cover-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.cover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
+}
+
+.cover-upload-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.cover-upload-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    padding: 0 2rem;
+    position: relative;
+}
+
+/* Profile Sidebar */
+.profile-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.profile-card {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+    padding: 2rem;
+    text-align: center;
+}
+
+.avatar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-avatar,
+.profile-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--card-bg);
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.avatar-upload-btn:hover {
+    transform: scale(1.1);
+}
+
+.level-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: var(--warning);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 3px solid var(--card-bg);
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.profile-email {
+    color: var(--text-secondary);
+    margin: 0.5rem 0;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--hover-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Progress Section */
+.progress-section {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 8px;
+    background: var(--hover-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    background: var(--success);
+    transition: width 0.3s ease;
+}
+
+.progress-detail {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-card {
+    text-align: center;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-size: 1.25rem;
+}
+
+.stat-icon.courses {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+}
+
+.stat-icon.xp {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.stat-icon.achievements {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.stat-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.stat-info p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Profile Content */
+.profile-content {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Tabs */
+.profile-tabs {
+    padding: 2rem;
+}
+
+.tab-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tab-btn:hover {
+    transform: translateY(-2px);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Forms */
+.profile-form {
+    max-width: 800px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.input-group-text {
+    background: var(--hover-bg);
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.75rem;
+}
+
+.form-control {
+    border: none;
+    padding: 0.75rem;
+    background: transparent;
+    flex: 1;
+    color: #ffffff !important;
+}
+
+.form-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.btn-update {
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-update:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Password Strength */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Alerts */
+.alert-modern {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-modern i {
+    font-size: 1.25rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .content-grid {
+        grid-template-columns: 300px 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        position: static;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .cover-section {
+        height: 200px;
+        margin-bottom: -50px;
+    }
+
+    .content-grid {
+        padding: 0 1rem;
+    }
+
+    .profile-tabs {
+        padding: 1rem;
+    }
+
+    .tab-header {
+        flex-direction: column;
+    }
+}
+
+.form-control:disabled, 
+.form-control[readonly] {
+    background-color: transparent !important; /* ou a cor que você desejar */
+    opacity: 1;
+    color: #ffffff !important; /* ou a cor que você desejar para o texto */
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab Switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            
+            // Update active states
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+    });
+
+    // Password Visibility Toggle
+    const toggleBtns = document.querySelectorAll('.toggle-password');
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = btn.previousElementSibling;
+            const icon = btn.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    });
+
+    // Password Strength Checker
+    const newPasswordInput = document.querySelector('input[name="newPassword"]');
+    const strengthBar = document.querySelector('.password-strength .progress-bar');
+    const strengthText = document.querySelector('.strength-text');
+
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        const checks = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            numbers: /\d/.test(password),
+            symbols: /[^A-Za-z0-9]/.test(password)
+        };
+
+        strength = Object.values(checks).filter(Boolean).length;
+
+        const strengthLabels = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
+        const strengthColors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'];
+
+        strengthBar.style.width = `${(strength / 5) * 100}%`;
+        strengthBar.style.backgroundColor = strengthColors[strength - 1];
+        strengthText.textContent = `Força da senha: ${strengthLabels[strength - 1]}`;
+    }
+
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value);
+        });
+    }
+
+    // Cover Image Upload
+    const coverUpload = document.getElementById('coverUpload');
+    if (coverUpload) {
+        coverUpload.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('coverPicture', file);
+
+                try {
+                    const response = await fetch('/profile/update-cover', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Erro ao atualizar foto de capa');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao atualizar foto de capa');
+                }
+            }
+        });
+    }
+
+    // Avatar Upload
+    const avatarUpload = document.getElementById('avatarUpload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', async function(e) {
+            console.log('=== INICIANDO UPLOAD DE FOTO DE PERFIL ===');
+            const file = e.target.files[0];
+            
+            if (file) {
+                console.log('Arquivo selecionado:', {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size
+                });
+
+                if (!file.type.startsWith('image/')) {
+                    console.error('Tipo de arquivo inválido:', file.type);
+                    alert('Por favor, selecione apenas arquivos de imagem (jpg, png, gif)');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('profilePicture', file);
+
+                try {
+                    console.log('Enviando requisição...');
+                    const response = await fetch('/profile/update', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    console.log('Resposta recebida:', {
+                        status: response.status,
+                        ok: response.ok
+                    });
+
+                    const data = await response.json();
+                    console.log('Dados recebidos:', data);
+
+                    if (data.success) {
+                        console.log('Upload realizado com sucesso');
+                        window.location.reload();
+                    } else {
+                        console.error('Erro ao atualizar foto:', data.message);
+                        alert(data.message || 'Erro ao atualizar foto de perfil');
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    alert('Erro ao atualizar foto de perfil. Por favor, tente novamente.');
+                }
+            }
+        });
+    }
+
+    // Form Validation
+    const passwordForm = document.querySelector('form[action="/profile/change-password"]');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            const newPassword = this.querySelector('input[name="newPassword"]').value;
+            const confirmPassword = this.querySelector('input[name="confirmPassword"]').value;
+
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('As senhas não coincidem!');
+            }
+        });
+    }
+
+    // Função para atualizar o progresso e XP
+    function updateProfileStats(data) {
+        // Atualizar barra de progresso
+        const progressBar = document.querySelector('.progress-bar');
+        const progressPercentage = document.querySelector('.progress-percentage');
+        if (progressBar && progressPercentage) {
+            progressBar.style.width = `${data.progress}%`;
+            progressPercentage.textContent = `${data.progress}%`;
+        }
+
+        // Atualizar XP
+        const xpElement = document.querySelector('.stat-info h3');
+        if (xpElement) {
+            xpElement.textContent = data.userExperience;
+        }
+
+        // Atualizar nível se mudou
+        const levelBadge = document.querySelector('.level-badge');
+        if (levelBadge) {
+            levelBadge.innerHTML = `<i class="fas fa-star"></i> ${data.userLevel}`;
+        }
+
+        // Atualizar categoria se mudou
+        const categoryBadge = document.querySelector('.category-badge');
+        if (categoryBadge) {
+            const icon = data.userCategory === 'Senior' ? 'fa-crown' : 
+                        data.userCategory === 'Pleno' ? 'fa-star' : 'fa-user';
+            categoryBadge.innerHTML = `<i class="fas ${icon}"></i> ${data.userCategory}`;
+        }
+
+        // Atualizar texto de progresso restante
+        const progressDetail = document.querySelector('.progress-detail');
+        if (progressDetail && data.remaining !== undefined) {
+            if (data.userCategory !== 'Senior') {
+                progressDetail.textContent = `Faltam ${data.remaining.toLocaleString()} XP para ${
+                    data.userCategory === 'Junior' ? 'Pleno' : 'Senior'
+                }`;
+            } else {
+                progressDetail.textContent = 'Nível máximo atingido!';
+            }
+        }
+    }
+
+    // Expor a função globalmente para ser acessada por outros scripts
+    window.updateProfileStats = updateProfileStats;
+});
+</script>

@@ -1,0 +1,93 @@
+<div class="container py-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><%= exam.title %></h2>
+                <a href="/exams" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+
+            <% if (attempt.status === 'pending_review') { %>
+                <div class="alert alert-warning">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Prova em Análise</strong>
+                    <p class="mb-0">Sua prova está sendo corrigida pelo professor. Você receberá uma notificação quando a correção for concluída.</p>
+                </div>
+            <% } else { %>
+                <div class="alert alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Prova Corrigida!</strong>
+                    <p class="mb-0">Nota Final: <%= attempt.score.toFixed(1) %>%</p>
+                </div>
+
+                <% attempt.answers.forEach((answer, index) => { %>
+                    <div class="question-card card mb-4">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0">Questão <%= index + 1 %></h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Texto Base -->
+                            <div class="base-text mb-4">
+                                <h5>Texto Base</h5>
+                                <div class="p-3 bg-light rounded">
+                                    <%= exam.questions[index].baseText %>
+                                </div>
+                            </div>
+
+                            <!-- Sua Resposta -->
+                            <div class="student-answer mb-4">
+                                <h5>Sua Resposta</h5>
+                                <div class="p-3 border rounded">
+                                    <%= answer.text %>
+                                </div>
+                            </div>
+
+                            <!-- Feedback do Professor -->
+                            <div class="feedback-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Feedback do Professor</h5>
+                                    <span class="badge bg-primary">Nota: <%= answer.score %> pontos</span>
+                                </div>
+                                <div class="feedback-box p-3 rounded">
+                                    <%= answer.feedback || 'Sem comentários do professor.' %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<style>
+.question-card {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.feedback-box {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.base-text {
+    border-left: 4px solid var(--primary);
+    padding-left: 1rem;
+}
+
+.student-answer {
+    border-left: 4px solid var(--success);
+    padding-left: 1rem;
+}
+
+.feedback-section {
+    border-left: 4px solid var(--info);
+    padding-left: 1rem;
+}
+</style> 

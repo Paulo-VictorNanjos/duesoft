@@ -1,0 +1,297 @@
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Configurações da Moeda Virtual</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Configurações Básicas</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Nome da Moeda</label>
+                                <input type="text" class="form-control" name="name" value="<%= currency?.name || 'BRL' %>" required>
+                                <small class="text-muted">Ex: Coins, Pontos, Créditos</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Símbolo</label>
+                                <input type="text" class="form-control" name="symbol" value="<%= currency?.symbol || 'B' %>" required>
+                                <small class="text-muted">Ex: 💰, 🌟, ⭐</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Taxa de Conversão (R$ 1,00 = X moedas)</label>
+                                <input type="number" class="form-control" name="conversionRate" value="<%= currency?.conversionRate || '5' %>" required>
+                                <small class="text-muted">Quantas moedas valem R$ 1,00</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>Status Atual</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-body">
+                                            <h5>TOTAL EM CIRCULAÇÃO</h5>
+                                            <h2><%= currency?.stats?.totalSupply || '0' %> <%= currency?.symbol || 'B' %></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-body">
+                                            <h5>TOTAL DE USUÁRIOS</h5>
+                                            <h2><%= currency?.stats?.totalUsers || '0' %></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-body">
+                                            <h5>TOTAL DE TRANSAÇÕES</h5>
+                                            <h2><%= currency?.stats?.totalTransactions || '0' %></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>Regras de Recompensa</h6>
+                            <div class="alert alert-info">
+                                Configure quantas moedas os usuários ganharão por cada ação realizada na plataforma.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">Cursos</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Completar Curso</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.courseCompletion" 
+                                                value="<%= currency?.settings?.earnRules?.courseCompletion || '70' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Moedas ganhas ao completar um curso</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Primeiro Curso Completado</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.firstCourseCompletion" 
+                                                value="<%= currency?.settings?.earnRules?.firstCourseCompletion || '60' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Bônus pelo primeiro curso completado</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Sequência de Cursos</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.courseStreak" 
+                                                value="<%= currency?.settings?.earnRules?.courseStreak || '10' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Bônus por sequência de cursos completados</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">Provas</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Completar Prova</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.examCompletion" 
+                                                value="<%= currency?.settings?.earnRules?.examCompletion || '30' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Moedas ganhas ao completar uma prova</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nota Máxima</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.perfectExamScore" 
+                                                value="<%= currency?.settings?.earnRules?.perfectExamScore || '20' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Bônus por atingir nota máxima em uma prova</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">Mentoria</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Sessão de Mentoria</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.mentorSession" 
+                                                value="<%= currency?.settings?.earnRules?.mentorSession || '50' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Moedas ganhas ao participar de uma mentoria</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Avaliação de Mentoria</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.mentorRating" 
+                                                value="<%= currency?.settings?.earnRules?.mentorRating || '20' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Recompensa base para avaliação 5 estrelas</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">Outros</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Login Diário</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.dailyLogin" 
+                                                value="<%= currency?.settings?.earnRules?.dailyLogin || '10' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Moedas ganhas pelo primeiro login do dia</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Bônus de Indicação</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="earnRules.referralBonus" 
+                                                value="<%= currency?.settings?.earnRules?.referralBonus || '30' %>" min="0">
+                                            <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                                        </div>
+                                        <small class="text-muted">Moedas ganhas ao indicar um novo usuário</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('currencySettingsForm');
+    const withdrawEnabledCheckbox = form.querySelector('input[name="withdrawEnabled"]');
+    
+    console.log('Estado inicial do checkbox:', {
+        checked: withdrawEnabledCheckbox.checked,
+        value: withdrawEnabledCheckbox.value
+    });
+    
+    withdrawEnabledCheckbox.addEventListener('change', function(e) {
+        console.log('Checkbox alterado:', {
+            checked: e.target.checked,
+            value: e.target.value
+        });
+    });
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        console.log('FormData antes da conversão:', {
+            has: formData.has('withdrawEnabled'),
+            get: formData.get('withdrawEnabled')
+        });
+        
+        const data = Object.fromEntries(formData.entries());
+        console.log('Dados antes de processar withdrawEnabled:', data);
+        
+        // Garantir que withdrawEnabled seja sempre um booleano
+        data.withdrawEnabled = withdrawEnabledCheckbox.checked;
+        
+        console.log('Dados finais a serem enviados:', data);
+        
+        try {
+            const response = await fetch('/admin/virtual-currency/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            console.log('Resposta do servidor:', result);
+            
+            if (response.ok) {
+                console.log('Configurações salvas com sucesso. Estado final do checkbox:', withdrawEnabledCheckbox.checked);
+                toastr.success('Configurações salvas com sucesso!');
+                // Atualizar a página para mostrar os novos valores
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                console.error('Erro na resposta:', result);
+                toastr.error(result.message || 'Erro ao salvar configurações');
+            }
+        } catch (error) {
+            console.error('Erro ao processar requisição:', error);
+            toastr.error('Erro ao processar requisição');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const earnRulesForm = document.getElementById('earnRulesForm');
+    
+    earnRulesForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const earnRules = {};
+        
+        console.log('==== DEBUG FRONTEND ====');
+        console.log('1. FormData entries:', Array.from(formData.entries()));
+        
+        // Converter os dados do formulário para objeto
+        for (let [key, value] of formData.entries()) {
+            if (key.startsWith('earnRules.')) {
+                const fieldName = key.replace('earnRules.', '');
+                earnRules[fieldName] = Number(value);
+            }
+        }
+        
+        console.log('2. Objeto earnRules montado:', earnRules);
+        
+        try {
+            const response = await fetch('/admin/virtual-currency/earn-rules', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ earnRules })
+            });
+            
+            console.log('3. Resposta do servidor:', await response.clone().json());
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                toastr.success('Regras de recompensa salvas com sucesso!');
+                // Atualizar os campos com os valores retornados
+                for (let [key, value] of Object.entries(result.earnRules)) {
+                    const input = document.querySelector(`input[name="earnRules.${key}"]`);
+                    if (input) input.value = value;
+                }
+            } else {
+                console.error('Erro na resposta:', result);
+                toastr.error(result.message || 'Erro ao salvar regras de recompensa');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            toastr.error('Erro ao processar requisição');
+        }
+    });
+});
+</script> 

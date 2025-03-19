@@ -1,0 +1,672 @@
+<!-- Header -->
+<div class="admin-header mb-4">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="h3 fw-bold mb-2">Gerenciamento do Fórum</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Fórum</li>
+                </ol>
+            </nav>
+        </div>
+        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
+            <i class="fas fa-plus-circle me-2"></i>Nova Categoria
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-primary bg-opacity-10">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-info">
+                    <h6 class="stat-label">Total de Tópicos</h6>
+                    <h3 class="stat-value">0</h3>
+                    <small class="stat-change text-success">
+                        <i class="fas fa-arrow-up"></i> 0% este mês
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-success bg-opacity-10">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-reply"></i>
+                </div>
+                <div class="stat-info">
+                    <h6 class="stat-label">Total de Respostas</h6>
+                    <h3 class="stat-value">0</h3>
+                    <small class="stat-change text-success">
+                        <i class="fas fa-arrow-up"></i> 0% este mês
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-warning bg-opacity-10">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="stat-info">
+                    <h6 class="stat-label">Denúncias</h6>
+                    <h3 class="stat-value">0</h3>
+                    <small class="stat-change text-warning">
+                        <i class="fas fa-minus"></i> Sem alteração
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-info bg-opacity-10">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h6 class="stat-label">Usuários Ativos</h6>
+                    <h3 class="stat-value">0</h3>
+                    <small class="stat-change text-success">
+                        <i class="fas fa-arrow-up"></i> 0% este mês
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="card">
+    <div class="card-header border-bottom-0 bg-transparent">
+        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#categories">
+                    <i class="fas fa-folder me-2"></i>Categorias
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#moderation">
+                    <i class="fas fa-shield-alt me-2"></i>Moderação
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#settings">
+                    <i class="fas fa-cog me-2"></i>Configurações
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card-body p-0">
+        <div class="tab-content">
+            <!-- Categories Tab -->
+            <div class="tab-pane fade show active" id="categories">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px">#</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Tópicos</th>
+                                <th>Ordem</th>
+                                <th>Status</th>
+                                <th style="width: 150px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="sortable">
+                            <% if (categories && categories.length > 0) { %>
+                                <% categories.forEach((category, index) => { %>
+                                    <tr data-id="<%= category._id %>">
+                                        <td>
+                                            <div class="category-icon">
+                                                <i class="<%= category.icon %>"></i>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0"><%= category.name %></h6>
+                                            <small class="text-muted">/<%= category.slug %></small>
+                                        </td>
+                                        <td><%= category.description %></td>
+                                        <td>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">0</span>
+                                        </td>
+                                        <td><%= category.displayOrder %></td>
+                                        <td>
+                                            <span class="badge bg-success">Ativo</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-light" onclick="editCategory('<%= category._id %>')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-light" onclick="deleteCategory('<%= category._id %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <i class="fas fa-folder-open fa-2x mb-3"></i>
+                                            <h6>Nenhuma Categoria</h6>
+                                            <p class="text-muted small">Clique em "Nova Categoria" para começar</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Moderation Tab -->
+            <div class="tab-pane fade p-4" id="moderation">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Denúncias Pendentes</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-light">
+                            <i class="fas fa-filter me-2"></i>Filtrar
+                        </button>
+                        <button class="btn btn-light">
+                            <i class="fas fa-download me-2"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Conteúdo</th>
+                                <th>Denunciante</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
+                                        <h6>Nenhuma Denúncia Pendente</h6>
+                                        <p class="text-muted small">Todas as denúncias foram processadas</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane fade p-4" id="settings">
+                <form id="forumSettingsForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="settings-section">
+                                <h5 class="settings-title">Configurações Gerais</h5>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Tópicos por Página</label>
+                                    <input type="number" class="form-control" name="topicsPerPage" value="20">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Respostas por Página</label>
+                                    <input type="number" class="form-control" name="repliesPerPage" value="10">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="allowGuestView" checked>
+                                        <label class="form-check-label" for="allowGuestView">
+                                            Permitir Visualização para Visitantes
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="settings-section">
+                                <h5 class="settings-title">Moderação</h5>
+                                
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="autoModeration" checked>
+                                        <label class="form-check-label" for="autoModeration">
+                                            Moderação Automática
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Palavras Proibidas</label>
+                                    <textarea class="form-control" rows="4" placeholder="Uma palavra por linha"></textarea>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="requireApproval">
+                                        <label class="form-check-label" for="requireApproval">
+                                            Aprovar Tópicos Antes de Publicar
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Salvar Configurações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Category Modal -->
+<div class="modal fade" id="newCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title h4">Nova Categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newCategoryForm" action="/admin/forum/categories" method="POST">
+                    <div class="mb-4">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control form-control-lg" name="name" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control form-control-lg" name="description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Ícone</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-folder" id="iconPreview"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-lg" name="icon" value="fas fa-folder" required>
+                        </div>
+                        <small class="text-muted">Use classes do Font Awesome (ex: fas fa-folder)</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Ordem de Exibição</label>
+                        <input type="number" class="form-control form-control-lg" name="displayOrder" value="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light btn-lg" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="newCategoryForm" class="btn btn-primary btn-lg">Criar Categoria</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --admin-bg: #0f172a;
+    --card-bg: #1e293b;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+}
+
+.admin-header {
+    margin: -2rem -2rem 2rem -2rem;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+    color: var(--text-primary);
+}
+
+.breadcrumb-item a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card-content {
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.bg-primary .stat-icon {
+    color: var(--primary-color);
+}
+
+.bg-success .stat-icon {
+    color: var(--success-color);
+}
+
+.bg-warning .stat-icon {
+    color: var(--warning-color);
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-change {
+    display: block;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.nav-tabs {
+    border: none;
+    padding: 1rem 1rem 0;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+    background: none;
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.table {
+    margin: 0;
+}
+
+.table th {
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+    padding: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 500;
+}
+
+.btn-group {
+    gap: 0.5rem;
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+.empty-state h6 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.settings-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.settings-title {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0.75rem;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    color: var(--text-primary);
+}
+
+.form-switch {
+    padding-left: 3rem;
+}
+
+.form-switch .form-check-input {
+    width: 2.5rem;
+    margin-left: -3rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.modal-header {
+    border-color: var(--border-color);
+}
+
+.modal-title {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .stat-card-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stat-icon {
+        margin: 0 auto;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sortable
+    new Sortable(document.querySelector('.sortable'), {
+        animation: 150,
+        handle: '.category-icon',
+        onEnd: function(evt) {
+            const items = evt.to.children;
+            const orders = [];
+            for (let i = 0; i < items.length; i++) {
+                orders.push({
+                    id: items[i].dataset.id,
+                    order: i
+                });
+            }
+            updateCategoryOrder(orders);
+        }
+    });
+
+    // Icon preview
+    const iconInput = document.querySelector('input[name="icon"]');
+    const iconPreview = document.getElementById('iconPreview');
+    
+    iconInput?.addEventListener('input', function() {
+        iconPreview.className = this.value;
+    });
+});
+
+function editCategory(id) {
+    // Implement edit functionality
+}
+
+function deleteCategory(id) {
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não pode ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sim, deletar!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/forum/categories/${id}`, {
+                method: 'DELETE'
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+    });
+}
+
+function updateCategoryOrder(orders) {
+    fetch('/admin/forum/categories/order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orders })
+    });
+}
+</script> 

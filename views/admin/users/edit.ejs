@@ -1,0 +1,289 @@
+<!-- views/admin/users/edit.ejs -->
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i> 
+                        Editar Usuário
+                    </h3>
+                    <span class="badge bg-light text-primary">
+                        ID: <%= editUser._id %>
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <% if (error && error.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <!-- Perfil do Usuário -->
+                    <form action="/admin/users/<%= editUser._id %>" method="POST" enctype="multipart/form-data">
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <% if (editUser.profilePicture) { %>
+                                    <img src="<%= editUser.profilePicture %>" 
+                                         alt="Profile" 
+                                         class="rounded-circle mb-3 shadow"
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                <% } else { %>
+                                    <div class="avatar-placeholder rounded-circle mb-3 shadow"
+                                         style="width: 120px; height: 120px; background: #e9ecef; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user fa-3x text-secondary"></i>
+                                    </div>
+                                <% } %>
+                                <label for="profilePicture" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 cursor-pointer">
+                                    <i class="fas fa-camera"></i>
+                                    <input type="file" id="profilePicture" name="profilePicture" class="d-none">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Informações Básicas -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-user"></i> Nome
+                                    </label>
+                                    <input type="text" class="form-control" name="name" 
+                                           value="<%= editUser.name %>" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    <input type="email" class="form-control" name="email" 
+                                           value="<%= editUser.email %>" required>
+                                </div>
+                            </div>
+
+                            <!-- Informações Adicionais -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-building"></i> Empresa
+                                    </label>
+                                    <input type="text" class="form-control" name="company" 
+                                           value="<%= editUser.company ? editUser.company.name : '' %>" 
+                                           readonly>
+                                    <input type="hidden" name="companyId" 
+                                           value="<%= editUser.company ? editUser.company._id : '' %>">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-phone"></i> Telefone
+                                    </label>
+                                    <input type="tel" class="form-control" name="phone" 
+                                           value="<%= editUser.phone || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Permissões -->
+                        <% if (user.isAdmin) { %>
+                            <div class="card mt-4 bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-shield-alt"></i> 
+                                        Permissões
+                                    </h5>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isAdmin" 
+                                               name="isAdmin" <%= editUser.isAdmin ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="isAdmin">
+                                            Privilégios de Administrador
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        Administradores têm acesso total ao painel de controle
+                                    </small>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Histórico de Cursos -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-graduation-cap"></i> 
+                                    Histórico de Cursos
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (editUser.completedCourses && editUser.completedCourses.length > 0) { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Curso</th>
+                                                    <th>Concluído em</th>
+                                                    <th>Progresso</th>
+                                                    <th>Nota Final</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% editUser.completedCourses.forEach(course => { %>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <% if (course.coverImage) { %>
+                                                                    <img src="<%= course.coverImage %>" 
+                                                                         class="rounded me-2" 
+                                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                                <% } %>
+                                                                <div>
+                                                                    <strong><%= course.title %></strong>
+                                                                    <small class="text-muted d-block">
+                                                                        <%= course.modules ? course.modules.length : 0 %> módulos
+                                                                    </small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <%= course.completedAt ? new Date(course.completedAt).toLocaleDateString('pt-BR') : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div class="progress-bar bg-success" 
+                                                                     role="progressbar" 
+                                                                     style="width: <%= course.progress || 0 %>%">
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">
+                                                                <%= course.progress || 0 %>%
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-<%= course.finalGrade >= 7 ? 'success' : 'warning' %>">
+                                                                <%= (course.finalGrade || 0).toFixed(1) %>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">
+                                            Este usuário ainda não concluiu nenhum curso.
+                                        </p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/admin/users" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.card {
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.form-control:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.btn-primary:hover {
+    background-color: #4338ca;
+    border-color: #4338ca;
+}
+
+.table th {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 0.5rem;
+}
+
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 500;
+}
+</style>
+
+<script>
+document.getElementById('profilePicture').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.querySelector('.rounded-circle') || document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('rounded-circle', 'mb-3', 'shadow');
+            img.style.width = '120px';
+            img.style.height = '120px';
+            img.style.objectFit = 'cover';
+            
+            const placeholder = document.querySelector('.avatar-placeholder');
+            if (placeholder) {
+                placeholder.replaceWith(img);
+            }
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validação básica
+    const name = document.querySelector('input[name="name"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    
+    if (!name || !email) {
+        alert('Nome e email são obrigatórios');
+        return;
+    }
+    
+    // Se passou na validação, envia o formulário
+    this.submit();
+});
+</script>

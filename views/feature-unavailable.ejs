@@ -1,0 +1,87 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-lock text-warning" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <h2 class="mb-4 text-primary">Recurso Não Disponível</h2>
+                    
+                    <div class="alert alert-warning mb-4">
+                        O recurso "<strong><%= feature %></strong>" está disponível apenas em planos superiores.
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Seu Plano Atual</h5>
+                                    <h6 class="text-muted mb-3"><%= currentPlan.toUpperCase() %></h6>
+                                    <ul class="list-unstyled text-dark">
+                                        <% availableFeatures.forEach(feature => { %>
+                                            <li class="mb-2 text-body">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                <%= feature %>
+                                            </li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Plano Recomendado</h5>
+                                    <h6 class="text-primary mb-3"><%= nextPlan.toUpperCase() %></h6>
+                                    <ul class="list-unstyled text-dark">
+                                        <% nextPlanFeatures.forEach(feature => { %>
+                                            <li class="mb-2 text-body">
+                                                <i class="fas fa-check text-primary me-2"></i>
+                                                <%= feature %>
+                                                <% if (feature === requestedFeature) { %>
+                                                    <span class="badge bg-primary ms-2">Novo!</span>
+                                                <% } %>
+                                            </li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="javascript:history.back()" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <a href="/plans/upgrade" class="btn btn-primary">
+                            <i class="fas fa-crown me-2"></i>Fazer Upgrade Agora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+[data-bs-theme="dark"] .card {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="dark"] .text-body {
+    color: var(--text-primary) !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: var(--text-primary);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+</style> 

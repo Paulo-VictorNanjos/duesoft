@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= (typeof landing !== 'undefined' && landing?.seo?.title) || "LMS Portal" %></title>
+    
+    <!-- SEO Tags -->
+    <meta name="description" content="<%= (typeof landing !== 'undefined' && landing?.seo?.description) || '' %>">
+    <meta name="keywords" content="<%= (typeof landing !== 'undefined' && landing?.seo?.keywords) || '' %>">
+    <meta property="og:image" content="<%= (typeof landing !== 'undefined' && landing?.seo?.ogImage) || '' %>">
+    
+    <!-- Favicon -->
+    <% if (typeof landing !== 'undefined' && landing?.general?.favicon) { %>
+        <link rel="icon" href="<%= landing.general.favicon %>" type="image/x-icon">
+    <% } %>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Cores principais */
+            --primary-color: #ff6b00;
+            --secondary-color: #ff8533;
+            --dark-color: #1a1a1a;
+            --darker-color: #0d0d0d;
+            --light-color: #f4f4f4;
+            
+            /* Variações de laranja */
+            --orange-light: #ff944d;
+            --orange-lighter: #ffb380;
+            --orange-dark: #cc5500;
+            --orange-darker: #993d00;
+            
+            /* Variações de preto/cinza */
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+        }
+        
+        body {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+        }
+        
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/img/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-color: var(--darker-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .overlay {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(26, 26, 26, 0.9));
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--light-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--orange-dark);
+            border-color: var(--orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+        }
+
+        .navbar {
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(26, 26, 26, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: var(--gray-300);
+            transition: color 0.3s ease;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .display-4 {
+            font-size: 4rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: var(--light-color);
+        }
+
+        .lead {
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            color: var(--gray-300);
+        }
+
+        /* Seções */
+        .section {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--gray-400);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Features */
+        .feature-card {
+            padding: 2rem;
+            height: 100%;
+            background: var(--gray-900);
+            border: 1px solid var(--gray-800);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 20px rgba(255, 107, 0, 0.15);
+        }
+
+        .feature-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .feature-description {
+            color: var(--gray-400);
+        }
+
+        /* Testimonials */
+        .testimonial-card {
+            padding: 2rem;
+            height: 100%;
+            background: var(--gray-900);
+            border: 1px solid var(--gray-800);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 20px rgba(255, 107, 0, 0.15);
+        }
+
+        .testimonial-text {
+            color: var(--gray-300);
+            font-style: italic;
+        }
+
+        .testimonial-name {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.95)), url('/img/cta-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 5rem 0;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--orange-light);
+            text-decoration: none;
+        }
+
+        /* Formulários */
+        .form-control {
+            background-color: var(--gray-900);
+            border: 1px solid var(--gray-800);
+            color: var(--light-color);
+        }
+
+        .form-control:focus {
+            background-color: var(--focus-bg);
+            border-color: var(--focus-border);
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+            color: var(--focus-color);
+        }
+
+        .btn:focus {
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+            border-color: var(--focus-border);
+        }
+
+        .nav-link:focus {
+            color: var(--focus-color);
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+        }
+
+        /* Badges */
+        .badge-primary {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--gray-900);
+            border: 1px solid var(--gray-800);
+        }
+
+        .card-header {
+            background-color: var(--gray-800);
+            border-bottom: 1px solid var(--gray-700);
+        }
+
+        .card-footer {
+            background-color: var(--gray-800);
+            border-top: 1px solid var(--gray-700);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .section-subtitle {
+                font-size: 1rem;
+            }
+
+            .display-4 {
+                font-size: 2.5rem;
+            }
+
+            .lead {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-transparent">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="<%= (typeof landing !== 'undefined' && landing?.general?.logoWhite) || '/img/logo-white.png' %>" 
+                     alt="Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">Dashboard</a>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/register">Registrar</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <%- body %>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Adiciona background escuro na navbar ao rolar
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,180 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><%= news ? 'Editar' : 'Nova' %> Novidade</h5>
+    </div>
+    <div class="card-body">
+        <form id="newsForm" method="POST" enctype="multipart/form-data" action="/admin/news/<%= news ? news._id : '' %>">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Informações Básicas -->
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" value="<%= news?.title || '' %>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="3" required><%= news?.description || '' %></textarea>
+                        <small class="text-muted">Uma breve descrição que aparecerá no card da novidade</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Data do Evento</label>
+                                <input type="date" class="form-control" name="date" 
+                                    value="<%= news?.event_date ? news.event_date.toISOString().split('T')[0] : '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Horário do Evento</label>
+                                <input type="time" class="form-control" name="time" 
+                                    value="<%= news?.time || '19:00' %>" required>
+                                <small class="text-muted">Formato 24h (ex: 19:00)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="event" <%= news?.type === 'event' ? 'selected' : '' %>>Evento Regular</option>
+                                    <option value="highlight" <%= news?.type === 'highlight' ? 'selected' : '' %>>Destaque</option>
+                                    <option value="free" <%= news?.type === 'free' ? 'selected' : '' %>>Evento Gratuito</option>
+                                    <option value="course" <%= news?.type === 'course' ? 'selected' : '' %>>Curso</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Plataforma</label>
+                                <select class="form-select" name="platform">
+                                    <option value="">Selecione...</option>
+                                    <option value="Online" <%= news?.platform === 'Online' ? 'selected' : '' %>>Online</option>
+                                    <option value="Presencial" <%= news?.platform === 'Presencial' ? 'selected' : '' %>>Presencial</option>
+                                    <option value="Híbrido" <%= news?.platform === 'Híbrido' ? 'selected' : '' %>>Híbrido</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Detalhes da Plataforma</label>
+                                <input type="text" class="form-control" name="platform_details" 
+                                    value="<%= news?.platform_details || '' %>" 
+                                    placeholder="Ex: Palco Aberto - Discord">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tags</label>
+                        <select class="form-select" name="tags" multiple>
+                            <option value="ASSINANTES" <%= news?.tags?.includes('ASSINANTES') ? 'selected' : '' %>>ASSINANTES</option>
+                            <option value="INTERMEDIÁRIO" <%= news?.tags?.includes('INTERMEDIÁRIO') ? 'selected' : '' %>>INTERMEDIÁRIO</option>
+                            <option value="GRÁTIS" <%= news?.tags?.includes('GRÁTIS') ? 'selected' : '' %>>GRÁTIS</option>
+                            <option value="INICIANTE" <%= news?.tags?.includes('INICIANTE') ? 'selected' : '' %>>INICIANTE</option>
+                            <option value="AVANÇADO" <%= news?.tags?.includes('AVANÇADO') ? 'selected' : '' %>>AVANÇADO</option>
+                        </select>
+                        <small class="text-muted">Pressione CTRL para selecionar múltiplas tags</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Instrutor</label>
+                        <input type="text" class="form-control" name="instructor" 
+                            value="<%= news?.instructor || '' %>" 
+                            placeholder="Nome do instrutor (se aplicável)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Link</label>
+                        <input type="url" class="form-control" name="link" 
+                            value="<%= news?.link || '' %>" 
+                            placeholder="URL para mais informações ou inscrição">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Imagem -->
+                    <div class="mb-3">
+                        <label class="form-label">Imagem</label>
+                        <input type="file" class="form-control" name="image" 
+                            <%= !news ? 'required' : '' %> accept="image/*">
+                        <small class="text-muted">Recomendado: 800x400px</small>
+                        
+                        <% if (news?.image_url) { %>
+                            <div class="mt-2">
+                                <img src="<%= news.image_url %>" class="img-thumbnail" alt="Preview">
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-check form-switch mb-3">
+                        <input type="checkbox" class="form-check-input" name="active" 
+                            id="activeStatus" <%= news?.status === 'active' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="activeStatus">Ativo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <a href="/admin/news" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('newsForm');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Garantir que o horário está sendo enviado
+        const time = formData.get('time');
+        if (!time) {
+            toastr.error('O horário é obrigatório');
+            return;
+        }
+        
+        // Log para debug
+        console.log('Dados do formulário:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ': ' + value);
+        }
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || 'Erro ao salvar novidade');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                toastr.success('Novidade salva com sucesso!');
+                setTimeout(() => window.location.href = '/admin/news', 1000);
+            } else {
+                toastr.error(result.error || 'Erro ao salvar novidade');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            toastr.error(error.message || 'Erro ao processar requisição');
+        }
+    });
+});
+</script> 

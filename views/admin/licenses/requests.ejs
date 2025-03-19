@@ -1,0 +1,226 @@
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-contract"></i> Solicitações de Licença</h2>
+        <a href="/admin/licenses" class="btn btn-outline-primary">
+            <i class="fas fa-key"></i> Ver Licenças
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Abas -->
+            <ul class="nav nav-tabs mb-4" id="licenseTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button" role="tab">
+                        Novas Solicitações
+                        <% if (newRequests.length > 0) { %>
+                            <span class="badge bg-danger ms-2"><%= newRequests.length %></span>
+                        <% } %>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
+                        Aprovadas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+                        Reprovadas
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Conteúdo das Abas -->
+            <div class="tab-content" id="licenseTabsContent">
+                <!-- Novas Solicitações -->
+                <div class="tab-pane fade show active" id="new" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Empresa</th>
+                                    <th>Função</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (newRequests.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Nenhuma solicitação pendente</td>
+                                    </tr>
+                                <% } %>
+                                <% newRequests.forEach(request => { %>
+                                    <tr>
+                                        <td>
+                                            <%= request.user ? request.user.name : 'Usuário Removido' %><br>
+                                            <small class="text-muted"><%= request.user ? request.user.email : 'N/A' %></small>
+                                        </td>
+                                        <td><%= request.company %></td>
+                                        <td><%= request.role %></td>
+                                        <td><%= request.type %></td>
+                                        <td><%= new Date(request.createdAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-success approve-btn" data-id="<%= request._id %>">
+                                                    <i class="fas fa-check"></i> Aprovar
+                                                </button>
+                                                <button class="btn btn-sm btn-danger reject-btn" data-id="<%= request._id %>">
+                                                    <i class="fas fa-times"></i> Rejeitar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Solicitações Aprovadas -->
+                <div class="tab-pane fade" id="approved" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Empresa</th>
+                                    <th>Função</th>
+                                    <th>Tipo</th>
+                                    <th>Data Aprovação</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (approvedRequests.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Nenhuma solicitação aprovada</td>
+                                    </tr>
+                                <% } %>
+                                <% approvedRequests.forEach(request => { %>
+                                    <tr>
+                                        <td>
+                                            <%= request.user ? request.user.name : 'Usuário Removido' %><br>
+                                            <small class="text-muted"><%= request.user ? request.user.email : 'N/A' %></small>
+                                        </td>
+                                        <td><%= request.company %></td>
+                                        <td><%= request.role %></td>
+                                        <td><%= request.type %></td>
+                                        <td><%= new Date(request.updatedAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-success">Aprovada</span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Solicitações Reprovadas -->
+                <div class="tab-pane fade" id="rejected" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Empresa</th>
+                                    <th>Função</th>
+                                    <th>Tipo</th>
+                                    <th>Data Rejeição</th>
+                                    <th>Status</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (rejectedRequests.length === 0) { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center">Nenhuma solicitação reprovada</td>
+                                    </tr>
+                                <% } %>
+                                <% rejectedRequests.forEach(request => { %>
+                                    <tr>
+                                        <td>
+                                            <%= request.user ? request.user.name : 'Usuário Removido' %><br>
+                                            <small class="text-muted"><%= request.user ? request.user.email : 'N/A' %></small>
+                                        </td>
+                                        <td><%= request.company %></td>
+                                        <td><%= request.role %></td>
+                                        <td><%= request.type %></td>
+                                        <td><%= new Date(request.updatedAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-danger">Reprovada</span>
+                                        </td>
+                                        <td><%= request.notes || 'Não informado' %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aprovar solicitação
+    document.querySelectorAll('.approve-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            if (confirm('Deseja aprovar esta solicitação?')) {
+                const id = this.dataset.id;
+                try {
+                    const response = await fetch(`/admin/license-requests/${id}/process`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: 'approved'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar solicitação');
+                }
+            }
+        });
+    });
+
+    // Rejeitar solicitação
+    document.querySelectorAll('.reject-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const notes = prompt('Motivo da rejeição:');
+            if (notes !== null) {
+                const id = this.dataset.id;
+                try {
+                    const response = await fetch(`/admin/license-requests/${id}/process`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: 'rejected',
+                            notes
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar solicitação');
+                }
+            }
+        });
+    });
+});
+</script>

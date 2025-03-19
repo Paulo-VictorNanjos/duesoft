@@ -1,0 +1,742 @@
+<style>
+:root {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --bg-hover: #2d3748;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #818cf8;
+    --border-color: #334155;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: var(--bg-main) !important;
+    padding: 2rem;
+}
+
+/* Cards de Estatísticas */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-body {
+    background: var(--bg-card);
+}
+
+/* Pódio */
+.podium-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 3rem 0;
+}
+
+.podium-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.gold {
+    border-color: #ffd700;
+    transform: scale(1.05);
+    z-index: 3;
+}
+
+.silver {
+    border-color: #c0c0c0;
+    z-index: 2;
+}
+
+.bronze {
+    border-color: #cd7f32;
+    z-index: 1;
+}
+
+.crown {
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
+    color: #ffd700;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.ribbon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.avatar-container {
+    width: 100px;
+    height: 100px;
+    margin: 1rem auto;
+    position: relative;
+    border-radius: 50%;
+    padding: 3px;
+    background: var(--bg-hover);
+}
+
+.avatar-container.large {
+    width: 120px;
+    height: 120px;
+}
+
+.avatar, .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+}
+
+.avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.stat-item {
+    background: var(--bg-hover);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item i {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.podium-card .btn {
+    background: var(--primary);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.podium-card .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.podium-card h5 {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Animação de brilho para o primeiro lugar */
+.gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shine 3s infinite;
+}
+
+/* Tabela de Classificação */
+.table {
+    margin: 0;
+}
+
+.table th {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 1rem;
+    border: none;
+}
+
+.table td {
+    padding: 1rem;
+    border-color: var(--border-color);
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.table-primary {
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Badges e Botões */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 500;
+}
+
+.badge.bg-secondary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.position-badge {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 0 auto;
+    border: 2px solid var(--primary);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Animações */
+@keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-15px); }
+}
+
+@keyframes shine {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+/* Confetes */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--primary);
+    opacity: 0.8;
+    animation: confetti-fall 3s linear infinite;
+}
+
+.confetti:nth-child(2n) {
+    background: var(--secondary);
+    animation-delay: -1.5s;
+}
+
+.confetti:nth-child(3n) {
+    background: var(--warning);
+    animation-delay: -1s;
+}
+
+.confetti:nth-child(4n) {
+    background: var(--success);
+    animation-delay: -2s;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(-100%) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem;
+    }
+
+    .podium-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .podium-card {
+        transform: none !important;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<!-- Adicione os confetes antes do container principal -->
+<div class="confetti-container">
+    <% for(let i = 0; i < 20; i++) { %>
+        <div class="confetti" style="left: <%= Math.random() * 100 %>%; animation-delay: -<%= Math.random() * 3 %>s;"></div>
+    <% } %>
+</div>
+
+<div class="container-fluid py-4">
+    <!-- Search Header -->
+    <div class="container mb-4">
+        <div class="card border-0 shadow-lg">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-4">
+                        <h4 class="mb-0 text-primary d-flex align-items-center">
+                            <i class="fas fa-trophy me-3 fa-lg"></i>
+                            Ranking de Alunos
+                        </h4>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="d-flex gap-3 justify-content-lg-end">
+                            <div class="search-box flex-grow-1">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0">
+                                        <i class="fas fa-search text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control bg-transparent border-start-0 ps-0" 
+                                           placeholder="Buscar aluno...">
+                                </div>
+                            </div>
+                            <select class="form-select bg-transparent text-primary w-auto">
+                                <option value="Todos os Níveis">Todos os Níveis</option>
+                                <option value="Iniciante">Iniciante (1-5)</option>
+                                <option value="Intermediário">Intermediário (6-15)</option>
+                                <option value="Avançado">Avançado (15+)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="container mb-4">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-users fa-lg text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-secondary">Total de Alunos</h6>
+                                <h4 class="mb-0 mt-1"><%= stats.totalUsers.toLocaleString('pt-BR') %></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-graduation-cap fa-lg text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-secondary">Cursos Ativos</h6>
+                                <h4 class="mb-0 mt-1"><%= stats.totalCourses.toLocaleString('pt-BR') %></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-certificate fa-lg text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-secondary">Certificados</h6>
+                                <h4 class="mb-0 mt-1"><%= stats.totalCertificates.toLocaleString('pt-BR') %></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-star fa-lg text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-secondary">XP Total</h6>
+                                <h4 class="mb-0 mt-1"><%= (stats.totalXP/1000).toFixed(1) %>k</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 3 Podium -->
+    <div class="container mb-5">
+        <h4 class="text-center mb-4">
+            <i class="fas fa-crown text-warning me-2"></i>
+            Top 3 Alunos
+        </h4>
+        
+        <div class="row podium-row">
+            <!-- Second Place -->
+            <div class="col-md-4">
+                <% if (podiumUsers[1]) { const user = podiumUsers[1]; %>
+                <div class="card podium-card silver">
+                    <div class="ribbon">
+                        <i class="fas fa-medal"></i> 2º Lugar
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="avatar-container">
+                            <% if (user.profilePicture) { %>
+                                <img src="<%= user.profilePicture %>" class="avatar" alt="<%= user.name %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder"><%= user.name.charAt(0).toUpperCase() %></div>
+                            <% } %>
+                        </div>
+                        <h5 class="mt-3 text-white"><%= user.name %></h5>
+                        <div class="stats mt-3">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span><%= user.completedCoursesCount %> cursos</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-star"></i>
+                                        <span><%= user.totalXP %> XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/profile/<%= user._id %>" class="btn btn-light btn-sm mt-3 w-100">Ver Perfil</a>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- First Place -->
+            <div class="col-md-4">
+                <% if (podiumUsers[0]) { const user = podiumUsers[0]; %>
+                <div class="card podium-card gold">
+                    <div class="crown">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="avatar-container large">
+                            <% if (user.profilePicture) { %>
+                                <img src="<%= user.profilePicture %>" class="avatar" alt="<%= user.name %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder"><%= user.name.charAt(0).toUpperCase() %></div>
+                            <% } %>
+                        </div>
+                        <h5 class="mt-3 text-white"><%= user.name %></h5>
+                        <div class="stats mt-3">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span><%= user.completedCoursesCount %> cursos</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-star"></i>
+                                        <span><%= user.totalXP %> XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/profile/<%= user._id %>" class="btn btn-light btn-sm mt-3 w-100">Ver Perfil</a>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Third Place -->
+            <div class="col-md-4">
+                <% if (podiumUsers[2]) { const user = podiumUsers[2]; %>
+                <div class="card podium-card bronze">
+                    <div class="ribbon">
+                        <i class="fas fa-award"></i> 3º Lugar
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="avatar-container">
+                            <% if (user.profilePicture) { %>
+                                <img src="<%= user.profilePicture %>" class="avatar" alt="<%= user.name %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder"><%= user.name.charAt(0).toUpperCase() %></div>
+                            <% } %>
+                        </div>
+                        <h5 class="mt-3 text-white"><%= user.name %></h5>
+                        <div class="stats mt-3">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span><%= user.completedCoursesCount %> cursos</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-item">
+                                        <i class="fas fa-star"></i>
+                                        <span><%= user.totalXP %> XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/profile/<%= user._id %>" class="btn btn-light btn-sm mt-3 w-100">Ver Perfil</a>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 20 List -->
+    <div class="container">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-transparent py-3">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-list me-2"></i>
+                    Classificação (4º ao 20º lugar)
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 80px">Posição</th>
+                            <th>Aluno</th>
+                            <th class="text-center">Nível</th>
+                            <th class="text-center">Cursos</th>
+                            <th class="text-center">XP</th>
+                            <th class="text-end" style="width: 100px">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.slice(3, 20).forEach(user => { %>
+                        <tr class="<%= user._id.toString() === locals.user._id.toString() ? 'table-primary' : '' %>">
+                            <td class="text-center">
+                                <div class="position-badge">
+                                    <%= user.rank %>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative">
+                                        <% if (user.profilePicture) { %>
+                                        <img src="<%= user.profilePicture %>" class="rounded-circle" 
+                                             width="40" height="40" alt="<%= user.name %>">
+                                        <% } else { %>
+                                        <div class="avatar-small">
+                                            <%= user.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold"><%= user.name %></div>
+                                        <small class="text-secondary"><%= user.category %></small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">
+                                    <%= Math.floor(user.totalXP / 1000) + 1 %>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-graduation-cap text-primary"></i>
+                                    <span><%= user.completedCoursesCount %></span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <span><%= user.totalXP %></span>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <a href="/profile/<%= user._id %>" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-user me-1"></i> Perfil
+                                </a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Usuários do Pódio:', <%= JSON.stringify(podiumUsers) %>); // Log dos usuários do pódio
+
+    // Elementos do DOM
+    const searchInput = document.querySelector('input[type="text"]');
+    const levelSelect = document.querySelector('select');
+    const podiumCards = document.querySelectorAll('.podium-card');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    // Função principal de filtro
+    function filterElements() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedLevel = levelSelect.value;
+
+        // Filtrar cards do pódio
+        podiumCards.forEach(card => {
+            const name = card.querySelector('h5').textContent.toLowerCase();
+            const xp = parseInt(card.querySelector('.fa-star').closest('.stat-item').textContent);
+            const level = Math.floor(xp / 1000) + 1;
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesLevel = selectedLevel === 'Todos os Níveis' || getLevelCategory(level) === selectedLevel;
+            
+            card.closest('.col-md-4').style.display = 
+                (matchesSearch && matchesLevel) ? 'flex' : 'none';
+        });
+
+        // Filtrar linhas da tabela
+        let visibleRank = 4;
+        tableRows.forEach(row => {
+            const name = row.querySelector('.fw-bold').textContent.toLowerCase();
+            const xp = parseInt(row.querySelector('.fa-star').nextElementSibling.textContent);
+            const level = Math.floor(xp / 1000) + 1;
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesLevel = selectedLevel === 'Todos os Níveis' || getLevelCategory(level) === selectedLevel;
+            
+            if (matchesSearch && matchesLevel) {
+                row.style.display = '';
+                // Atualiza o número de ranking
+                const rankBadge = row.querySelector('.badge');
+                if (rankBadge) {
+                    rankBadge.textContent = `${visibleRank}º`;
+                    visibleRank++;
+                }
+                row.style.animation = 'slideIn 0.3s ease';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Função para determinar a categoria do nível
+    function getLevelCategory(level) {
+        if (level <= 5) return 'Iniciante';
+        if (level <= 15) return 'Intermediário';
+        return 'Avançado';
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', filterElements);
+    levelSelect.addEventListener('change', filterElements);
+
+    // Inicializa tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Animação das barras de progresso
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+
+    // Animação inicial dos cards e linhas
+    function addInitialAnimations() {
+        podiumCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.style.animation = 'slideIn 0.3s ease backwards';
+        });
+
+        tableRows.forEach((row, index) => {
+            row.style.animationDelay = `${index * 0.05}s`;
+            row.style.animation = 'slideIn 0.3s ease backwards';
+        });
+    }
+
+    addInitialAnimations();
+});
+</script>

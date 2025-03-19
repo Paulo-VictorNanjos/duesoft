@@ -1,0 +1,372 @@
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestão de Mentoria</h1>
+        <div>
+            <a href="/admin/mentors/new" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Novo Mentor
+            </a>
+            <a href="/admin/mentoring/reports" class="btn btn-outline-primary">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensagens de Sucesso/Erro -->
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Mentores</h5>
+                    <h2><%= mentors.length %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sessões Pendentes</h5>
+                    <h2><%= pendingSessions %></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Mentores Ativos</h5>
+                    <h2><%= mentors.filter(m => m.active).length %></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Mentores -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Mentores Cadastrados</h5>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Mentor</th>
+                            <th>Especialidades</th>
+                            <th>Avaliação</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (mentors && mentors.length > 0) { %>
+                            <% mentors.forEach(mentor => { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <% if (mentor.user.profilePicture) { %>
+                                                <img src="<%= mentor.user.profilePicture %>" 
+                                                     class="rounded-circle me-2" 
+                                                     width="40" 
+                                                     height="40"
+                                                     alt="Profile">
+                                            <% } else { %>
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 40px; height: 40px;">
+                                                    <%= mentor.user.name.charAt(0).toUpperCase() %>
+                                                </div>
+                                            <% } %>
+                                            <div>
+                                                <strong><%= mentor.user.name %></strong>
+                                                <small class="d-block text-muted"><%= mentor.user.email %></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% mentor.specialties.forEach(specialty => { %>
+                                            <span class="badge bg-primary me-1"><%= specialty %></span>
+                                        <% }) %>
+                                    </td>
+                                    <td>
+                                        <% if (mentor.rating && mentor.reviewsCount) { %>
+                                            <%= mentor.rating.toFixed(1) %> ⭐
+                                            (<%= mentor.reviewsCount %> avaliações)
+                                        <% } else { %>
+                                            Sem avaliações
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<%= mentor.active ? 'success' : 'warning' %>">
+                                            <%= mentor.active ? 'Ativo' : 'Inativo' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <% if (!mentor.active) { %>
+                                                <button class="btn btn-sm btn-success" 
+                                                        onclick="updateMentorStatus('<%= mentor._id %>', 'approve')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <button class="btn btn-sm btn-warning"
+                                                        onclick="updateMentorStatus('<%= mentor._id %>', 'reject')">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            <% } %>
+                                            <button class="btn btn-sm btn-info" 
+                                                    onclick="viewMentorDetails('<%= mentor._id %>')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    Nenhum mentor cadastrado
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes do Mentor -->
+<div class="modal fade" id="mentorDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Mentor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="mentorDetailsContent">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateMentorStatus(mentorId, status) {
+    try {
+        const response = await fetch(`/admin/mentoring/mentors/${mentorId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            toastr.success('Status do mentor atualizado com sucesso!');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            toastr.error(data.error || 'Erro ao atualizar status');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        toastr.error('Erro ao processar solicitação');
+    }
+}
+
+function viewMentorDetails(mentorId) {
+    // Implementar visualização detalhada do mentor
+    const modal = new bootstrap.Modal(document.getElementById('mentorDetailsModal'));
+    modal.show();
+}
+
+// Atualizar contador de solicitações pendentes
+document.addEventListener('DOMContentLoaded', function() {
+    const badge = document.getElementById('mentorRequestsCount');
+    if (badge) {
+        badge.textContent = '<%= pendingSessions %>';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-fechar alertas após 5 segundos
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
+
+<style>
+:root {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --bg-hover: #2d3748;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #818cf8;
+    --border-color: #334155;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+}
+
+.container-fluid {
+    padding: 2rem;
+}
+
+/* Cards e Tabelas */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.card h2 {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.table {
+    color: var(--text-primary);
+}
+
+.table thead th {
+    background: var(--bg-hover);
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+/* Badges e Botões */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 500;
+}
+
+.badge.bg-primary {
+    background: var(--primary) !important;
+}
+
+.badge.bg-success {
+    background: var(--success) !important;
+}
+
+.badge.bg-warning {
+    background: var(--warning) !important;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Modal */
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header .btn-close {
+    color: var(--text-primary);
+}
+
+/* Alertas */
+.alert {
+    border-radius: 1rem;
+    border: none;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Perfil */
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+</style> 

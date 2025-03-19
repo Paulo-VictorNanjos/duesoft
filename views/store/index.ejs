@@ -1,0 +1,603 @@
+<!-- Header da Loja -->
+<div class="store-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="store-title">Loja Virtual</h1>
+                <p class="store-description">Use suas moedas para resgatar itens exclusivos e recompensas especiais</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="wallet-card">
+                    <div class="wallet-balance">
+                        <i class="fas fa-coins"></i>
+                        <div class="balance-info">
+                            <span class="balance-label">Seu Saldo</span>
+                            <span class="balance-value"><%= wallet ? wallet.balance : 0 %> <%= currency ? currency.symbol : '' %></span>
+                        </div>
+                    </div>
+                    <a href="/virtual-currency/wallet" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-wallet me-2"></i>Ver Carteira
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Conteúdo da Loja -->
+<div class="store-content">
+    <div class="container">
+        <div class="row">
+            <!-- Filtros -->
+            <div class="col-12 col-lg-3">
+                <div class="filters-card">
+                    <div class="filters-header">
+                        <h5><i class="fas fa-filter me-2"></i>Filtros</h5>
+                    </div>
+                    
+                    <!-- Busca -->
+                    <div class="filter-section">
+                        <label class="filter-label">Buscar</label>
+                        <div class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar itens...">
+                        </div>
+                    </div>
+                    
+                    <!-- Categorias -->
+                    <div class="filter-section">
+                        <label class="filter-label">Categoria</label>
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">Todas as Categorias</option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category %>"><%= category %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    
+                    <!-- Ordenação -->
+                    <div class="filter-section">
+                        <label class="filter-label">Ordenar por</label>
+                        <select class="form-select" id="sortFilter">
+                            <option value="name">Nome</option>
+                            <option value="price-asc">Menor Preço</option>
+                            <option value="price-desc">Maior Preço</option>
+                            <option value="stock">Estoque</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Produtos -->
+            <div class="col-12 col-lg-9">
+                <div class="row g-4" id="productsList">
+                    <% items.forEach(item => { %>
+                        <div class="col-12 col-md-6 col-lg-4 product-card" 
+                             data-name="<%= item.name.toLowerCase() %>"
+                             data-category="<%= item.category %>"
+                             data-price="<%= item.price %>"
+                             data-stock="<%= item.stock %>">
+                            <div class="item-card">
+                                <div class="item-image">
+                                    <% if (item.image) { %>
+                                        <img src="<%= item.image %>" alt="<%= item.name %>">
+                                    <% } else { %>
+                                        <div class="no-image">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    <% } %>
+                                    <% if (item.category) { %>
+                                        <span class="item-category"><%= item.category %></span>
+                                    <% } %>
+                                </div>
+                                <div class="item-content">
+                                    <h3 class="item-title"><%= item.name %></h3>
+                                    <p class="item-description text-truncate"><%= item.description %></p>
+                                    <div class="item-footer">
+                                        <div class="item-price">
+                                            <i class="fas fa-coins"></i>
+                                            <span><%= item.price %> <%= currency ? currency.symbol : '' %></span>
+                                        </div>
+                                        <button class="btn btn-primary <%= item.stock === 0 ? 'disabled' : '' %>" 
+                                                onclick="showItemDetails('<%= item._id %>')"
+                                                <%= item.stock === 0 ? 'disabled' : '' %>>
+                                            <% if (item.stock === 0) { %>
+                                                <i class="fas fa-times-circle"></i>
+                                                Esgotado
+                                            <% } else { %>
+                                                <i class="fas fa-shopping-cart"></i>
+                                                Comprar
+                                            <% } %>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes -->
+<div class="modal fade" id="itemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="modal-image-container">
+                            <img id="modalImage" src="" class="img-fluid rounded">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 id="modalTitle" class="mb-3"></h4>
+                        <p id="modalDescription" class="mb-4"></p>
+                        
+                        <div class="item-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Preço:</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-coins"></i>
+                                    <span id="modalPrice"></span> <%= currency ? currency.symbol : '' %>
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Estoque:</span>
+                                <span id="modalStock" class="badge"></span>
+                            </div>
+                        </div>
+
+                        <div class="wallet-status alert alert-info mt-4">
+                            <i class="fas fa-wallet me-2"></i>
+                            Seu saldo: <strong><%= wallet ? wallet.balance : 0 %> <%= currency ? currency.symbol : '' %></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+                <button type="button" class="btn btn-primary" id="buyButton">
+                    <i class="fas fa-shopping-cart"></i> Comprar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Header da Loja */
+.store-header {
+    background: linear-gradient(45deg, var(--primary), var(--primary-hover));
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.store-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.store-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.wallet-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.wallet-balance {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.wallet-balance i {
+    font-size: 2rem;
+    color: #FFD700;
+}
+
+.balance-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.balance-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.balance-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Filtros */
+.filters-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.filters-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filter-section {
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.search-input {
+    position: relative;
+}
+
+.search-input i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.search-input input {
+    padding-left: 2.5rem;
+}
+
+/* Cards de Produtos */
+.item-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.item-image {
+    position: relative;
+    padding-top: 75%;
+    background: var(--bg-main);
+}
+
+.item-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-main);
+    color: var(--text-secondary);
+}
+
+.no-image i {
+    font-size: 2rem;
+}
+
+.item-category {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.item-content {
+    padding: 1.5rem;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.item-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.item-price i {
+    color: #FFD700;
+}
+
+/* Modal */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+}
+
+.modal-image-container {
+    position: relative;
+    padding-top: 75%;
+    background: var(--bg-main);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.modal-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
+    background: var(--bg-main);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.detail-row:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-label {
+    color: var(--text-secondary);
+}
+
+.detail-value {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-value i {
+    color: #FFD700;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .store-header {
+        padding: 2rem 0;
+    }
+
+    .store-title {
+        font-size: 2rem;
+    }
+
+    .wallet-card {
+        margin-top: 2rem;
+    }
+
+    .modal-dialog {
+        margin: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtrar produtos
+    function filterProducts() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const category = document.getElementById('categoryFilter').value;
+        const sort = document.getElementById('sortFilter').value;
+        
+        const cards = document.querySelectorAll('.product-card');
+        
+        cards.forEach(card => {
+            const name = card.dataset.name;
+            const itemCategory = card.dataset.category;
+            const price = parseFloat(card.dataset.price);
+            const stock = parseInt(card.dataset.stock);
+            
+            let show = true;
+            
+            // Filtro de busca
+            if (search && !name.includes(search)) {
+                show = false;
+            }
+            
+            // Filtro de categoria
+            if (category && itemCategory !== category) {
+                show = false;
+            }
+            
+            card.style.display = show ? '' : 'none';
+        });
+        
+        // Ordenação
+        const productsList = document.getElementById('productsList');
+        const cardsArray = Array.from(cards);
+        
+        cardsArray.sort((a, b) => {
+            switch (sort) {
+                case 'name':
+                    return a.dataset.name.localeCompare(b.dataset.name);
+                case 'price-asc':
+                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                case 'price-desc':
+                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                case 'stock':
+                    return parseInt(b.dataset.stock) - parseInt(a.dataset.stock);
+                default:
+                    return 0;
+            }
+        });
+        
+        cardsArray.forEach(card => {
+            productsList.appendChild(card);
+        });
+    }
+
+    // Adicionar eventos aos filtros
+    document.getElementById('searchInput').addEventListener('input', filterProducts);
+    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+    document.getElementById('sortFilter').addEventListener('change', filterProducts);
+
+    // Mostrar detalhes do item
+    window.showItemDetails = async function(itemId) {
+        try {
+            const response = await fetch(`/store/items/${itemId}`);
+            const data = await response.json();
+            
+            if (!data.success) {
+                Swal.fire('Erro', data.error || 'Erro ao carregar detalhes do item', 'error');
+                return;
+            }
+            
+            const item = data.item;
+            window.currentItem = item;
+            
+            // Atualizar elementos do modal
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalPrice = document.getElementById('modalPrice');
+            const modalStock = document.getElementById('modalStock');
+            const modalImage = document.getElementById('modalImage');
+            const buyButton = document.getElementById('buyButton');
+            
+            if (modalTitle) modalTitle.textContent = item.name;
+            if (modalDescription) modalDescription.textContent = item.description;
+            if (modalPrice) modalPrice.textContent = item.price;
+            
+            if (modalStock) {
+                modalStock.textContent = `${item.stock} em estoque`;
+                modalStock.className = `badge bg-${item.stock > 0 ? 'success' : 'danger'}`;
+            }
+            
+            if (modalImage) {
+                if (item.image) {
+                    modalImage.src = item.image;
+                    modalImage.style.display = '';
+                } else {
+                    modalImage.style.display = 'none';
+                }
+            }
+            
+            if (buyButton) {
+                buyButton.disabled = item.stock === 0;
+                buyButton.onclick = handleBuyClick;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('itemModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            Swal.fire('Erro', 'Erro ao carregar detalhes do item', 'error');
+        }
+    }
+
+    // Função para lidar com o clique no botão de compra
+    async function handleBuyClick() {
+        if (!window.currentItem) return;
+        
+        try {
+            const response = await fetch('/store/buy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    itemId: window.currentItem._id
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                Swal.fire({
+                    title: 'Sucesso!',
+                    text: 'Item comprado com sucesso!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                if (response.status === 400 && result.error === 'Saldo insuficiente') {
+                    Swal.fire({
+                        title: 'Saldo Insuficiente',
+                        text: 'Você não tem saldo suficiente para realizar esta compra. Ganhe mais moedas completando atividades na plataforma!',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        showCancelButton: true,
+                        cancelButtonText: 'Ver Carteira',
+                        cancelButtonColor: '#3085d6'
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/virtual-currency/wallet';
+                        }
+                    });
+                } else {
+                    Swal.fire('Erro', result.error || 'Erro ao processar compra', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            Swal.fire('Erro', 'Erro ao processar compra', 'error');
+        }
+    }
+});
+</script> 

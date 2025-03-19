@@ -1,0 +1,189 @@
+<section id="testimonials" class="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <h2>O que dizem nossos alunos</h2>
+            <p>Depoimentos de quem já transformou sua carreira com nossos cursos</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <!-- Depoimento 1 -->
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="quote-icon">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"O curso superou todas as minhas expectativas. A qualidade do conteúdo e o suporte da equipe foram excepcionais."</p>
+                </div>
+                <div class="testimonial-author">
+                    <img src="uploads/perfil3.png" alt="Maria Silva">
+                    <div class="author-info">
+                        <h4>Maria Silva</h4>
+                        <p>Desenvolvedora Web</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depoimento 2 -->
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="quote-icon">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"Consegui mudar de carreira graças aos cursos. A metodologia prática fez toda a diferença no meu aprendizado."</p>
+                </div>
+                <div class="testimonial-author">
+                    <img src="uploads/perfil2.png" alt="João Santos">
+                    <div class="author-info">
+                        <h4>Evelyn</h4>
+                        <p>Analista de Dados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depoimento 3 -->
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="quote-icon">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"A plataforma é incrível! Os projetos práticos me ajudaram a construir um portfólio sólido."</p>
+                </div>
+                <div class="testimonial-author">
+                    <img src="uploads/perfil1.png" alt="Ana Oliveira">
+                    <div class="author-info">
+                        <h4>João Felipe</h4>
+                        <p>UX Designer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../components/wave-divider') %>
+</section>
+
+<style>
+.testimonials {
+    position: relative;
+    padding: 6rem 0;
+    background: var(--dark-color);
+    overflow: hidden;
+}
+
+.testimonials::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, var(--primary-color) 0%, transparent 70%);
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.section-header h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.25rem;
+    color: var(--gray-300);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.testimonial-card {
+    background: var(--gray-900);
+    border: 1px solid var(--gray-800);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.15);
+}
+
+.quote-icon {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.testimonial-content p {
+    color: var(--gray-300);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    font-style: italic;
+    margin-bottom: 2rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid var(--gray-800);
+    padding-top: 1.5rem;
+}
+
+.testimonial-author img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.author-info h4 {
+    color: var(--light-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.author-info p {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .testimonials {
+        padding: 4rem 0;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+</style> 

@@ -1,0 +1,967 @@
+<!-- views/exams/take.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Prova: <%= exam.title %></title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* Reset completo para garantir que nenhum estilo externo afete */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Esconder elementos do layout principal se ainda aparecerem */
+        #main-navbar,
+        .main-header,
+        .topbar,
+        .sidebar {
+            display: none !important;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --bg-main: #f5f5f5;
+            --bg-card: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --hover-color: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .exam-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .exam-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 9999;
+        }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .timer i {
+            font-size: 1rem;
+        }
+
+        .question-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem auto 0;
+            max-width: 800px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-item {
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .option-item.selected {
+            background: var(--hover-color);
+            border-color: var(--primary);
+            border-width: 2px;
+            padding: calc(1.25rem - 1px);
+        }
+
+        .option-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .option-item.selected::before {
+            opacity: 1;
+        }
+
+        .option-item input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            margin: 0;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item input[type="radio"]:checked {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        .option-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .option-item label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        /* Letras das alternativas */
+        .option-letter {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+            min-width: 30px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+        }
+
+        .warning-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1999;
+        }
+
+        .question-image-container {
+            margin: 1rem 0;
+            text-align: center;
+            max-height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            object-fit: contain;
+            object-position: center;
+        }
+
+        /* Loader melhorado */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-main);
+            display: none; /* Inicialmente oculto */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Layout principal */
+        .exam-wrapper {
+            padding-top: 60px; /* Espaço para o header fixo */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 80px; /* Espaço para a navegação */
+        }
+
+        .exam-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 9999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .exam-header h1 {
+            font-size: 1.25rem;
+            margin: 0;
+            flex: 1;
+        }
+
+        .exam-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Botões melhorados */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Botão para expandir imagem */
+        .expand-image {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal para imagem expandida */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Estilos para questões dissertativas */
+        .essay-section {
+            margin-top: 2rem;
+        }
+
+        .essay-base-text {
+            background: var(--hover-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .essay-answer-container {
+            margin-top: 1.5rem;
+        }
+
+        .essay-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .essay-answer {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: var(--bg-card);
+        }
+
+        .essay-answer:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .character-counter {
+            margin-top: 0.5rem;
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .character-counter.limit-near {
+            color: var(--warning);
+        }
+
+        .character-counter.limit-reached {
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <p>Carregando prova...</p>
+    </div>
+
+    <!-- Modal de Aviso Inicial -->
+    <div class="warning-modal" id="startModal">
+        <h2>Atenção!</h2>
+        <p>Você está prestes a iniciar a prova. Algumas regras importantes:</p>
+        <ul>
+            <li>Não é permitido sair desta tela durante a prova</li>
+            <li>Você tem <%= exam.timeLimit %> minutos para concluir</li>
+            <li>São <%= exam.questions.length %> questões no total</li>
+            <li>Nota mínima para aprovação: <%= exam.minimumScore %>%</li>
+        </ul>
+        <button class="btn btn-primary" onclick="startExam()">
+            Iniciar Prova
+        </button>
+    </div>
+    <div class="overlay" id="modalOverlay"></div>
+
+    <!-- Conteúdo da Prova -->
+    <div class="exam-wrapper" id="examContent">
+        <div class="exam-header">
+            <h1><%= exam.title %></h1>
+            <div class="exam-info">
+                <span class="question-counter" id="questionCounter">
+                    Questão 1 de <%= exam.questions.length %>
+                </span>
+                <div class="timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="timer">00:00</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="examForm">
+            <% exam.questions.forEach((question, index) => { %>
+                <div class="question-container" id="question-<%= index %>">
+                    <h3>Questão <%= index + 1 %></h3>
+                    <p class="question-text"><%= question.questionText %></p>
+                    
+                    <% if (question.type === 'essay') { %>
+                        <div class="essay-section">
+                            <% if (question.baseText) { %>
+                                <div class="essay-base-text">
+                                    <%= question.baseText %>
+                                </div>
+                            <% } %>
+                            
+                            <div class="essay-answer-container">
+                                <label class="essay-label" for="essay-<%= index %>">Sua Resposta:</label>
+                                <textarea 
+                                    class="essay-answer" 
+                                    id="essay-<%= index %>"
+                                    name="question-<%= index %>"
+                                    maxlength="<%= question.maxLength || 2000 %>"
+                                    placeholder="Digite sua resposta aqui..."
+                                    onkeyup="updateCharacterCount(this, <%= index %>)"
+                                ></textarea>
+                                <div class="character-counter" id="counter-<%= index %>">
+                                    0/<%= question.maxLength || 2000 %> caracteres
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <% if (question.image) { %>
+                            <div class="question-image-container">
+                                <img src="<%= question.image %>" 
+                                     alt="Imagem da Questão <%= index + 1 %>" 
+                                     class="question-image">
+                                <button class="expand-image" onclick="expandImage('<%= question.image %>')">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        <% } %>
+
+                        <div class="options-list">
+                            <% question.options.forEach((option, optIndex) => { %>
+                                <div class="option-item">
+                                    <span class="option-letter"><%= String.fromCharCode(65 + optIndex) %></span>
+                                    <input
+                                        type="radio" 
+                                        name="question-<%= index %>" 
+                                        value="<%= optIndex %>" 
+                                        id="option-<%= index %>-<%= optIndex %>"
+                                        onchange="selectOption(<%= index %>, <%= optIndex %>)">
+                                    <label for="option-<%= index %>-<%= optIndex %>">
+                                        <%= option.text %>
+                                    </label>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </form>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" 
+                    onclick="previousQuestion()"
+                    id="prevButton" 
+                    disabled>
+                <i class="fas fa-arrow-left me-2"></i>Anterior
+            </button>
+            
+            <button class="btn btn-primary" 
+                    onclick="nextQuestion()"
+                    id="nextButton">
+                Próxima<i class="fas fa-arrow-right ms-2"></i>
+            </button>
+            
+            <button class="btn btn-success" 
+                    onclick="submitExam()"
+                    id="submitButton" 
+                    style="display: none;">
+                Finalizar Prova<i class="fas fa-check ms-2"></i>
+            </button>
+        </div>
+
+    <script>
+        // Prevenir voltar página
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+
+        // Variáveis globais
+        let examStarted = false;
+        let timeLeft = <%= exam.timeLimit %> * 60;
+        let currentQuestionIndex = 0;
+        let answers = new Array(<%= exam.questions.length %>).fill(null);
+
+        // Carregar respostas salvas se existirem
+        <% if (attempt && attempt.answers) { %>
+            answers = <%= JSON.stringify(attempt.answers.map(a => a.selectedOption)) %>;
+        <% } %>
+        
+        // Prevenção de saída da tela
+        document.addEventListener('keydown', function(e) {
+            // Prevenir F12, Ctrl+Shift+I, etc
+            if (
+                e.keyCode === 123 || // F12
+                (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
+                (e.ctrlKey && e.keyCode === 85) // Ctrl+U
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Prevenir clique direito
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Detectar mudança de foco da janela
+        document.addEventListener('visibilitychange', function() {
+            if (examStarted && document.hidden) {
+                // Registrar tentativa de saída
+                warnUserAboutLeaving();
+            }
+        });
+
+        // Funções de controle da prova
+        function startExam() {
+            document.getElementById('startModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('examContent').style.display = 'block';
+            examStarted = true;
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const timer = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            // Remover seleção anterior
+            document.querySelectorAll(`#question-${questionIndex} .option-item`).forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Adicionar nova seleção
+            const option = document.querySelector(`#question-${questionIndex} input[value="${optionIndex}"]`).closest('.option-item');
+            option.classList.add('selected');
+            
+            // Salvar resposta
+            answers[questionIndex] = optionIndex;
+        }
+
+        const totalQuestions = <%= exam.questions.length %>;
+
+        function updateNavigationButtons() {
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            const submitButton = document.getElementById('submitButton');
+
+            // Hide prev button if we're on the first question
+            prevButton.style.display = currentQuestionIndex === 0 ? 'none' : 'inline-block';
+            prevButton.disabled = currentQuestionIndex === 0;
+
+            // For single question exams, show submit button immediately and hide next button
+            if (totalQuestions === 1) {
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'inline-block';
+                return;
+            }
+
+            // For multi-question exams
+            if (currentQuestionIndex === totalQuestions - 1) {
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'inline-block';
+                submitButton.style.display = 'none';
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                document.getElementById(`question-${currentQuestionIndex}`).style.display = 'none';
+                currentQuestionIndex--;
+                document.getElementById(`question-${currentQuestionIndex}`).style.display = 'block';
+                updateNavigationButtons();
+                updateQuestionCounter();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                document.getElementById(`question-${currentQuestionIndex}`).style.display = 'none';
+                currentQuestionIndex++;
+                document.getElementById(`question-${currentQuestionIndex}`).style.display = 'block';
+                updateNavigationButtons();
+                updateQuestionCounter();
+            }
+        }
+
+        // Update question counter display
+        function updateQuestionCounter() {
+            document.getElementById('questionCounter').textContent = 
+                `Questão ${currentQuestionIndex + 1} de ${totalQuestions}`;
+        }
+
+        function submitExam() {
+            if (!confirm('Tem certeza que deseja enviar a prova?')) return;
+            
+            const timeSpent = (<%= exam.timeLimit %> * 60) - timeLeft;
+            const answers = [];
+            
+            // Coleta respostas baseado no tipo de questão
+            document.querySelectorAll('.question-container').forEach((questionDiv, index) => {
+                if (questionDiv.querySelector('.essay-answer')) {
+                    const textAnswer = questionDiv.querySelector('.essay-answer').value;
+                    answers.push(textAnswer);
+                } else {
+                    const selectedOption = questionDiv.querySelector('input[type="radio"]:checked');
+                    answers.push(selectedOption ? selectedOption.value : null);
+                }
+            });
+            
+            fetch(`/exams/<%= exam._id %>/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    answers: answers,
+                    timeSpent
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.status === 'pending_review') {
+                        window.location.href = '/exams/<%= exam._id %>/pending-review';
+                    } else {
+                        window.location.href = '/exams/<%= exam._id %>/result';
+                    }
+                } else {
+                    throw new Error(data.message || 'Erro ao enviar prova');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert(error.message);
+            });
+        }
+
+        function warnUserAboutLeaving() {
+            // Registrar tentativa de saída
+            fetch('/exams/<%= exam._id %>/attempt-leave', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timeStamp: new Date(),
+                    timeRemaining: timeLeft
+                })
+            });
+
+            // Mostrar aviso
+            const warningModal = document.createElement('div');
+            warningModal.className = 'warning-modal';
+            warningModal.innerHTML = `
+                <h3>Atenção!</h3>
+                <p>Foi detectada uma tentativa de sair da tela da prova.</p>
+                <p>Isso será registrado e pode resultar em desqualificação.</p>
+                <button class="btn btn-primary" onclick="this.parentElement.remove()">
+                    Entendi
+                </button>
+            `;
+            document.body.appendChild(warningModal);
+        }
+
+        // Função para detectar tela cheia
+        function requestFullScreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+        }
+
+        // Função para verificar se ainda está em tela cheia
+        function checkFullScreen() {
+            if (!document.fullscreenElement && examStarted) {
+                warnUserAboutLeaving();
+                requestFullScreen();
+            }
+        }
+
+        // Monitorar mudanças na tela cheia
+        document.addEventListener('fullscreenchange', checkFullScreen);
+        document.addEventListener('webkitfullscreenchange', checkFullScreen);
+        document.addEventListener('mozfullscreenchange', checkFullScreen);
+        document.addEventListener('MSFullscreenChange', checkFullScreen);
+
+        // Desabilitar atalhos do navegador
+        window.addEventListener('keyup', function(e) {
+            if (examStarted) {
+                if (e.key == 'PrintScreen') {
+                    navigator.clipboard.writeText('');
+                    warnUserAboutLeaving();
+                }
+            }
+        });
+
+        // Desabilitar copiar/colar
+        document.addEventListener('copy', function(e) {
+            if (examStarted) {
+                e.preventDefault();
+                warnUserAboutLeaving();
+            }
+        });
+
+        document.addEventListener('paste', function(e) {
+            if (examStarted) {
+                e.preventDefault();
+                warnUserAboutLeaving();
+            }
+        });
+
+        // Verificar periodicamente se o usuário está ativo
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                if (examStarted) {
+                    const warningModal = document.createElement('div');
+                    warningModal.className = 'warning-modal';
+                    warningModal.innerHTML = `
+                        <h3>Você está aí?</h3>
+                        <p>Nenhuma atividade detectada nos últimos minutos.</p>
+                        <p>A prova será automaticamente enviada em 30 segundos se não houver interação.</p>
+                        <button class="btn btn-primary" onclick="confirmActivity(this)">
+                            Continuar Prova
+                        </button>
+                    `;
+                    document.body.appendChild(warningModal);
+                    
+                    // Timer para envio automático
+                    setTimeout(() => {
+                        if (document.contains(warningModal)) {
+                            submitExam();
+                        }
+                    }, 30000);
+                }
+            }, 300000); // 5 minutos de inatividade
+        }
+
+        function confirmActivity(button) {
+            button.parentElement.remove();
+            resetInactivityTimer();
+        }
+
+        // Reiniciar timer de inatividade em qualquer interação
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        // Confirmar saída da página
+        window.onbeforeunload = function(e) {
+            if (examStarted) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        };
+
+        // Inicializar a prova
+        window.onload = function() {
+            // Show first question, hide others
+            for(let i = 0; i < totalQuestions; i++) {
+                document.getElementById(`question-${i}`).style.display = 
+                    i === 0 ? 'block' : 'none';
+            }
+            updateNavigationButtons();
+            updateQuestionCounter();
+
+            // Verificar suporte a tela cheia
+            if (!document.fullscreenEnabled) {
+                alert('Seu navegador não suporta modo tela cheia. Por favor, use um navegador moderno.');
+            }
+
+            // Remover loader quando a página carregar
+            document.getElementById('loader').style.display = 'none';
+        };
+
+        // Funções para manipular o modal de imagem
+        function expandImage(src) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('expandedImage');
+            img.src = src;
+            modal.style.display = 'flex';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Fechar modal ao clicar fora da imagem
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // Função para atualizar contador de caracteres
+        function updateCharacterCount(textarea, questionIndex) {
+            const counter = document.getElementById(`counter-${questionIndex}`);
+            const maxLength = textarea.maxLength;
+            const currentLength = textarea.value.length;
+            const remaining = maxLength - currentLength;
+            
+            counter.textContent = `${currentLength}/${maxLength} caracteres`;
+            
+            // Atualizar classes baseado no limite
+            counter.classList.remove('limit-near', 'limit-reached');
+            if (currentLength >= maxLength) {
+                counter.classList.add('limit-reached');
+            } else if (currentLength >= maxLength * 0.9) {
+                counter.classList.add('limit-near');
+            }
+            
+            // Salvar resposta
+            answers[questionIndex] = textarea.value;
+        }
+        
+        // Auto-expandir textarea
+        document.querySelectorAll('.essay-answer').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight + 2) + 'px';
+            });
+        });
+    </script>
+
+    <!-- Adicione o modal no final do body -->
+    <div class="image-modal" id="imageModal">
+        <button class="close-modal" onclick="closeImageModal()">×</button>
+        <img id="expandedImage" src="" alt="Imagem expandida">
+    </div>
+</body>
+</html>

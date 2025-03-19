@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - LMS DUESOFT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --navbar-height: 70px;
+            --transition-speed: 0.2s;
+            --primary-color: #138ACF;
+            --primary-hover: #0D6EAB;
+            --primary-rgb: 19, 138, 207;
+            --border-rgb: 226, 232, 240;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --bg-main: #F8FAFC;
+            --bg-sidebar: #ffffff;
+            --bg-navbar: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --border-color: #E2E8F0;
+            --hover-color: rgba(19, 138, 207, 0.08);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --focus-bg: #000000;
+            --focus-color: #138ACF;
+            --focus-border: #138ACF;
+            --focus-shadow: rgba(19, 138, 207, 0.25);
+        }
+
+        [data-bs-theme="dark"] {
+            --primary-rgb: 19, 138, 207;
+            --border-rgb: 45, 55, 72;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --bg-main: #0F172A;
+            --bg-sidebar: #1E293B;
+            --bg-navbar: rgba(30, 41, 59, 0.9);
+            --bg-card: #1E293B;
+            --border-color: #2D3748;
+            --hover-color: rgba(19, 138, 207, 0.15);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color var(--transition-speed) ease;
+        }
+
+        /* Navbar */
+        .admin-navbar {
+            height: var(--navbar-height);
+            background: var(--bg-navbar);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Brand Styles */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 24px;
+            border-right: 1px solid var(--border-color);
+            height: 100%;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(19, 138, 207, 0.2);
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            font-weight: 600;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+            text-transform: capitalize;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+        }
+
+        /* Search Bar */
+        .search-wrapper {
+            position: relative;
+            width: 400px;
+            margin: 0 24px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            height: 42px;
+            padding: 0 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .search-wrapper input:focus {
+            background: var(--bg-main);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(19, 138, 207, 0.1);
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+
+        .shortcut-hint {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            pointer-events: none;
+        }
+
+        /* Navbar Actions */
+        .navbar-actions {
+            padding: 8px 24px;
+            border-left: 1px solid var(--border-color);
+            gap: 16px;
+            margin-left: auto;
+            height: 100%;
+        }
+
+        .btn-icon {
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        /* Profile Button */
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 6px 16px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            border-radius: 12px;
+            color: var(--text-primary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .profile-button:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 11px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 20px;
+            border: 2px solid var(--bg-navbar);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, rgba(var(--primary-rgb), 0.02) 100%);
+            border-right: 1px solid rgba(var(--border-rgb), 0.1);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: var(--navbar-height);
+            z-index: 1020;
+            transition: transform var(--transition-speed) ease;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .sidebar-nav {
+            padding: 24px 16px;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            height: 42px;
+            padding: 0 12px;
+            margin: 2px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 16px;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(var(--primary-rgb), 0.08);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.1);
+        }
+
+        .nav-link.active {
+            background: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        .nav-link .badge {
+            position: absolute;
+            right: 1rem;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 20px;
+        }
+
+        /* Dropdown Menus */
+        .dropdown-menu {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.75rem;
+            min-width: 220px;
+            margin-top: 0.5rem;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-header {
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all var(--transition-speed) ease;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 1.25rem;
+            text-align: center;
+        }
+
+        .dropdown-item:hover {
+            background: var(--hover-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .dropdown-divider {
+            border-color: var(--border-color);
+            margin: 0.5rem 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--navbar-height));
+            transition: margin var(--transition-speed) ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: all var(--transition-speed) ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Focus Styles */
+        .form-control:focus,
+        .form-select:focus {
+            background-color: var(--focus-bg);
+            border-color: var(--focus-border);
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+            color: var(--focus-color);
+        }
+
+        .btn:focus,
+        .nav-link:focus,
+        .sidebar-link:focus {
+            color: var(--focus-color);
+            box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+        }
+
+        .dropdown-item:focus {
+            background-color: var(--focus-bg);
+            color: var(--focus-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .navbar-brand {
+                border-right: none;
+            }
+
+            .search-wrapper {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-navbar {
+                padding: 0;
+            }
+            
+            .navbar-brand {
+                padding: 8px 16px;
+            }
+
+            .navbar-actions {
+                padding: 8px 16px;
+            }
+            
+            .brand-text {
+                display: none;
+            }
+        }
+
+        /* Table Styles */
+        .table {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            background: var(--bg-main);
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tbody tr {
+            transition: all var(--transition-speed) ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--hover-color);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all var(--transition-speed) ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+            box-shadow: 0 4px 12px var(--hover-color);
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Virtual Currency Submenu */
+        #virtualCurrencyMenu {
+            margin: 4px 0;
+            padding: 8px 0 8px 20px;
+            position: relative;
+        }
+
+        #virtualCurrencyMenu::before {
+            content: '';
+            position: absolute;
+            left: 22px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+            opacity: 0.5;
+        }
+
+        #virtualCurrencyMenu .nav-link {
+            height: 38px;
+            font-size: 13px;
+            padding: 0 12px;
+            margin: 2px 0;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        #virtualCurrencyMenu .nav-link .icon-shape {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-right: 8px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        #virtualCurrencyMenu .nav-link i {
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        #virtualCurrencyMenu .nav-link:hover .icon-shape {
+            border-color: var(--primary-color);
+        }
+
+        #virtualCurrencyMenu .nav-link:hover i,
+        #virtualCurrencyMenu .nav-link.active i {
+            color: var(--primary-color) !important;
+        }
+
+        #virtualCurrencyMenu .nav-link.active .icon-shape {
+            border-color: var(--primary-color);
+            background: transparent;
+        }
+
+        #virtualCurrencyMenu .nav-link-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Collapse Animation */
+        .collapse {
+            transition: all 0.3s ease;
+        }
+
+        .collapse:not(.show) {
+            display: none;
+        }
+
+        .collapsing {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+
+        /* Parent nav item with submenu */
+        .nav-link[data-bs-toggle="collapse"] {
+            position: relative;
+        }
+
+        .nav-link[data-bs-toggle="collapse"]::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .nav-link[data-bs-toggle="collapse"][aria-expanded="true"]::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .nav-link[data-bs-toggle="collapse"].active {
+            background: transparent;
+        }
+
+        /* Submenu transition */
+        #virtualCurrencyMenu.show {
+            animation: submenuFade 0.3s ease;
+        }
+
+        @keyframes submenuFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-nav">
+            <!-- Gerenciamento -->
+            <div class="nav-section">
+                <div class="nav-section-title">Gerenciamento</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/dashboard') ? 'active' : '' %>" href="/admin/dashboard">
+                            <i class="fas fa-chart-line"></i>Dashboard
+                        </a>
+                    </li>
+                    <% if (user.isMaster) { %>
+                        <li class="nav-item">
+                            <a class="nav-link <%= path.includes('/admin/companies') ? 'active' : '' %>" href="/admin/companies">
+                                <i class="fas fa-building"></i>Empresas
+                            </a>
+                        </li>
+                    <% } %>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/courses') ? 'active' : '' %>" href="/admin/courses">
+                            <i class="fas fa-book"></i>Cursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/users') ? 'active' : '' %>" href="/admin/users">
+                            <i class="fas fa-users"></i>Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/exams') ? 'active' : '' %>" href="/admin/exams">
+                            <i class="fas fa-file-alt"></i>Provas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/tasks') ? 'active' : '' %>" href="/admin/tasks">
+                            <i class="fas fa-tasks"></i>Tarefas
+                        </a>
+                    </li>
+                    <!-- Gerenciamento de Licenças -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#licenseMenu" role="button" aria-expanded="false" aria-controls="licenseMenu">
+                            <i class="fas fa-key me-2"></i>
+                            <span class="menu-title">Licenças</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="licenseMenu">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/admin/licenses">
+                                        <i class="fas fa-list me-2"></i> Gerenciar Licenças
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/admin/license-requests">
+                                        <i class="fas fa-file-contract me-2"></i> Solicitações
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <!-- Base de Conhecimento AI -->
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/ai/knowledge') ? 'active' : '' %>" href="/admin/ai/knowledge">
+                            <i class="fas fa-brain"></i>Base de Conhecimento AI
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Recursos -->
+            <div class="nav-section">
+                <div class="nav-section-title">Recursos</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/forum') ? 'active' : '' %>" href="/admin/forum">
+                            <i class="fas fa-comments"></i>Fórum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/achievements') ? 'active' : '' %>" href="/admin/achievements">
+                            <i class="fas fa-trophy"></i>Conquistas
+                            <span class="badge bg-primary rounded-pill ms-auto" id="achievementsCount"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/notifications') ? 'active' : '' %>" href="/admin/notifications">
+                            <i class="fas fa-bell"></i>Notificações
+                            <span class="badge bg-danger rounded-pill ms-auto notification-count"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/mentoring') ? 'active' : '' %>" href="/admin/mentoring">
+                            <i class="fas fa-chalkboard-teacher"></i>Mentoria
+                            <span class="badge bg-primary rounded-pill ms-auto" id="mentorRequestsCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Loja e Moeda Virtual -->
+            <div class="nav-section">
+                <div class="nav-section-title">Loja e Moeda Virtual</div>
+                <ul class="nav flex-column">
+                    <!-- Loja -->
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.startsWith('/admin/store') && !path.includes('/orders') ? 'active' : '' %>" href="/admin/store">
+                            <i class="fas fa-store"></i>Gerenciar Loja
+                        </a>
+                    </li>
+
+                    <!-- Pedidos -->
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/store/orders') ? 'active' : '' %>" href="/admin/store/orders">
+                            <i class="fas fa-shopping-cart"></i>Pedidos
+                            <% if (typeof orders !== 'undefined' && orders.filter(o => o.deliveryStatus === 'awaiting_approval').length > 0) { %>
+                                <span class="badge bg-danger rounded-pill ms-auto"><%= orders.filter(o => o.deliveryStatus === 'awaiting_approval').length %></span>
+                            <% } %>
+                        </a>
+                    </li>
+                    
+                    <!-- Moeda Virtual -->
+                    <li class="nav-item">
+                        <a data-bs-toggle="collapse" href="#virtualCurrencyMenu" class="nav-link <%= path.startsWith('/admin/virtual-currency') ? 'active' : '' %>" aria-controls="virtualCurrencyMenu" role="button" aria-expanded="false">
+                            <i class="fas fa-coins"></i>Moeda Virtual
+                        </a>
+                        <div class="collapse <%= path.startsWith('/admin/virtual-currency') ? 'show' : '' %>" id="virtualCurrencyMenu">
+                            <ul class="nav ms-4">
+                                <li class="nav-item">
+                                    <a class="nav-link <%= path.includes('/admin/virtual-currency/settings') ? 'active' : '' %>" href="/admin/virtual-currency/settings">
+                                        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-cog text-dark"></i>
+                                        </div>
+                                        <span class="nav-link-text ms-1">Configurações da Moeda</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link <%= path.includes('/admin/virtual-currency/credit') ? 'active' : '' %>" href="/admin/virtual-currency/credit">
+                                        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-coins text-dark"></i>
+                                        </div>
+                                        <span class="nav-link-text ms-1">Creditar Moedas</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link <%= path.includes('/admin/virtual-currency/withdraw') ? 'active' : '' %>" href="/admin/virtual-currency/withdraw">
+                                        <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-money-bill-wave text-dark"></i>
+                                        </div>
+                                        <span class="nav-link-text ms-1">Configurações de Saque</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Personalização -->
+            <div class="nav-section">
+                <div class="nav-section-title">Personalização</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/banners') ? 'active' : '' %>" href="/admin/banners">
+                            <i class="fas fa-image"></i>Banners Promocionais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/news') ? 'active' : '' %>" href="/admin/news">
+                            <i class="fas fa-newspaper"></i>Novidades
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= path.includes('/admin/landing') ? 'active' : '' %>" href="/admin/landing">
+                            <i class="fas fa-home"></i>Landing Page(Em teste)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Certificate Settings -->
+            <div class="nav-section">
+                <div class="nav-section-title">Certificado</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="/admin/certificate-settings" class="nav-link <%= path === '/admin/certificate-settings' ? 'active' : '' %>">
+                            <i class="fas fa-certificate"></i>
+                            <span>Configurações do Certificado</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Navbar -->
+    <nav class="admin-navbar">
+        <div class="d-flex align-items-center gap-4 w-100">
+            <!-- Toggle Sidebar Button -->
+            <button class="btn-icon d-lg-none" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="search-wrapper d-none d-lg-block">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar..." aria-label="Pesquisar">
+                <kbd class="shortcut-hint">⌘K</kbd>
+            </div>
+
+            <!-- Right Side Actions -->
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <!-- Theme Toggle -->
+                <button class="btn-icon" id="themeToggle" aria-label="Alternar tema">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </button>
+
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn-icon position-relative" data-bs-toggle="dropdown" aria-label="Notificações">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge bg-danger position-absolute top-0 end-0 translate-middle notification-count">2</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <div class="p-3 text-center text-secondary">
+                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                            <p class="mb-0">Nenhuma notificação</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile -->
+                <div class="dropdown">
+                    <button class="profile-button" data-bs-toggle="dropdown" aria-label="Menu do perfil">
+                        <% if (user.profilePicture) { %>
+                            <img src="<%= user.profilePicture %>" alt="Profile" class="profile-avatar">
+                        <% } else { %>
+                            <div class="profile-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        <span class="d-none d-md-block"><%= user.name %></span>
+                        <i class="fas fa-chevron-down ms-2 d-none d-md-block"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="dropdown-header">
+                            <strong><%= user.name %></strong>
+                            <small class="text-muted d-block"><%= user.email %></small>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="/dashboard">
+                                <i class="fas fa-home"></i>Portal
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/profile">
+                                <i class="fas fa-user"></i>Perfil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/settings">
+                                <i class="fas fa-cog"></i>Configurações
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/auth/ logout">
+                                <i class="fas fa-sign-out-alt"></i>Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <%- body %>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Configuração do Toastr
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: "toast-top-right",
+            timeOut: 5000,
+            extendedTimeOut: 2000,
+            preventDuplicates: true,
+            newestOnTop: true,
+            showEasing: "swing",
+            hideEasing: "linear",
+            showMethod: "fadeIn",
+            hideMethod: "fadeOut"
+        };
+
+        // Theme Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
+            
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-bs-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                html.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                } else {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                }
+            }
+        });
+
+        // Sidebar Toggle for Mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+
+        // Dropdown click outside to close
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script src="/js/admin/landing.js"></script>
+</body>
+</html>

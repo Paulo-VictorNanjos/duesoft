@@ -1,0 +1,416 @@
+<!-- Container Principal -->
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">Tarefas</h2>
+        <div>
+            <a href="/admin/tasks/kanban" class="btn btn-secondary me-2">
+                <i class="fas fa-columns"></i> Visualização Kanban
+            </a>
+            <a href="/admin/tasks/new" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nova Task
+            </a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value"><%= tasks.filter(t => t.status === 'pendente').length %></div>
+            <div class="stat-label">Tasks Pendentes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= tasks.filter(t => t.status === 'em_andamento').length %></div>
+            <div class="stat-label">Em Andamento</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= tasks.filter(t => t.status === 'concluida').length %></div>
+            <div class="stat-label">Tasks Concluídas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= tasks.filter(t => t.priority === 'alta').length %></div>
+            <div class="stat-label">Alta Prioridade</div>
+        </div>
+    </div>
+
+    <div class="tasks-container">
+        <% tasks.forEach(task => { %>
+            <div class="task-card <%= task.status === 'concluida' ? 'completed' : '' %>">
+                <div class="task-header">
+                    <div class="task-title"><%= task.title %></div>
+                    <div class="task-actions">
+                        <a href="/admin/tasks/<%= task._id %>/edit" class="btn-icon" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deleteTask('<%= task._id %>')" class="btn-icon" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="task-description"><%= task.description %></div>
+
+                <div class="task-meta">
+                    <span class="priority-badge <%= task.priority === 'alta' ? 'priority-high' : task.priority === 'media' ? 'priority-medium' : 'priority-low' %>">
+                        <%= task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa' %>
+                    </span>
+                    <% if (task.dueDate) { %>
+                        <span class="due-date <%= new Date(task.dueDate) < new Date() ? 'overdue' : '' %>">
+                            <i class="far fa-calendar"></i> 
+                            <%= new Date(task.dueDate).toLocaleDateString('pt-BR') %>
+                        </span>
+                    <% } %>
+                    <% if (task.assignedTo) { %>
+                        <span class="assigned-to">
+                            <i class="far fa-user"></i>
+                            <%= task.assignedTo.name %>
+                        </span>
+                    <% } %>
+                    <% if (task.category) { %>
+                        <span class="category-badge"><%= task.category %></span>
+                    <% } %>
+                </div>
+
+                <% if (task.tags && task.tags.length > 0) { %>
+                    <div class="task-tags">
+                        <% task.tags.forEach(tag => { %>
+                            <span class="tag"><%= tag %></span>
+                        <% }) %>
+                    </div>
+                <% } %>
+
+                <div class="task-actions mt-3">
+                    <div class="status-controls">
+                        <select class="status-select" onchange="updateStatus('<%= task._id %>', this.value)">
+                            <option value="pendente" <%= task.status === 'pendente' ? 'selected' : '' %>>Pendente</option>
+                            <option value="em_andamento" <%= task.status === 'em_andamento' ? 'selected' : '' %>>Em Andamento</option>
+                            <option value="concluida" <%= task.status === 'concluida' ? 'selected' : '' %>>Concluída</option>
+                            <option value="cancelada" <%= task.status === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+                        </select>
+                    </div>
+
+                    <div class="priority-controls">
+                        <select name="priority" class="priority-select" onchange="updatePriority('<%= task._id %>', this.value)">
+                            <option value="baixa" <%= task.priority === 'baixa' ? 'selected' : '' %>>Baixa</option>
+                            <option value="media" <%= task.priority === 'media' ? 'selected' : '' %>>Média</option>
+                            <option value="alta" <%= task.priority === 'alta' ? 'selected' : '' %>>Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <% if (task.comments && task.comments.length > 0) { %>
+                    <div class="task-comments mt-3">
+                        <h6>Comentários</h6>
+                        <% task.comments.forEach(comment => { %>
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <strong><%= comment.user.name %></strong>
+                                    <small><%= new Date(comment.createdAt).toLocaleString('pt-BR') %></small>
+                                </div>
+                                <div class="comment-text"><%= comment.text %></div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+
+                <div class="add-comment mt-3">
+                    <form onsubmit="addComment(event, '<%= task._id %>')" class="d-flex">
+                        <input type="text" class="form-control me-2" placeholder="Adicionar comentário...">
+                        <button type="submit" class="btn btn-sm btn-primary">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --primary: #3b82f6;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
+
+    body {
+        background: var(--bg-main);
+        color: var(--text-primary);
+    }
+
+    .task-card {
+        background: var(--bg-card);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .task-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .task-description {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .task-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .priority-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .priority-high {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .priority-medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+
+    .priority-low {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--success);
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.25rem;
+        transition: color 0.2s;
+    }
+
+    .btn-icon:hover {
+        color: var(--primary);
+    }
+
+    .status-select, .priority-select {
+        background: var(--bg-main);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    .task-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .tag {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .due-date {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .due-date.overdue {
+        color: var(--danger);
+    }
+
+    .assigned-to {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .category-badge {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .task-comments {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+    }
+
+    .comment {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .comment-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .add-comment input {
+        background: var(--bg-main);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    .add-comment input:focus {
+        background: var(--bg-main);
+        border-color: var(--primary);
+        color: var(--text-primary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+</style>
+
+<script>
+async function updateStatus(taskId, status) {
+    try {
+        const response = await fetch(`/admin/tasks/${taskId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+
+        if (!response.ok) throw new Error('Erro ao atualizar status');
+
+        location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar status da task');
+    }
+}
+
+async function updatePriority(taskId, priority) {
+    try {
+        const response = await fetch(`/admin/tasks/${taskId}/priority`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ priority })
+        });
+
+        if (!response.ok) throw new Error('Erro ao atualizar prioridade');
+
+        location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar prioridade da task');
+    }
+}
+
+async function deleteTask(taskId) {
+    if (!confirm('Tem certeza que deseja excluir esta task?')) return;
+
+    try {
+        const response = await fetch(`/admin/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Erro ao excluir task');
+
+        location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir task');
+    }
+}
+
+async function addComment(event, taskId) {
+    event.preventDefault();
+    const input = event.target.querySelector('input');
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    try {
+        const response = await fetch(`/admin/tasks/${taskId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) throw new Error('Erro ao adicionar comentário');
+
+        location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao adicionar comentário');
+    }
+}
+</script> 

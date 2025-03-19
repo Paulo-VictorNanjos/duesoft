@@ -1,0 +1,672 @@
+<!-- Modal para Gerenciar Slides -->
+<div class="modal fade" id="manageSlidesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gerenciar Slides do Módulo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Lista de Slides Existentes -->
+                <div class="slides-list mb-4">
+                    <h6 class="mb-3">Slides do Módulo</h6>
+                    <div class="row" id="slidesList">
+                        <!-- Slides serão inseridos aqui via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Formulário para Adicionar Novo Slide -->
+                <form id="slideForm" class="border-top pt-4" enctype="multipart/form-data">
+                    <h6 class="mb-3">Adicionar Novo Slide</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ordem</label>
+                                <input type="number" class="form-control" name="order" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagens</label>
+                        <div id="imageInputs">
+                            <div class="image-input-group mb-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="file" class="form-control" name="images" accept="image/*" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addImageInput()">
+                            <i class="fas fa-plus me-2"></i>Adicionar mais imagens
+                        </button>
+                        <small class="form-text text-muted d-block mt-2">
+                            Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB por imagem
+                        </small>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Adicionar Slide
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Slide -->
+<div class="modal fade" id="editSlideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Slide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editSlideForm" enctype="multipart/form-data">
+                    <input type="hidden" name="slideId" id="editSlideId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" name="title" id="editSlideTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ordem</label>
+                                <input type="number" class="form-control" name="order" id="editSlideOrder" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" id="editSlideDescription" rows="2"></textarea>
+                    </div>
+                    
+                    <!-- Imagens Existentes -->
+                    <div class="mb-3">
+                        <label class="form-label">Imagens Atuais</label>
+                        <div id="existingImages" class="row g-3">
+                            <!-- Imagens existentes serão carregadas aqui via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Novas Imagens -->
+                    <div class="mb-3">
+                        <label class="form-label">Adicionar Novas Imagens</label>
+                        <div id="editImageInputs">
+                            <div class="image-input-group mb-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="file" class="form-control" name="images" accept="image/*">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addEditImageInput()">
+                            <i class="fas fa-plus me-2"></i>Adicionar mais imagens
+                        </button>
+                        <small class="form-text text-muted d-block mt-2">
+                            Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB por imagem
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="editSlideForm" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.slides-list {
+    margin-bottom: 2rem;
+}
+
+.slide-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.slide-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.slide-images {
+    position: relative;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    background: #000;
+    overflow: hidden;
+}
+
+.slide-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.slide-thumbnail.active {
+    opacity: 1;
+}
+
+.image-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.slide-info {
+    padding: 1rem;
+}
+
+.slide-title {
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+    font-weight: 500;
+}
+
+.slide-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.slide-actions {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.image-input-group {
+    position: relative;
+}
+
+.image-input-group .btn-outline-danger {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Estilos para imagens existentes na edição */
+.existing-image-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.image-preview {
+    position: relative;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-preview:hover .image-overlay {
+    opacity: 1;
+}
+
+.marked-for-deletion {
+    opacity: 0.5;
+}
+
+.marked-for-deletion::after {
+    content: 'Marcado para exclusão';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+// Função para adicionar mais campos de imagem
+function addImageInput() {
+    const imageInputs = document.getElementById('imageInputs');
+    const newInput = document.createElement('div');
+    newInput.className = 'image-input-group mb-2';
+    newInput.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="file" class="form-control" name="images" accept="image/*" required>
+                    <button type="button" class="btn btn-outline-danger" onclick="removeImageInput(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+            </div>
+        </div>
+    `;
+    imageInputs.appendChild(newInput);
+}
+
+// Função para remover campo de imagem
+function removeImageInput(button) {
+    button.closest('.image-input-group').remove();
+}
+
+// Função para adicionar mais campos de imagem na edição
+function addEditImageInput() {
+    const imageInputs = document.getElementById('editImageInputs');
+    const newInput = document.createElement('div');
+    newInput.className = 'image-input-group mb-2';
+    newInput.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="file" class="form-control" name="images" accept="image/*">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeImageInput(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+            </div>
+        </div>
+    `;
+    imageInputs.appendChild(newInput);
+}
+
+// Função para carregar slides existentes
+async function loadSlides(moduleId) {
+    try {
+        const response = await fetch(`/admin/courses/modules/${moduleId}/slides`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const slides = await response.json();
+        
+        const slidesList = document.getElementById('slidesList');
+        slidesList.innerHTML = slides.map((slide, index) => `
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="slide-card">
+                    <div class="slide-images">
+                        ${slide.images.map((image, imgIndex) => `
+                            <img src="${image.url}" 
+                                 alt="${slide.title} - Imagem ${imgIndex + 1}" 
+                                 class="slide-thumbnail ${imgIndex === 0 ? 'active' : ''}"
+                                 onclick="previewSlide('${image.url}', '${image.description || ''}')"
+                            >
+                        `).join('')}
+                        ${slide.images.length > 1 ? `
+                            <div class="image-counter">
+                                <i class="fas fa-images"></i>
+                                ${slide.images.length}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="slide-info">
+                        <h3 class="slide-title">${slide.title}</h3>
+                        <div class="slide-meta">
+                            <span><i class="fas fa-sort-numeric-down"></i> Ordem: ${slide.order}</span>
+                            <span><i class="fas fa-images"></i> ${slide.images.length} imagens</span>
+                        </div>
+                    </div>
+                    <div class="slide-actions">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="event.stopPropagation(); editSlide('${slide._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="event.stopPropagation(); deleteSlide('${slide._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erro ao carregar slides:', error);
+        toastr.error('Erro ao carregar slides');
+    }
+}
+
+// Função para adicionar novo slide
+document.getElementById('slideForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const moduleId = document.getElementById('currentModuleId').value;
+    
+    // Adicionar campos básicos
+    formData.append('title', e.target.title.value);
+    formData.append('description', e.target.description.value);
+    formData.append('order', e.target.order.value);
+    
+    // Coletar todas as imagens e suas descrições
+    const imageFiles = e.target.querySelectorAll('input[type="file"]');
+    const imageDescriptions = e.target.querySelectorAll('input[name="imageDescriptions[]"]');
+    const descriptions = [];
+    
+    let hasValidImages = false;
+    imageFiles.forEach((fileInput, index) => {
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                throw new Error(`A imagem ${index + 1} excede o tamanho máximo de 5MB`);
+            }
+            formData.append('images', file);
+            descriptions.push(imageDescriptions[index].value || '');
+            hasValidImages = true;
+        }
+    });
+    
+    if (!hasValidImages) {
+        toastr.error('Por favor, selecione pelo menos uma imagem');
+        return;
+    }
+    
+    formData.append('imageDescriptions', JSON.stringify(descriptions));
+    
+    try {
+        const response = await fetch(`/admin/courses/modules/${moduleId}/slides`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'Erro ao adicionar slide');
+        }
+
+        if (result.success) {
+            toastr.success(result.message || 'Slide adicionado com sucesso');
+            loadSlides(moduleId);
+            e.target.reset();
+            document.getElementById('imageInputs').innerHTML = `
+                <div class="image-input-group mb-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="file" class="form-control" name="images" accept="image/*" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            throw new Error(result.error || 'Erro ao adicionar slide');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        toastr.error(error.message || 'Erro ao adicionar slide');
+    }
+});
+
+// Função para visualizar slide
+function previewSlide(imageUrl, description) {
+    Swal.fire({
+        imageUrl,
+        imageAlt: 'Preview do Slide',
+        width: '80%',
+        showConfirmButton: false,
+        showCloseButton: true,
+        text: description
+    });
+}
+
+// Função para deletar slide
+async function deleteSlide(slideId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Confirmar exclusão',
+            text: 'Tem certeza que deseja excluir este slide?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, excluir',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            const moduleId = document.getElementById('currentModuleId').value;
+            const response = await fetch(`/admin/courses/modules/${moduleId}/slides/${slideId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao excluir slide');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                toastr.success('Slide excluído com sucesso');
+                loadSlides(moduleId);
+            } else {
+                throw new Error(data.error || 'Erro ao excluir slide');
+            }
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        toastr.error(error.message || 'Erro ao excluir slide');
+    }
+}
+
+// Função para editar slide
+async function editSlide(slideId) {
+    const moduleId = document.getElementById('currentModuleId').value;
+    
+    try {
+        const response = await fetch(`/admin/courses/modules/${moduleId}/slides`);
+        if (!response.ok) {
+            throw new Error('Erro ao carregar dados do slide');
+        }
+        
+        const slides = await response.json();
+        const slide = slides.find(s => s._id === slideId);
+        if (!slide) {
+            throw new Error('Slide não encontrado');
+        }
+        
+        document.getElementById('editSlideId').value = slideId;
+        document.getElementById('editSlideTitle').value = slide.title;
+        document.getElementById('editSlideDescription').value = slide.description || '';
+        document.getElementById('editSlideOrder').value = slide.order;
+        
+        // Carregar imagens existentes
+        const existingImages = document.getElementById('existingImages');
+        existingImages.innerHTML = slide.images.map((image, index) => `
+            <div class="col-md-4">
+                <div class="existing-image-card">
+                    <div class="image-preview">
+                        <img src="${image.url}" alt="Imagem ${index + 1}">
+                        <div class="image-overlay">
+                            <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick="markImageForDeletion('${image._id}', this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="text" class="form-control mt-2" 
+                           name="existingImageDescriptions[]" 
+                           value="${image.description || ''}" 
+                           placeholder="Descrição da imagem">
+                    <input type="hidden" name="existingImageIds[]" value="${image._id}">
+                    <input type="hidden" name="deletedImages[]" value="" disabled>
+                </div>
+            </div>
+        `).join('');
+        
+        // Limpar campos de novas imagens
+        document.getElementById('editImageInputs').innerHTML = `
+            <div class="image-input-group mb-2">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="file" class="form-control" name="images" accept="image/*">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="imageDescriptions[]" placeholder="Descrição da imagem">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('editSlideModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Erro ao carregar slide:', error);
+        toastr.error(error.message || 'Erro ao carregar slide');
+    }
+}
+
+// Função para marcar imagem para deleção
+function markImageForDeletion(imageId, button) {
+    const card = button.closest('.existing-image-card');
+    const deletedInput = card.querySelector('input[name="deletedImages[]"]');
+    const imagePreview = card.querySelector('.image-preview');
+    
+    if (deletedInput.disabled) {
+        deletedInput.disabled = false;
+        deletedInput.value = imageId;
+        imagePreview.classList.add('marked-for-deletion');
+        button.innerHTML = '<i class="fas fa-undo"></i>';
+        button.classList.replace('btn-danger', 'btn-warning');
+    } else {
+        deletedInput.disabled = true;
+        deletedInput.value = '';
+        imagePreview.classList.remove('marked-for-deletion');
+        button.innerHTML = '<i class="fas fa-trash"></i>';
+        button.classList.replace('btn-warning', 'btn-danger');
+    }
+}
+
+// Manipular o envio do formulário de edição
+document.getElementById('editSlideForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const moduleId = document.getElementById('currentModuleId').value;
+    const slideId = document.getElementById('editSlideId').value;
+    
+    // Adicionar campos básicos
+    formData.append('title', e.target.title.value);
+    formData.append('description', e.target.description.value);
+    formData.append('order', e.target.order.value);
+    
+    // Coletar IDs de imagens deletadas
+    const deletedImages = Array.from(e.target.querySelectorAll('input[name="deletedImages[]"]:not(:disabled)'))
+        .map(input => input.value);
+    formData.append('deletedImages', JSON.stringify(deletedImages));
+    
+    // Coletar descrições de imagens existentes
+    const existingImageIds = Array.from(e.target.querySelectorAll('input[name="existingImageIds[]"]'))
+        .map(input => input.value);
+    const existingImageDescriptions = Array.from(e.target.querySelectorAll('input[name="existingImageDescriptions[]"]'))
+        .map(input => input.value);
+    
+    formData.append('existingImageIds', JSON.stringify(existingImageIds));
+    formData.append('existingImageDescriptions', JSON.stringify(existingImageDescriptions));
+    
+    // Coletar novas imagens e suas descrições
+    const imageFiles = e.target.querySelectorAll('input[type="file"]');
+    const imageDescriptions = e.target.querySelectorAll('input[name="imageDescriptions[]"]');
+    const newDescriptions = [];
+    
+    imageFiles.forEach((fileInput, index) => {
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                throw new Error(`A imagem ${index + 1} excede o tamanho máximo de 5MB`);
+            }
+            formData.append('images', file);
+            newDescriptions.push(imageDescriptions[index].value || '');
+        }
+    });
+    
+    formData.append('imageDescriptions', JSON.stringify(newDescriptions));
+    
+    try {
+        const response = await fetch(`/admin/courses/modules/${moduleId}/slides/${slideId}`, {
+            method: 'PUT',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erro ao atualizar slide');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            toastr.success('Slide atualizado com sucesso');
+            loadSlides(moduleId);
+            bootstrap.Modal.getInstance(document.getElementById('editSlideModal')).hide();
+        } else {
+            throw new Error(result.error || 'Erro ao atualizar slide');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        toastr.error(error.message || 'Erro ao atualizar slide');
+    }
+});
+</script> 

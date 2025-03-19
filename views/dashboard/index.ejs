@@ -1,0 +1,2909 @@
+<div class="dashboard-container">
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
+        <div class="hero-background">
+            <div class="gradient-sphere" style="left: 10%; top: 20%;"></div>
+            <div class="gradient-sphere" style="right: 15%; bottom: 30%;"></div>
+        </div>
+        <div class="hero-content">
+            <!-- Header com Logo e Perfil -->
+            <div class="glass-card profile-card">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar-container">
+                            <% if (user.profilePicture) { %>
+                                <img src="<%= user.profilePicture %>" alt="<%= user.name %>" class="profile-avatar">
+                            <% } else { %>
+                                <div class="profile-avatar avatar-placeholder">
+                                    <%= user.name.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                            <div class="level-badge">
+                                <span class="level-number"><%= level %></span>
+                                <div class="level-ring"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="welcome-text">Olá, <%= user.name.split(' ')[0] %>!</h1>
+                        <div class="category-badge">
+                            <i class="fas fa-medal"></i>
+                            <span><%= category %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-container mt-4">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon" data-color="primary">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value"><%= stats.totalCourses %></div>
+                                <div class="stat-label">Cursos Ativos</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon" data-color="success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value"><%= stats.completedCourses %></div>
+                                <div class="stat-label">Concluídos</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon" data-color="warning">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value"><%= stats.totalXP %></div>
+                                <div class="stat-label">XP Total</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon" data-color="info">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value"><%= stats.overallProgress %>%</div>
+                                <div class="stat-label">Progresso</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação de Cursos -->
+    <%- include('./ai-chat') %>
+
+    <!-- Espaçamento entre Hero Section e Stats Grid -->
+    <div class="content-spacing"></div>
+    
+    <!-- Banner Promocional -->
+    <div class="promotional-banner">
+        <% if (banners && banners.length > 0) { %>
+            <div class="banner-slider">
+                <% banners.forEach((banner, index) => { %>
+                    <div class="banner-slide <%= index === 0 ? 'active' : '' %>">
+                        <img src="<%= banner.image_url %>" alt="<%= banner.title %>">
+                        <div class="banner-content">
+                            <h3><%= banner.title %></h3>
+                            <p><%= banner.description %></p>
+                            <% if (banner.link) { %>
+                                <a href="<%= banner.link %>" class="btn btn-primary">Saiba mais</a>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            <% if (banners.length > 1) { %>
+                <button class="banner-nav prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="banner-nav next"><i class="fas fa-chevron-right"></i></button>
+            <% } %>
+        <% } %>
+    </div>
+
+    <!-- Seção de Novidades -->
+    <div class="news-section">
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-newspaper"></i>
+                Novidades
+            </h2>
+            <div class="news-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="event">Eventos</button>
+                <button class="filter-btn" data-filter="update">Atualizações</button>
+                <button class="filter-btn" data-filter="notice">Avisos</button>
+            </div>
+        </div>
+        
+        <div class="news-grid">
+            <% if (news && news.length > 0) { %>
+                <% news.forEach(item => { %>
+                    <div class="news-card" data-type="<%= item.type %>">
+                        <div class="news-image">
+                            <img src="<%= item.image_url %>" alt="<%= item.title %>">
+                            <span class="news-type <%= item.type %>">
+                                <%= item.type === 'event' ? 'Evento' : 
+                                   item.type === 'update' ? 'Atualização' : 'Aviso' %>
+                            </span>
+                        </div>
+                        <div class="news-content">
+                            <h3><%= item.title %></h3>
+                            <p><%= item.description %></p>
+                            <div class="news-footer">
+                                <span class="news-date">
+                                    <i class="fas fa-calendar"></i>
+                                    <%= new Date(item.event_date || item.createdAt).toLocaleDateString() %>
+                                </span>
+                                <button class="btn btn-link" onclick="openNewsModal('<%= item._id %>')">
+                                    Ler mais
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3>Nenhuma novidade no momento</h3>
+                    <p>Fique atento para novas atualizações!</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-grid">
+        <!-- Cursos em Andamento -->
+        <div class="content-section courses-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-book-reader"></i>
+                    Cursos em Andamento
+                </h2>
+                <div class="header-actions">
+                    <button class="btn-icon" id="viewToggle" title="Alternar visualização">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <a href="/courses" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Explorar Cursos</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="courses-grid" id="coursesContainer">
+                <% if (enrolled && enrolled.length > 0) { %>
+                    <% enrolled.slice(0, 4).forEach(history => { %>
+                        <div class="course-card">
+                            <div class="course-header" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('<%= history.course.coverImage || '/images/default-course.jpg' %>')">
+                                <div class="course-progress">
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: <%= history.progress %>%"></div>
+                                    </div>
+                                    <span class="progress-label <%= history.progress === 100 ? 'completed' : '' %>">
+                                        <%= history.progress %>%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="course-content">
+                                <h3><%= history.course.title %></h3>
+                                <div class="course-meta">
+                                    <span>
+                                        <i class="fas fa-clock"></i>
+                                        Último acesso: <%= new Date(history.updatedAt).toLocaleDateString() %>
+                                    </span>
+                                </div>
+                                <a href="/courses/<%= history.course._id %>" class="btn btn-course">
+                                    <i class="fas <%= history.progress === 100 ? 'fa-redo' : 'fa-play' %>"></i>
+                                    <span><%= history.progress === 100 ? 'Revisar' : 'Continuar' %></span>
+                                </a>
+                            </div>
+                        </div>
+                    <% }); %>
+
+                    <% if (enrolled.length > 4) { %>
+                        <div class="courses-expand">
+                            <button id="expandCoursesBtn" class="btn btn-outline">
+                                <span>Ver mais</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    <% } %>
+
+                    <!-- Cursos escondidos inicialmente -->
+                    <div id="hiddenCourses" style="display: none;">
+                        <% enrolled.slice(4).forEach(history => { %>
+                            <div class="course-card">
+                                <div class="course-header" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('<%= history.course.coverImage || '/images/default-course.jpg' %>')">
+                                    <div class="course-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: <%= history.progress %>%"></div>
+                                        </div>
+                                        <span class="progress-label <%= history.progress === 100 ? 'completed' : '' %>">
+                                            <%= history.progress %>%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="course-content">
+                                    <h3><%= history.course.title %></h3>
+                                    <div class="course-meta">
+                                        <span>
+                                            <i class="fas fa-clock"></i>
+                                            Último acesso: <%= new Date(history.updatedAt).toLocaleDateString() %>
+                                        </span>
+                                    </div>
+                                    <a href="/courses/<%= history.course._id %>" class="btn btn-course">
+                                        <i class="fas <%= history.progress === 100 ? 'fa-redo' : 'fa-play' %>"></i>
+                                        <span><%= history.progress === 100 ? 'Revisar' : 'Continuar' %></span>
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Comece sua jornada de aprendizado</h3>
+                        <p>Explore nossos cursos e comece a aprender agora mesmo!</p>
+                        <a href="/courses" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            <span>Explorar Cursos</span>
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar-content">
+            <!-- Análise de Desempenho -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>
+                        <i class="fas fa-chart-line"></i>
+                        Análise de Desempenho
+                    </h2>
+                    <a href="/exams/results" class="btn btn-text">Ver detalhes</a>
+                </div>
+                <div class="card-body">
+                    <% if (stats && stats.examStats) { %>
+                        <div class="performance-stats">
+                            <!-- Média Geral -->
+                            <div class="stat-item">
+                                <div class="stat-header">
+                                    <i class="fas fa-percentage"></i>
+                                    <span>Média Geral</span>
+                                </div>
+                                <div class="stat-value <%= stats.examStats.averageScore >= 70 ? 'text-success' : stats.examStats.averageScore >= 50 ? 'text-warning' : 'text-danger' %>">
+                                    <%= stats.examStats.averageScore.toFixed(1) %>%
+                                </div>
+                            </div>
+
+                            <!-- Taxa de Aprovação -->
+                            <div class="stat-item">
+                                <div class="stat-header">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Taxa de Aprovação</span>
+                                </div>
+                                <div class="stat-value <%= stats.examStats.passRate >= 70 ? 'text-success' : stats.examStats.passRate >= 50 ? 'text-warning' : 'text-danger' %>">
+                                    <%= stats.examStats.passRate.toFixed(1) %>%
+                                </div>
+                            </div>
+
+                            <!-- Provas Realizadas -->
+                            <div class="stat-item">
+                                <div class="stat-header">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>Provas Realizadas</span>
+                                </div>
+                                <div class="stat-value">
+                                    <%= stats.examStats.totalExams %>
+                                </div>
+                            </div>
+
+                            <!-- Gráfico de Evolução -->
+                            <div class="performance-chart">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state small">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>Nenhuma prova realizada ainda</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Próximas Metas -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>
+                        <i class="fas fa-bullseye"></i>
+                        Próximas Metas
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="goals-list">
+                        <div class="goal-item">
+                            <div class="goal-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="goal-info">
+                                <h4>Próximo Nível</h4>
+                                <div class="progress">
+                                    <div class="progress-bar" 
+                                         style="width: <%= (user.experience % 1000) / 10 %>%"></div>
+                                </div>
+                                <p><%= 1000 - (user.experience % 1000) %> XP restantes</p>
+                            </div>
+                        </div>
+
+                        <% if (category !== 'Senior') { %>
+                            <div class="goal-item">
+                                <div class="goal-icon">
+                                    <i class="fas <%= category === 'Junior' ? 'fa-user-graduate' : 'fa-crown' %>"></i>
+                                </div>
+                                <div class="goal-info">
+                                    <h4>Próxima Categoria</h4>
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Categoria atual: <%= category %>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Alterar Conquista em Destaque -->
+<div class="modal fade" id="highlightAchievementModal" tabindex="-1" aria-labelledby="highlightAchievementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="highlightAchievementModalLabel">Alterar Conquista em Destaque</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="achievementsList">
+                    <!-- As conquistas serão carregadas aqui -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    /* Cores principais */
+    --primary: #6366F1;
+    --primary-light: rgba(99, 102, 241, 0.1);
+    --success: #10B981;
+    --success-light: rgba(16, 185, 129, 0.1);
+    --warning: #F59E0B;
+    --warning-light: rgba(245, 158, 11, 0.1);
+    --info: #3B82F6;
+    --info-light: rgba(59, 130, 246, 0.1);
+    
+    /* Cores de fundo e texto */
+    --bg-dark: #0F172A;
+    --bg-darker: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+}
+
+/* Reset e base */
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    padding: 3rem 2rem;
+    overflow: hidden;
+    border-radius: 24px;
+    margin-bottom: 2rem;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.gradient-sphere {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: float 8s ease-in-out infinite;
+}
+
+.gradient-sphere:nth-child(1) {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+}
+
+.gradient-sphere:nth-child(2) {
+    background: linear-gradient(135deg, var(--warning) 0%, var(--success) 100%);
+}
+
+/* Glass Card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Profile Card */
+.profile-card {
+    margin-bottom: 2rem;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+}
+
+.profile-avatar-container {
+    width: 80px;
+    height: 80px;
+    position: relative;
+}
+
+.profile-avatar,
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.level-badge {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 32px;
+    height: 32px;
+    background: var(--warning);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+    color: var(--bg-dark);
+    border: 2px solid var(--bg-dark);
+}
+
+.level-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--warning);
+    border-radius: 10px;
+    animation: pulse 2s infinite;
+}
+
+.welcome-text {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, #A5B4FC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--primary-light);
+    border-radius: 12px;
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Stat Cards */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.stat-icon[data-color="primary"] {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.stat-icon[data-color="success"] {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.stat-icon[data-color="warning"] {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.stat-icon[data-color="info"] {
+    background: var(--info-light);
+    color: var(--info);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Animações */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card {
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+    
+    .profile-card {
+        padding: 1rem;
+    }
+    
+    .welcome-text {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Layout */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-icon.courses {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.stat-icon.completed {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.stat-icon.xp {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.stat-icon.achievements {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-content h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-content p {
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stat-trend.up {
+    color: var(--success);
+}
+
+.stat-trend.down {
+    color: var(--danger);
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+}
+
+.content-section {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-header h2 i {
+    color: var(--primary);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-icon:hover {
+    background: var(--bg-main);
+    color: var(--primary);
+}
+
+/* Courses Grid */
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.course-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.course-header {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 1.5rem;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+}
+
+.course-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.course-progress {
+    position: relative;
+    z-index: 1;
+}
+
+.progress {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.progress-label {
+    color: white;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+    text-align: right;
+}
+
+.progress-label.completed {
+    color: #4CAF50;
+}
+
+.course-content {
+    padding: 1.5rem;
+}
+
+.course-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+}
+
+.course-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.course-meta i {
+    margin-right: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-course {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    justify-content: center;
+}
+
+.btn-course:hover {
+    background: var(--primary-dark);
+    color: white;
+}
+
+.btn-outline {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--primary);
+    padding: 0;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.content-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-header h2 i {
+    color: var(--primary);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Exams List */
+.exams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.exam-item {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.exam-item:hover {
+    background: var(--bg-main);
+    transform: translateX(5px);
+}
+
+.exam-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.course-name {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0 0 0.5rem;
+}
+
+.exam-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.exam-meta i {
+    margin-right: 0.25rem;
+}
+
+/* Goals List */
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.goal-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.goal-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.goal-info {
+    flex: 1;
+}
+
+.goal-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.goal-info .progress {
+    height: 6px;
+    background: var(--gray-100);
+    margin-bottom: 0.5rem;
+}
+
+.goal-info p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.empty-state.small {
+    padding: 1.5rem;
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .hero-section {
+        padding: 3rem 1rem;
+    }
+    
+    .user-profile {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .profile-info {
+        text-align: center;
+    }
+    
+    .progress-section {
+        margin: 0 auto;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar-content {
+        grid-template-columns: 1fr;
+    }
+
+    .achievement-highlight {
+        width: 100%;
+        margin-top: 1rem;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card,
+.course-card,
+.exam-item {
+    animation: slideIn 0.3s ease backwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Estilos para a conquista em destaque */
+.achievement-highlight {
+    background: var(--bs-primary);
+    border-radius: 1rem;
+    padding: 1rem;
+    position: relative;
+    color: white;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.2);
+    max-width: 300px;
+    margin-left: auto;
+}
+
+/* Cabeçalho da conquista */
+.highlight-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.highlight-header i {
+    font-size: 1rem;
+    color: #FFD700;
+}
+
+/* Conteúdo da conquista */
+.highlight-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.highlight-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #FFD700;
+    margin-bottom: 0.25rem;
+}
+
+.highlight-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.highlight-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.highlight-info p {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Badge de raridade */
+.highlight-rarity {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Botão de alterar */
+.achievement-highlight button {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.achievement-highlight button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.achievement-highlight button i {
+    font-size: 0.9rem;
+}
+
+/* Variações de raridade */
+.highlight-rarity.comum {
+    background: rgba(156, 163, 175, 0.3);
+    border-color: rgba(156, 163, 175, 0.5);
+}
+
+.highlight-rarity.raro {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.highlight-rarity.épico {
+    background: rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.highlight-rarity.lendário {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #FFD700;
+}
+
+/* Tema escuro */
+[data-bs-theme="dark"] .achievement-highlight {
+    background: var(--primary-dark);
+}
+
+/* Tema claro */
+[data-bs-theme="light"] .achievement-highlight {
+    background: var(--primary);
+}
+
+/* Estilos adicionais */
+.courses-expand {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 0;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+#hiddenCourses {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+#hiddenCourses .course-card {
+    animation: slideIn 0.3s ease backwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Adicionando estilos para a thumbnail */
+.course-thumbnail {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.course-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.course-progress {
+    flex: 1;
+}
+
+/* Estilos para o modal de conquistas */
+#highlightAchievementModal .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#highlightAchievementModal .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+#highlightAchievementModal .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+#highlightAchievementModal .card-title i {
+    color: var(--primary);
+}
+
+.achievement-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto;
+}
+
+/* Efeitos para conquistas comuns */
+.comum-card {
+    background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+    border: 1px solid #d1d5db;
+}
+.comum-icon {
+    background: #6b7280;
+    color: white;
+}
+.comum-badge {
+    background: #6b7280;
+    color: white;
+}
+
+/* Efeitos para conquistas raras */
+.raro-card {
+    background: linear-gradient(145deg, #FF944D, #FF6B00);
+    border: 1px solid #FF6B00;
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
+}
+.raro-icon {
+    background: #FF6B00;
+    color: white;
+    animation: pulse 2s infinite;
+}
+.raro-badge {
+    background: #FF6B00;
+    color: white;
+}
+
+/* Efeitos para conquistas épicas */
+.épico-card {
+    background: linear-gradient(145deg, #000000, #1f2937);
+    border: 1px solid #000000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+.épico-icon {
+    background: #000000;
+    color: #FF6B00;
+    animation: rotate 3s infinite;
+}
+.épico-badge {
+    background: #000000;
+    color: #FF6B00;
+}
+
+/* Efeitos para conquistas lendárias */
+.lendário-card {
+    background: linear-gradient(145deg, #FF6B00, #000000);
+    border: 1px solid #FF6B00;
+    box-shadow: 0 0 25px rgba(255, 107, 0, 0.5);
+}
+.lendário-icon {
+    background: #FF6B00;
+    color: #000000;
+    animation: shine 2s infinite;
+}
+.lendário-badge {
+    background: #FF6B00;
+    color: #000000;
+}
+
+/* Animações */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes shine {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+}
+
+/* Hover effects */
+.achievement-card:hover {
+    transform: translateY(-5px);
+}
+.comum-card:hover { box-shadow: 0 5px 15px rgba(107, 114, 128, 0.2); }
+.raro-card:hover { box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4); }
+.épico-card:hover { box-shadow: 0 5px 25px rgba(139, 92, 246, 0.5); }
+.lendário-card:hover { box-shadow: 0 5px 30px rgba(251, 191, 36, 0.6); }
+
+.performance-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stat-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.stat-header i {
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.performance-chart {
+    width: 100%;
+    height: 200px;
+    margin: 1rem 0;
+}
+
+.next-exam {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.next-exam-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.next-exam-header i {
+    color: var(--primary);
+}
+
+.next-exam-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.next-exam-details h4 {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.next-exam-details p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.empty-state p {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .performance-stats {
+        gap: 1rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+}
+
+/* Estilos para o Banner Promocional */
+.promotional-banner {
+    position: relative;
+    margin: 2rem 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--bg-card);
+    box-shadow: var(--shadow);
+}
+
+.banner-slider {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.banner-slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.banner-slide.active {
+    opacity: 1;
+}
+
+.banner-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+}
+
+.banner-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.banner-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.banner-nav:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.banner-nav.prev {
+    left: 1rem;
+}
+
+.banner-nav.next {
+    right: 1rem;
+}
+
+/* Estilos para a Seção de Novidades */
+.news-section {
+    margin: 2rem 0;
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.news-filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 2rem;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.news-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.news-image {
+    position: relative;
+    height: 200px;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-type {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.news-type.event {
+    background: var(--primary);
+    color: white;
+}
+
+.news-type.update {
+    background: var(--success);
+    color: white;
+}
+
+.news-type.notice {
+    background: var(--warning);
+    color: white;
+}
+
+.news-content {
+    padding: 1.5rem;
+}
+
+.news-content h3 {
+    font-size: 1.125rem;
+    margin: 0 0 0.5rem;
+}
+
+.news-content p {
+    color: var(--text-secondary);
+    margin: 0 0 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.news-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.news-date i {
+    margin-right: 0.5rem;
+}
+
+/* Modal de Novidades */
+.news-modal .modal-content {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.news-modal .modal-header {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.news-modal .modal-body {
+    padding: 2rem;
+}
+
+.news-modal .news-image {
+    margin: -2rem -2rem 2rem;
+    height: 300px;
+}
+
+.news-modal .news-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.news-modal .news-meta i {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .banner-slider {
+        height: 200px;
+    }
+
+    .news-filters {
+        overflow-x: auto;
+        padding: 0.5rem;
+    }
+
+    .filter-btn {
+        white-space: nowrap;
+    }
+
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, #FF6B00 0%, #000000 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.welcome-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.9) 0%, rgba(0, 0, 0, 0.9) 100%);
+    z-index: 1;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #FF6B00;
+    background: #000000;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #FF6B00;
+}
+
+.welcome-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.welcome-subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1.5rem;
+}
+
+.welcome-badge {
+    background: rgba(255, 107, 0, 0.2);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Header Banner Styles */
+.header-banner {
+    margin: 2rem 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.header-banner a {
+    display: flex;
+    text-decoration: none;
+}
+
+.header-banner img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.header-banner .banner-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+.header-banner h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header-banner p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .header-banner img {
+        height: 200px;
+    }
+}
+
+/* Novos estilos */
+.hero-section {
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+}
+
+.stat-info h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.stat-info p {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+.category-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    color: #FF6B00;
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card {
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
+
+<script>
+// Mova a função para fora do DOMContentLoaded para torná-la global
+async function openHighlightModal() {
+    const modalElement = document.getElementById('highlightAchievementModal');
+    if (!modalElement) {
+        console.error('Modal não encontrado');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(modalElement);
+    
+    try {
+        const response = await fetch('/achievements/user');
+        const achievements = await response.json();
+        
+        const container = document.getElementById('achievementsList');
+        container.innerHTML = achievements.map(achievement => `
+            <div class="col-6 mb-3">
+                <div class="card h-100 achievement-card ${achievement.rarity}-card">
+                    <div class="card-body">
+                        <div class="achievement-icon ${achievement.rarity}-icon">
+                            <i class="${achievement.icon}"></i>
+                        </div>
+                        <h6 class="card-title mt-2">
+                            ${achievement.title}
+                        </h6>
+                        <p class="card-text small">${achievement.description}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge ${achievement.rarity}-badge">${achievement.rarity}</span>
+                            <button class="btn btn-primary btn-sm" 
+                                    onclick="highlightAchievement('${achievement._id}')">
+                                Destacar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        modal.show();
+    } catch (error) {
+        console.error('Erro ao carregar conquistas:', error);
+    }
+}
+
+// Função auxiliar para definir as cores das raridades
+function getRarityColor(rarity) {
+    const colors = {
+        'comum': 'secondary',
+        'raro': 'primary',
+        'épico': 'purple',
+        'lendário': 'warning'
+    };
+    return colors[rarity] || 'secondary';
+}
+
+// Também mova a função highlightAchievement para o escopo global
+async function highlightAchievement(achievementId) {
+    try {
+        const response = await fetch(`/achievements/highlight/${achievementId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Erro ao destacar conquista:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // View Toggle
+    const viewToggle = document.getElementById('viewToggle');
+    const coursesContainer = document.getElementById('coursesContainer');
+    let isGridView = true;
+
+    if (viewToggle && coursesContainer) {
+        viewToggle.addEventListener('click', function() {
+            isGridView = !isGridView;
+            
+            // Update icon
+            viewToggle.innerHTML = `<i class="fas fa-${isGridView ? 'th-large' : 'list'}"></i>`;
+            // Update layout
+            coursesContainer.style.display = 'grid';
+            coursesContainer.style.gridTemplateColumns = isGridView ? 
+                'repeat(auto-fill, minmax(300px, 1fr))' : '1fr';
+        });
+    }
+
+    // Animate progress bars on scroll
+    const progressBars = document.querySelectorAll('.progress-bar');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const width = entry.target.style.width;
+                entry.target.style.width = '0%';
+                requestAnimationFrame(() => {
+                    entry.target.style.width = width;
+                });
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    progressBars.forEach(bar => {
+        observer.observe(bar);
+    });
+
+    // Add hover effects
+    const cards = document.querySelectorAll('.course-card, .stat-card, .exam-item');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+            card.style.boxShadow = 'var(--shadow-lg)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            card.style.boxShadow = '';
+        });
+    });
+
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => {
+        new bootstrap.Tooltip(tooltip);
+    });
+
+    // Função para animar contadores com formatação
+    function animateCounter(counter) {
+        const target = parseFloat(counter.dataset.target);
+        const duration = 1000; // Reduzido para 1 segundo
+        const steps = 30;
+        const increment = target / steps;
+        let current = 0;
+
+        // Limpa qualquer intervalo existente
+        if (counter.timer) clearInterval(counter.timer);
+
+        // Função para formatar o número
+        const formatNumber = (num) => {
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'k';
+            }
+            return Math.round(num).toString();
+        };
+
+        counter.timer = setInterval(() => {
+            current += increment;
+            
+            if (current >= target) {
+                counter.textContent = formatNumber(target);
+                clearInterval(counter.timer);
+            } else {
+                counter.textContent = formatNumber(current);
+            }
+        }, duration / steps);
+    }
+
+    // Inicializar contadores imediatamente
+    document.querySelectorAll('.counter').forEach(counter => {
+        // Forçar atualização inicial
+        counter.textContent = '0';
+        // Iniciar animação
+        animateCounter(counter);
+    });
+
+    // Atualizar contadores quando a página estiver totalmente carregada
+    window.addEventListener('load', () => {
+        document.querySelectorAll('.counter').forEach(counter => {
+            animateCounter(counter);
+        });
+    });
+
+    // Atualizar contadores quando voltarem a ser visíveis
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px'
+    };
+
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.counter').forEach(counter => {
+        counterObserver.observe(counter);
+    });
+
+    const expandBtn = document.getElementById('expandCoursesBtn');
+    const hiddenCourses = document.getElementById('hiddenCourses');
+    
+    if (expandBtn && hiddenCourses) {
+        expandBtn.addEventListener('click', function() {
+            const isExpanded = hiddenCourses.style.display !== 'none';
+            
+            if (isExpanded) {
+                hiddenCourses.style.display = 'none';
+                expandBtn.innerHTML = '<span>Ver mais</span><i class="fas fa-chevron-down"></i>';
+                // Scroll suave para o topo da seção de cursos
+                document.querySelector('.courses-section').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                hiddenCourses.style.display = 'block';
+                expandBtn.innerHTML = '<span>Ver menos</span><i class="fas fa-chevron-up"></i>';
+            }
+        });
+    }
+
+    // Adicione uma função para atualizar a classe de raridade da conquista em destaque
+    function updateHighlightedAchievement() {
+        const highlightSection = document.querySelector('.achievement-highlight');
+        const rarity = highlightSection.dataset.rarity;
+        if (rarity) {
+            highlightSection.classList.add(rarity);
+            const icon = highlightSection.querySelector('.highlight-icon');
+            if (icon) {
+                icon.classList.add(`${rarity}-icon`);
+            }
+        }
+    }
+
+    // Chame a função quando o documento carregar
+    document.addEventListener('DOMContentLoaded', updateHighlightedAchievement);
+});
+
+async function startExam(examId) {
+    console.log('=== INICIANDO PROVA ===');
+    console.log('ID da prova:', examId);
+
+    try {
+        // Verificar se o usuário tem permissão
+        const checkResponse = await fetch(`/exams/${examId}/check`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Resposta da verificação:', await checkResponse.clone().json());
+
+        if (!checkResponse.ok) {
+            const error = await checkResponse.json();
+            console.error('Erro na verificação:', error);
+            alert(error.message || 'Você não pode iniciar esta prova agora.');
+            return;
+        }
+
+        // Iniciar a prova
+        console.log('Redirecionando para a prova...');
+        window.location.href = `/exams/${examId}/start`;
+
+    } catch (error) {
+        console.error('Erro ao iniciar prova:', error);
+        alert('Ocorreu um erro ao iniciar a prova. Por favor, tente novamente.');
+    }
+}
+
+// Inicialização do gráfico de desempenho
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('performanceChart');
+    if (ctx && stats?.examStats?.recentScores) {
+        const scores = stats.examStats.recentScores;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: scores.map(s => {
+                    const date = new Date(s.date);
+                    return date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Notas',
+                    data: scores.map(s => s.score),
+                    borderColor: 'rgb(79, 70, 229)',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: value => `${value}%`
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `Nota: ${context.parsed.y}%`
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+
+// Funções para o Banner Promocional
+document.addEventListener('DOMContentLoaded', function() {
+    initializeBannerSlider();
+    initializeNewsFilters();
+});
+
+function initializeBannerSlider() {
+    const bannerSlider = document.querySelector('.banner-slider');
+    if (!bannerSlider) return;
+
+    const slides = bannerSlider.querySelectorAll('.banner-slide');
+    if (slides.length <= 1) return;
+
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Navegação automática
+    const slideInterval = setInterval(nextSlide, 5000);
+
+    // Botões de navegação
+    const prevBtn = document.querySelector('.banner-nav.prev');
+    const nextBtn = document.querySelector('.banner-nav.next');
+
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            clearInterval(slideInterval);
+            prevSlide();
+        });
+
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            clearInterval(slideInterval);
+            nextSlide();
+        });
+    }
+}
+
+function initializeNewsFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const newsCards = document.querySelectorAll('.news-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            newsCards.forEach(card => {
+                if (filter === 'all' || card.dataset.type === filter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+}
+
+// Função para abrir o modal de notícias
+async function openNewsModal(newsId) {
+    try {
+        const response = await fetch(`/api/news/${newsId}`);
+        if (!response.ok) {
+            throw new Error('Erro ao carregar notícia');
+        }
+        
+        const news = await response.json();
+        
+        // Remove qualquer modal existente
+        const existingModal = document.querySelector('.news-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        const modalHtml = `
+            <div class="modal news-modal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${news.title}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="news-image">
+                                <img src="${news.image_url}" alt="${news.title}">
+                            </div>
+                            <div class="news-meta">
+                                <span><i class="fas fa-calendar"></i>${new Date(news.event_date || news.createdAt).toLocaleDateString()}</span>
+                                <span><i class="fas fa-tag"></i>${
+                                    news.type === 'event' ? 'Evento' : 
+                                    news.type === 'update' ? 'Atualização' : 'Aviso'
+                                }</span>
+                            </div>
+                            <div class="news-content">
+                                ${news.content || news.description}
+                            </div>
+                            ${news.link ? `
+                                <div class="mt-4">
+                                    <a href="${news.link}" class="btn btn-primary" target="_blank">
+                                        Saiba mais
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Adiciona o modal ao DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Inicializa e mostra o modal
+        const modalElement = document.querySelector('.news-modal');
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        // Configura a limpeza do modal quando for fechado
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            modalElement.remove();
+        });
+
+    } catch (error) {
+        console.error('Erro ao abrir modal:', error);
+        alert('Erro ao carregar a notícia. Por favor, tente novamente.');
+    }
+}
+</script>
+
+<!-- Adicione este script para debug -->
+<script>
+    const stats = JSON.parse('<%- JSON.stringify(stats || {}) %>');
+    console.log('Stats recebidos:', stats);
+</script>
+
+<style>
+:root {
+    --chat-bg: rgba(255, 255, 255, 0.05);
+    --message-user-bg: rgba(99, 102, 241, 0.1);
+    --message-assistant-bg: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ai-chat-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
+    background: var(--chat-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.ai-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.message.user {
+    align-self: flex-end;
+}
+
+.message-content {
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--message-assistant-bg);
+    border: 1px solid var(--border-color);
+}
+
+.message.user .message-content {
+    background: var(--message-user-bg);
+    border: none;
+}
+
+.message p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.message .sources {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+}
+
+.message .source-item {
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+    color: var(--bs-primary);
+    cursor: pointer;
+    padding: 0.25rem 0;
+}
+
+.message .source-item i {
+    margin-top: 0.25rem;
+}
+
+.chat-input-area {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.chat-input-area textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--bs-light);
+    resize: none;
+    padding-right: 3rem;
+}
+
+.chat-input-area textarea:focus {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    border-color: var(--bs-primary);
+}
+
+.input-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message {
+    animation: fadeIn 0.3s ease backwards;
+}
+
+/* Scrollbar personalizada */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Loading indicator */
+.typing-indicator {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--message-assistant-bg);
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--bs-primary);
+    border-radius: 50%;
+    animation: typingAnimation 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingAnimation {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
+    const clearChatBtn = document.getElementById('clearChat');
+
+    // Função para adicionar mensagem ao chat
+    function addMessage(content, isUser = false, sources = []) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+        
+        let messageHTML = `
+            <div class="message-content">
+                <p>${content}</p>
+            `;
+        
+        if (sources && sources.length > 0) {
+            messageHTML += `
+                <div class="sources">
+                    <div class="sources-title mb-2">Fontes:</div>
+                    ${sources.map(source => `
+                        <div class="source-item">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <div class="source-title">${source.title}</div>
+                                <small class="text-muted">${source.preview}</small>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        messageHTML += '</div>';
+        messageDiv.innerHTML = messageHTML;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Função para mostrar indicador de digitação
+    function showTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'message assistant';
+        indicator.innerHTML = `
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        chatMessages.appendChild(indicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return indicator;
+    }
+
+    // Handler do formulário
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Adiciona mensagem do usuário
+        addMessage(message, true);
+        messageInput.value = '';
+
+        // Mostra indicador de digitação
+        const typingIndicator = showTypingIndicator();
+
+        try {
+            const response = await fetch('/ai/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: message })
+            });
+
+            const data = await response.json();
+            
+            // Remove indicador de digitação
+            typingIndicator.remove();
+
+            if (data.success) {
+                addMessage(data.response, false, data.sources);
+            } else {
+                addMessage('Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.', false);
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            typingIndicator.remove();
+            addMessage('Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.', false);
+        }
+    });
+
+    // Auto-resize do textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Limpar chat
+    clearChatBtn.addEventListener('click', function() {
+        if (confirm('Tem certeza que deseja limpar o histórico do chat?')) {
+            chatMessages.innerHTML = `
+                <div class="message assistant">
+                    <div class="message-content">
+                        <p>Olá! Eu sou o assistente IA da <%= company.name %>. Como posso ajudar você hoje?</p>
+                    </div>
+                </div>
+            `;
+        }
+    });
+});
+</script>

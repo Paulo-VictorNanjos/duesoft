@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= company._id ? 'Editar' : 'Nova' %> Empresa - Painel Master</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/master/companies">Painel Master</a>
+            <div class="d-flex">
+                <a href="/master/logout" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">
+                            <%= company._id ? 'Editar' : 'Nova' %> Empresa
+                        </h2>
+
+                        <form action="/master/companies/<%= company._id %>?_method=PUT" 
+                              method="POST" 
+                              enctype="multipart/form-data">
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nome da Empresa</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name" 
+                                       value="<%= company.name || '' %>" 
+                                       required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="domain" class="form-label">Domínio</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="domain" 
+                                       name="domain" 
+                                       value="<%= company.domain || '' %>" 
+                                       required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="logo" class="form-label">Logo</label>
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="logo" 
+                                       name="logo" 
+                                       accept="image/*">
+                                <% if (company.logo) { %>
+                                    <img src="<%= company.logo %>" 
+                                         alt="Logo atual" 
+                                         class="mt-2" 
+                                         style="height: 50px;">
+                                <% } %>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="primaryColor" class="form-label">Cor Primária</label>
+                                    <input type="color" 
+                                           class="form-control form-control-color w-100" 
+                                           id="primaryColor" 
+                                           name="primaryColor" 
+                                           value="<%= company.theme?.primaryColor || '#4f46e5' %>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="secondaryColor" class="form-label">Cor Secundária</label>
+                                    <input type="color" 
+                                           class="form-control form-control-color w-100" 
+                                           id="secondaryColor" 
+                                           name="secondaryColor" 
+                                           value="<%= company.theme?.secondaryColor || '#4338ca' %>">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="active" 
+                                           name="active" 
+                                           value="true"
+                                           <%= company.active ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="active">Empresa Ativa</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="allowUserRegistration" 
+                                           name="allowUserRegistration" 
+                                           value="true"
+                                           <%= company.settings?.allowUserRegistration ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="allowUserRegistration">
+                                        Permitir Registro de Usuários
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="requireLicenseApproval" 
+                                           name="requireLicenseApproval" 
+                                           value="true"
+                                           <%= company.settings?.requireLicenseApproval ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="requireLicenseApproval">
+                                        Requer Aprovação de Licença
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cpfCnpj" class="form-label">CPF/CNPJ</label>
+                                <input type="text" class="form-control" id="cpfCnpj" name="cpfCnpj" value="<%= company.cpfCnpj || '' %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="address" name="address" value="<%= company.address || '' %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="phone" name="phone" value="<%= company.phone || '' %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="<%= company.email || '' %>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="responsible" class="form-label">Responsável</label>
+                                <input type="text" class="form-control" id="responsible" name="responsible" value="<%= company.responsible || '' %>" required>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="plan">Plano</label>
+                                <select name="plan" id="plan" class="form-control" required>
+                                    <option value="basic" <%= company.plan === 'basic' ? 'selected' : '' %>>
+                                        Basic (Dashboard, Cursos, Provas)
+                                    </option>
+                                    <option value="pro" <%= company.plan === 'pro' ? 'selected' : '' %>>
+                                        Pro (Basic + Profile, Ranking, Conquistas)
+                                    </option>
+                                    <option value="enterprise" <%= company.plan === 'enterprise' ? 'selected' : '' %>>
+                                        Enterprise (Pro + Chat)
+                                    </option>
+                                </select>
+                                <small class="form-text text-muted">
+                                    Basic: Dashboard, Cursos, Provas<br>
+                                    Pro: Tudo do Basic + Profile, Ranking, Conquistas<br>
+                                    Enterprise: Tudo do Pro + Chat
+                                </small>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/master/companies" class="btn btn-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <%= company._id ? 'Atualizar' : 'Criar' %> Empresa
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

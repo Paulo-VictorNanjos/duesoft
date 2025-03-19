@@ -1,0 +1,116 @@
+<div class="container py-4">
+    <!-- Header do Perfil -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white border-0 shadow-sm">
+                <div class="card-body py-4">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <!-- Avatar -->
+                        <div class="position-relative me-4">
+                            <% if (profileUser.profilePicture) { %>
+                                <img src="<%= profileUser.profilePicture %>" 
+                                     alt="<%= profileUser.name %>" 
+                                     class="rounded-circle border border-4 border-white"
+                                     style="width: 140px; height: 140px; object-fit: cover;">
+                            <% } else { %>
+                                <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center border border-4 border-white"
+                                     style="width: 140px; height: 140px; font-size: 3rem;">
+                                    <%= profileUser.name.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                            <!-- Badge de Categoria -->
+                            <div class="position-absolute bottom-0 end-0">
+                                <div class="category-badge">
+                                    <i class="fas <%= category === 'Senior' ? 'fa-crown' : category === 'Pleno' ? 'fa-star' : 'fa-user' %>"></i>
+                                    <%= category %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Básica -->
+                        <div class="flex-grow-1">
+                            <h2 class="mb-1"><%= profileUser.name %></h2>
+                            <p class="mb-3 opacity-75">
+                                <i class="fas fa-graduation-cap me-2"></i>Nível <%= level %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apenas Estatísticas -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-chart-line me-2"></i>Estatísticas
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <div class="p-3 rounded bg-primary bg-opacity-10 text-center h-100">
+                                <i class="fas fa-book-open text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                <h3 class="mb-0"><%= userHistory.length %></h3>
+                                <small class="text-muted">Cursos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="p-3 rounded bg-success bg-opacity-10 text-center h-100">
+                                <i class="fas fa-star text-success mb-2" style="font-size: 1.5rem;"></i>
+                                <h3 class="mb-0"><%= profileUser.experience.toLocaleString() %></h3>
+                                <small class="text-muted">XP Total</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="p-3 rounded bg-info bg-opacity-10 text-center h-100">
+                                <i class="fas fa-layer-group text-info mb-2" style="font-size: 1.5rem;"></i>
+                                <h3 class="mb-0"><%= level %></h3>
+                                <small class="text-muted">Nível</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="p-3 rounded bg-warning bg-opacity-10 text-center h-100">
+                                <i class="fas fa-trophy text-warning mb-2" style="font-size: 1.5rem;"></i>
+                                <h3 class="mb-0"><%= Math.floor(userHistory.filter(h => h.progress === 100).length) %></h3>
+                                <small class="text-muted">Concluídos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Mantidos apenas os estilos necessários */
+.card {
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease backwards;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+}
+</style>

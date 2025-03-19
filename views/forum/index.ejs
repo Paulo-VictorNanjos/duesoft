@@ -1,0 +1,472 @@
+<!-- O layout principal já inclui o cabeçalho e rodapé -->
+
+<div class="forum-container">
+    <!-- Header -->
+    <div class="forum-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="forum-title">Fórum</h1>
+                    <p class="forum-description">Tire suas dúvidas e compartilhe conhecimento com outros alunos</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                        <i class="fas fa-plus-circle me-2"></i>Novo Tópico
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="forum-search-container">
+        <div class="container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control form-control-lg" placeholder="Pesquisar no fórum...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="forum-content">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Categorias</h2>
+                <p class="section-description">Escolha uma categoria para explorar ou criar um novo tópico</p>
+            </div>
+            
+            <% if (categories && categories.length > 0) { %>
+                <div class="categories-grid">
+                    <div class="row">
+                        <% categories.forEach(category => { %>
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="<%= category.icon %>"></i>
+                                    </div>
+                                    <div class="category-content">
+                                        <h3 class="category-title">
+                                            <a href="/forum/category/<%= category.slug %>"><%= category.name %></a>
+                                        </h3>
+                                        <p class="category-description"><%= category.description %></p>
+                                        <div class="category-stats">
+                                            <span class="stat-item">
+                                                <i class="fas fa-comment"></i> <%= category.topicsCount || 0 %> tópicos
+                                            </span>
+                                            <span class="stat-item">
+                                                <i class="fas fa-reply"></i> <%= category.repliesCount || 0 %> respostas
+                                            </span>
+                                        </div>
+                                        <% if (category.lastTopic) { %>
+                                            <div class="category-latest">
+                                                <div class="latest-topic-label">Último tópico:</div>
+                                                <a href="/forum/topic/<%= category.lastTopic.slug %>" class="latest-topic-link">
+                                                    <%= category.lastTopic.title %>
+                                                </a>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Nenhuma categoria disponível</h3>
+                    <p>Não há categorias disponíveis no momento. Volte mais tarde.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- New Topic Modal -->
+<div class="modal fade" id="newTopicModal" tabindex="-1" aria-labelledby="newTopicModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title h4" id="newTopicModalLabel">Criar Novo Tópico</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newTopicForm" action="/forum/topic" method="POST">
+                    <div class="mb-4">
+                        <label for="category" class="form-label">Categoria</label>
+                        <select class="form-select form-select-lg" id="category" name="category" required>
+                            <option value="" selected disabled>Selecione uma categoria</option>
+                            <% if (categories && categories.length > 0) { %>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category._id %>"><%= category.name %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="title" class="form-label">Título</label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" required 
+                               minlength="10" maxlength="100" 
+                               placeholder="Digite um título claro e específico para sua pergunta">
+                        <div class="form-text">Mínimo de 10 caracteres, máximo de 100.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="content" class="form-label">Conteúdo</label>
+                        <textarea class="form-control form-control-lg" id="content" name="content" rows="6" required 
+                                  minlength="20" 
+                                  placeholder="Descreva sua dúvida ou discussão com detalhes. Quanto mais informações você fornecer, mais fácil será para outros ajudarem."></textarea>
+                        <div class="form-text">Mínimo de 20 caracteres.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="tags" class="form-label">Tags (opcional)</label>
+                        <input type="text" class="form-control form-control-lg" id="tags" name="tags" 
+                               placeholder="Separe as tags por vírgula (ex: javascript, react, api)">
+                        <div class="form-text">Adicione até 5 tags relacionadas ao seu tópico.</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="notifyReplies" name="notifyReplies" checked>
+                            <label class="form-check-label" for="notifyReplies">
+                                Receber notificações de respostas
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light btn-lg" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="newTopicForm" class="btn btn-primary btn-lg">Publicar Tópico</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS Styles -->
+<style>
+:root {
+    --forum-bg: #0f172a;
+    --card-bg: #1e293b;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+}
+
+.forum-container {
+    background: var(--forum-bg);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+}
+
+.forum-header {
+    background: var(--card-bg);
+    padding: 4rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.forum-title {
+    color: var(--text-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.forum-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.forum-search-container {
+    margin-bottom: 3rem;
+}
+
+.search-wrapper {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.search-wrapper .form-control {
+    padding-left: 3.5rem;
+    height: 60px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 1rem;
+}
+
+.search-wrapper .form-control:focus {
+    background: var(--card-bg);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.forum-content {
+    padding-bottom: 3rem;
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.section-title {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.section-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.categories-grid {
+    margin-top: 2rem;
+}
+
+.category-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+.category-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+}
+
+.category-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.category-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.category-title a:hover {
+    color: var(--primary-color);
+}
+
+.category-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.category-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-latest {
+    font-size: 0.875rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.latest-topic-label {
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.latest-topic-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.latest-topic-link:hover {
+    text-decoration: underline;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--card-bg);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.modal-title {
+    color: var(--text-primary);
+}
+
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+.form-control,
+.form-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    color: var(--text-primary);
+}
+
+.form-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.form-check-label {
+    color: var(--text-secondary);
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+@media (max-width: 768px) {
+    .forum-header {
+        padding: 2rem 0;
+        text-align: center;
+    }
+
+    .forum-title {
+        font-size: 2rem;
+    }
+
+    .forum-description {
+        font-size: 1rem;
+    }
+
+    .col-lg-4.text-lg-end {
+        text-align: center !important;
+        margin-top: 1.5rem;
+    }
+
+    .category-card {
+        flex-direction: column;
+    }
+
+    .category-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .section-description {
+        font-size: 1rem;
+    }
+}
+</style> 

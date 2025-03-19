@@ -1,0 +1,245 @@
+<section id="faq" class="faq">
+    <div class="container">
+        <div class="section-header">
+            <h2>Perguntas Frequentes</h2>
+            <p>Tire suas principais dúvidas sobre nossa plataforma</p>
+        </div>
+
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Como funciona o acesso aos cursos?</h3>
+                    <button class="faq-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="faq-answer">
+                    <p>Após a inscrição, você terá acesso imediato a todos os cursos incluídos no seu plano. O conteúdo fica disponível 24/7 e pode ser acessado de qualquer dispositivo.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Os certificados são reconhecidos?</h3>
+                    <button class="faq-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="faq-answer">
+                    <p>Sim! Todos os nossos certificados são válidos e reconhecidos pelo mercado. Eles incluem carga horária, conteúdo programático e código de validação online.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Posso cancelar a qualquer momento?</h3>
+                    <button class="faq-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="faq-answer">
+                    <p>Sim, você pode cancelar sua assinatura a qualquer momento, sem multa ou burocracia. O acesso permanece até o final do período pago.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Existe suporte para dúvidas?</h3>
+                    <button class="faq-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="faq-answer">
+                    <p>Oferecemos suporte completo através de chat, email e fórum da comunidade. Nosso tempo médio de resposta é de 2 horas em dias úteis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.faq {
+    position: relative;
+    padding: 6rem 0;
+    background: var(--darker-color);
+    overflow: hidden;
+}
+
+.faq::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, var(--primary-color) 0%, transparent 70%);
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.section-header h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.25rem;
+    color: var(--gray-300);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.faq-grid {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.faq-item {
+    background: var(--dark-color);
+    border: 1px solid var(--gray-800);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(10px);
+}
+
+.faq-question {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+    background: var(--gray-900);
+}
+
+.faq-question h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--light-color);
+    margin: 0;
+}
+
+.faq-toggle {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.faq-toggle:hover {
+    color: var(--orange-light);
+    transform: scale(1.1);
+}
+
+.faq-answer {
+    padding: 0 1.5rem 1.5rem;
+    display: none;
+}
+
+.faq-answer p {
+    color: var(--gray-300);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.faq-item.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.15);
+}
+
+.faq-item.active .faq-question {
+    border-bottom: 1px solid var(--gray-800);
+}
+
+.faq-item.active .faq-toggle {
+    transform: rotate(180deg);
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .faq {
+        padding: 4rem 0;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+    }
+
+    .faq-question h3 {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        
+        question.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            // Fecha todos os itens
+            faqItems.forEach(otherItem => {
+                otherItem.classList.remove('active');
+            });
+            
+            // Abre o item clicado (se não estava ativo)
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+});
+</script> 

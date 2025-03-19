@@ -1,0 +1,111 @@
+<section class="chat-section">
+    <div class="chat-container">
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar">
+            <div class="chat-header">
+                <h4>Conversas</h4>
+                <div class="chat-actions">
+                    <button class="btn btn-icon" id="filterBtn" title="Filtrar contatos">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Buscar conversa...">
+                </div>
+            </div>
+
+            <!-- Contacts List -->
+            <div class="contacts-list">
+                <% users.forEach(contact => { %>
+                    <div class="contact-item" data-user-id="<%= contact._id %>" data-user-type="<%= contact.isAdmin ? 'teacher' : 'student' %>">
+                        <div class="contact-avatar">
+                            <% if (contact.profilePicture) { %>
+                                <img src="<%= contact.profilePicture %>" alt="<%= contact.name %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder">
+                                    <%= contact.name.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                            <span class="status-indicator"></span>
+                        </div>
+                        <div class="contact-info">
+                            <h6 class="contact-name"><%= contact.name %></h6>
+                            <% if (contact.isAdmin) { %>
+                                <span class="badge bg-primary">Professor</span>
+                            <% } %>
+                            <span class="last-message text-muted"></span>
+                        </div>
+                        <div class="contact-meta">
+                            <span class="message-time"></span>
+                            <span class="unread-count badge bg-primary rounded-pill" style="display: none;">0</span>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Chat Main -->
+        <div class="chat-main">
+            <!-- Initial State -->
+            <div class="chat-welcome" id="chatWelcome">
+                <div class="welcome-content">
+                    <i class="fas fa-comments"></i>
+                    <h3>Bem-vindo ao Chat</h3>
+                    <p>Selecione um contato para iniciar uma conversa</p>
+                </div>
+            </div>
+
+            <!-- Chat Content -->
+            <div class="chat-content" style="display: none;">
+                <div class="chat-header active-chat">
+                    <div class="chat-user-info">
+                        <div class="user-avatar">
+                            <img src="" alt="" id="activeChatAvatar">
+                            <span class="status-indicator"></span>
+                        </div>
+                        <div class="user-details">
+                            <h6 id="activeChatName"></h6>
+                            <span class="user-status">Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn btn-icon" title="Pesquisar na conversa">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="btn btn-icon" title="Mais opções">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="messagesContainer" class="messages-container">
+                    <!-- Messages will be inserted here -->
+                </div>
+
+                <div class="chat-input-container">
+                    <form id="messageForm" class="message-form">
+                        <div class="input-group">
+                            <button type="button" class="btn btn-icon" title="Anexar arquivo">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input type="text" id="messageInput" class="form-control" placeholder="Digite sua mensagem...">
+                            <button type="submit" class="btn btn-primary send-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-error" class="alert alert-danger" style="display: none;"></div>
+    <div id="typing-indicator" class="text-muted small" style="display: none;"></div>
+</section>

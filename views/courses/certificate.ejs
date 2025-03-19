@@ -1,0 +1,150 @@
+<div class="content-wrapper">
+    <!-- Cabeçalho -->
+    <div class="header-section">
+        <a href="/courses/<%= course._id %>" class="back-link">
+            <i class="fas fa-arrow-left"></i> Voltar para o Curso
+        </a>
+    </div>
+
+    <!-- Informações do Certificado -->
+    <div class="certificate-section">
+        <div class="certificate-header">
+            <h1>Certificado</h1>
+            <h2><%= course.title %></h2>
+            <div class="course-meta">
+                <span><i class="fas fa-clock"></i> <%= duration %> Horas</span>
+                <span><i class="fas fa-layer-group"></i> Módulo Único</span>
+            </div>
+        </div>
+
+        <!-- Preview do Certificado -->
+        <div class="certificate-preview">
+            <img src="/certificates/<%= certificateFileName %>" alt="Certificado" />
+        </div>
+
+        <!-- Ações do Certificado -->
+        <div class="certificate-actions">
+            <a href="/certificates/<%= certificateFileName %>" 
+               download 
+               class="btn btn-primary btn-lg">
+                <i class="fas fa-download me-2"></i>
+                Download
+            </a>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= certificateUrl %>" 
+               target="_blank" 
+               class="btn btn-linkedin btn-lg">
+                <i class="fab fa-linkedin me-2"></i>
+                Compartilhar no LinkedIn
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header-section {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background: var(--hover-bg);
+    color: var(--primary);
+}
+
+.certificate-section {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.certificate-header {
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.certificate-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.certificate-header h2 {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.course-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.certificate-preview {
+    padding: 2rem;
+    background: var(--bg-main);
+    text-align: center;
+}
+
+.certificate-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-actions {
+    padding: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-linkedin {
+    background-color: #0077b5;
+    color: white;
+}
+
+.btn-linkedin:hover {
+    background-color: #006399;
+    color: white;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .certificate-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style> 

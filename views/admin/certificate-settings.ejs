@@ -1,0 +1,153 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Configurações do Certificado</h5>
+        </div>
+        <div class="card-body">
+            <form action="/admin/certificate-settings" method="POST" enctype="multipart/form-data">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Logo do Certificado</label>
+                            <input type="file" class="form-control" name="certificateLogo" accept="image/*">
+                            <% if (company.certificate?.logo) { %>
+                                <img src="<%= company.certificate.logo %>" class="mt-2" style="max-height: 100px">
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Background do Certificado</label>
+                            <input type="file" class="form-control" name="certificateBackground" accept="image/*">
+                            <% if (company.certificate?.background) { %>
+                                <img src="<%= company.certificate.background %>" class="mt-2" style="max-height: 100px">
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Título do Certificado</label>
+                    <input type="text" class="form-control" name="certificateTitle" 
+                           value="<%= company.certificate?.title || 'Certificado de Conclusão' %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Subtítulo</label>
+                    <input type="text" class="form-control" name="certificateSubtitle" 
+                           value="<%= company.certificate?.subtitle || 'Este certificado é conferido a' %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-control" name="certificateDescription" rows="3"
+                    ><%= company.certificate?.description || 'pela conclusão do curso {courseName} com carga horária de {hours} horas' %></textarea>
+                    <small class="text-muted">Use {courseName} e {hours} como placeholders</small>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Assinatura</label>
+                        <input type="file" class="form-control" name="signatureImage" accept="image/*">
+                        <% if (company.certificate?.signature?.image) { %>
+                            <img src="<%= company.certificate.signature.image %>" class="mt-2" style="max-height: 50px">
+                        <% } %>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nome do Signatário</label>
+                        <input type="text" class="form-control" name="signatureName" 
+                               value="<%= company.certificate?.signature?.name || '' %>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Cargo do Signatário</label>
+                        <input type="text" class="form-control" name="signatureRole" 
+                               value="<%= company.certificate?.signature?.role || '' %>">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Prévia do Certificado</h5>
+        </div>
+        <div class="card-body">
+            <div id="certificatePreview" class="border p-4">
+                <!-- A prévia será carregada aqui -->
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script>
+// Passar os dados da empresa para o JavaScript
+const companyData = <%- JSON.stringify(company) %>;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Função para atualizar prévia
+    function updatePreview() {
+        const preview = document.getElementById('certificatePreview');
+        const title = document.querySelector('[name="certificateTitle"]').value;
+        const subtitle = document.querySelector('[name="certificateSubtitle"]').value;
+        const description = document.querySelector('[name="certificateDescription"]').value;
+        
+        // Criar prévia do certificado
+        preview.innerHTML = `
+            <div style="position: relative; width: 100%; padding-bottom: 70%; background: ${
+                companyData.certificate?.background ? 
+                `url(${companyData.certificate.background})` : 
+                '#fff'
+            } center/cover;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    ${companyData.certificate?.logo ? 
+                        `<img src="${companyData.certificate.logo}" style="height: 60px; margin-bottom: 20px;">` : 
+                        ''
+                    }
+                    <h2 style="font-size: 24px; margin-bottom: 15px;">${title}</h2>
+                    <p style="font-size: 16px; margin-bottom: 10px;">${subtitle}</p>
+                    <p style="font-size: 20px; margin-bottom: 15px;">Nome do Aluno</p>
+                    <p style="font-size: 16px;">${description}</p>
+                    ${companyData.certificate?.signature?.image ? 
+                        `<img src="${companyData.certificate.signature.image}" style="height: 40px; margin-top: 20px;">` : 
+                        ''
+                    }
+                    <p style="font-size: 14px; margin-top: 10px;">${
+                        companyData.certificate?.signature?.name || ''
+                    }</p>
+                    <p style="font-size: 12px;">${
+                        companyData.certificate?.signature?.role || ''
+                    }</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Atualizar prévia quando os campos mudarem
+    document.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+
+    // Atualizar prévia quando imagens forem selecionadas
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector(`img[src="${companyData?.[input.name]}"]`);
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                    updatePreview();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    });
+
+    // Inicializar prévia
+    updatePreview();
+});
+</script> 

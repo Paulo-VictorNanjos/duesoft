@@ -1,0 +1,115 @@
+<!-- views/admin/users/index.ejs -->
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gerenciamento de Usuários</h1>
+    </div>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Nível</th>
+                    <th>Categoria</th>
+                    <th>XP</th>
+                    <th>Cursos Concluídos</th>
+                    <th>Data de Registro</th>
+                    <th>Admin</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(function(userItem) { %>
+                    <tr>
+                        <td>
+                            <% if (userItem.profilePicture) { %>
+                                <img src="<%= userItem.profilePicture %>" 
+                                     alt="Profile" 
+                                     class="rounded-circle me-2"
+                                     style="width: 30px; height: 30px; object-fit: cover;">
+                            <% } %>
+                            <%= userItem.name %>
+                        </td>
+                        <td><%= userItem.email %></td>
+                        <td>
+                            <span class="badge bg-primary">
+                                Nível <%= userItem.level %>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                <%= userItem.category %>
+                            </span>
+                        </td>
+                        <td>
+                            <%= userItem.experience || 0 %> XP
+                        </td>
+                        <td>
+                            <span class="badge bg-success">
+                                <%= userItem.completedCoursesCount %> cursos
+                            </span>
+                        </td>
+                        <td><%= userItem.createdAt.toLocaleDateString('pt-BR') %></td>
+                        <td>
+                            <span class="badge <%= userItem.isAdmin ? 'bg-success' : 'bg-secondary' %>">
+                                <%= userItem.isAdmin ? 'Sim' : 'Não' %>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/admin/users/<%= userItem._id %>/edit" 
+                                   class="btn btn-sm btn-primary"
+                                   data-bs-toggle="tooltip"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <% if (userItem._id.toString() !== user._id.toString()) { %>
+                                    <form action="/admin/users/<%= userItem._id %>/toggle-admin" 
+                                          method="POST" class="d-inline">
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-warning"
+                                                data-bs-toggle="tooltip"
+                                                title="Alternar Admin"
+                                                onclick="return confirm('Tem certeza que deseja <%= userItem.isAdmin ? 'remover' : 'conceder' %> privilégios de admin?')">
+                                            <i class="fas fa-user-shield"></i>
+                                        </button>
+                                    </form>
+
+                                    <form action="/admin/users/<%= userItem._id %>/delete" 
+                                          method="POST" class="d-inline">
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-danger"
+                                                data-bs-toggle="tooltip"
+                                                title="Deletar"
+                                                onclick="return confirm('Tem certeza que deseja deletar este usuário?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>

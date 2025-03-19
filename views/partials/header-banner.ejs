@@ -1,0 +1,52 @@
+<% if (locals.headerBanner && locals.headerBanner.image_url) { %>
+    <a href="<%= headerBanner.link %>" class="header-banner-link">
+        <div class="header-banner-container">
+            <img 
+                src="<%= headerBanner.image_url %>" 
+                alt="" 
+                class="header-banner-image"
+                loading="lazy"
+            >
+        </div>
+    </a>
+<% } %>
+
+<style>
+.header-banner-link {
+    display: block;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    z-index: 1020;
+    height: 60px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.header-banner-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.header-banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.header-banner-link:hover .header-banner-image {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .header-banner-link {
+        height: 50px;
+    }
+}
+</style>

@@ -1,0 +1,566 @@
+<div class="container-fluid py-4">
+    <!-- Navegação das abas -->
+    <ul class="nav nav-tabs mb-4" id="ordersTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-orders-tab" data-bs-toggle="tab" data-bs-target="#all-orders" type="button" role="tab">
+                <i class="fas fa-shopping-cart me-2"></i>Todos os Pedidos
+                <% if (orders.filter(o => o.status === 'pending').length > 0) { %>
+                    <span class="badge bg-danger ms-2"><%= orders.filter(o => o.status === 'pending').length %></span>
+                <% } %>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab">
+                <i class="fas fa-clock me-2"></i>Solicitações Pendentes
+                <% const pendingRequests = orders.filter(o => o.deliveryStatus === 'awaiting_approval').length; %>
+                <% if (pendingRequests > 0) { %>
+                    <span class="badge bg-warning ms-2"><%= pendingRequests %></span>
+                <% } %>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Conteúdo das abas -->
+    <div class="tab-content" id="ordersTabContent">
+        <!-- Aba de Todos os Pedidos -->
+        <div class="tab-pane fade show active" id="all-orders" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Todos os Pedidos</h5>
+                        <div class="filters d-flex gap-3">
+                            <select class="form-select form-select-sm" id="statusFilter">
+                                <option value="all">Todos os Status</option>
+                                <option value="pending">Pendentes</option>
+                                <option value="completed">Concluídos</option>
+                                <option value="cancelled">Cancelados</option>
+                                <option value="refunded">Reembolsados</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="deliveryFilter">
+                                <option value="all">Status de Entrega</option>
+                                <option value="awaiting_approval">Aguardando Aprovação</option>
+                                <option value="processing">Em Processamento</option>
+                                <option value="ready">Pronto</option>
+                                <option value="delivered">Entregue</option>
+                                <option value="cancelled">Cancelado</option>
+                            </select>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Buscar pedido...">
+                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Item</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th>Entrega</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order => { %>
+                                    <tr>
+                                        <td><%= order._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                                                <small class="text-muted"><%= new Date(order.createdAt).toLocaleTimeString() %></small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-medium"><%= order.user.name %></span>
+                                                <small class="text-muted"><%= order.user.email %></small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <% if (order.item.image) { %>
+                                                    <img src="<%= order.item.image %>" alt="<%= order.item.name %>" class="item-thumbnail">
+                                                <% } %>
+                                                <span><%= order.item.name %></span>
+                                            </div>
+                                        </td>
+                                        <td><%= order.quantity %></td>
+                                        <td><%= order.totalAmount %> moedas</td>
+                                        <td>
+                                            <span class="badge bg-<%= 
+                                                order.status === 'completed' ? 'success' :
+                                                order.status === 'pending' ? 'warning' :
+                                                order.status === 'cancelled' ? 'danger' :
+                                                'secondary' 
+                                            %>">
+                                                <%= order.status === 'completed' ? 'Concluído' :
+                                                    order.status === 'pending' ? 'Pendente' :
+                                                    order.status === 'cancelled' ? 'Cancelado' :
+                                                    order.status === 'refunded' ? 'Reembolsado' :
+                                                    order.status
+                                                %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<%= 
+                                                order.deliveryStatus === 'delivered' ? 'success' :
+                                                order.deliveryStatus === 'ready' ? 'info' :
+                                                order.deliveryStatus === 'processing' ? 'primary' :
+                                                order.deliveryStatus === 'awaiting_approval' ? 'warning' :
+                                                'danger'
+                                            %>">
+                                                <%= order.deliveryStatus === 'awaiting_approval' ? 'Aguardando Aprovação' :
+                                                    order.deliveryStatus === 'processing' ? 'Em Processamento' :
+                                                    order.deliveryStatus === 'ready' ? 'Pronto' :
+                                                    order.deliveryStatus === 'delivered' ? 'Entregue' :
+                                                    'Cancelado'
+                                                %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="showOrderDetails('<%= order._id %>')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba de Solicitações Pendentes -->
+        <div class="tab-pane fade" id="requests" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Solicitações de Compra Pendentes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Item</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.filter(o => o.deliveryStatus === 'awaiting_approval').forEach(order => { %>
+                                    <tr>
+                                        <td><%= order._id.toString().slice(-6).toUpperCase() %></td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                                                <small class="text-muted"><%= new Date(order.createdAt).toLocaleTimeString() %></small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-medium"><%= order.user.name %></span>
+                                                <small class="text-muted"><%= order.user.email %></small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <% if (order.item.image) { %>
+                                                    <img src="<%= order.item.image %>" alt="<%= order.item.name %>" class="item-thumbnail">
+                                                <% } %>
+                                                <span><%= order.item.name %></span>
+                                            </div>
+                                        </td>
+                                        <td><%= order.quantity %></td>
+                                        <td><%= order.totalAmount %> moedas</td>
+                                        <td>
+                                            <span class="badge bg-warning">Aguardando Aprovação</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-success" onclick="approveRequest('<%= order._id %>')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="rejectRequest('<%= order._id %>')">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary" onclick="showOrderDetails('<%= order._id %>')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes do Pedido -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="order-details">
+                    <!-- Informações do Cliente -->
+                    <div class="section mb-4">
+                        <h6 class="section-title">Informações do Cliente</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Nome:</strong> <span id="customerName"></span></p>
+                                <p><strong>Email:</strong> <span id="customerEmail"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Pedido -->
+                    <div class="section mb-4">
+                        <h6 class="section-title">Informações do Pedido</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Item:</strong> <span id="orderItem"></span></p>
+                                <p><strong>Quantidade:</strong> <span id="orderQuantity"></span></p>
+                                <p><strong>Valor Total:</strong> <span id="orderTotal"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Data do Pedido:</strong> <span id="orderDate"></span></p>
+                                <p><strong>Status:</strong> <span id="orderStatus"></span></p>
+                                <p><strong>Status de Entrega:</strong> <span id="deliveryStatus"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Atualizar Status -->
+                    <div class="section mb-4">
+                        <h6 class="section-title">Atualizar Status</h6>
+                        <form id="updateStatusForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Status do Pedido</label>
+                                    <select class="form-select" id="newStatus" name="status">
+                                        <option value="pending">Pendente</option>
+                                        <option value="completed">Concluído</option>
+                                        <option value="cancelled">Cancelado</option>
+                                        <option value="refunded">Reembolsado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Status de Entrega</label>
+                                    <select class="form-select" id="newDeliveryStatus" name="deliveryStatus">
+                                        <option value="awaiting_approval">Aguardando Aprovação</option>
+                                        <option value="processing">Em Processamento</option>
+                                        <option value="ready">Pronto</option>
+                                        <option value="delivered">Entregue</option>
+                                        <option value="cancelled">Cancelado</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Observações</label>
+                                    <textarea class="form-control" id="statusNotes" name="notes" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Histórico de Atualizações -->
+                    <div class="section">
+                        <h6 class="section-title">Histórico de Atualizações</h6>
+                        <div class="timeline" id="orderTimeline"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="updateOrderStatus()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.item-thumbnail {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.section {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.section-title {
+    margin-bottom: 1rem;
+    color: var(--bs-primary);
+    font-weight: 600;
+}
+
+.timeline {
+    position: relative;
+    padding: 1rem 0;
+}
+
+.timeline-item {
+    padding: 0.5rem 0;
+    border-left: 2px solid var(--bs-primary);
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background: var(--bs-primary);
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}
+
+.nav-tabs .badge {
+    font-size: 0.75rem;
+}
+
+.filters {
+    max-width: 600px;
+}
+</style>
+
+<script>
+let currentOrderId = null;
+
+// Função para mostrar detalhes do pedido
+async function showOrderDetails(orderId) {
+    try {
+        currentOrderId = orderId;
+        const response = await fetch(`/admin/store/orders/${orderId}`);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error);
+
+        const order = data.order;
+
+        // Preencher informações do cliente
+        document.getElementById('customerName').textContent = order.user.name;
+        document.getElementById('customerEmail').textContent = order.user.email;
+
+        // Preencher informações do pedido
+        document.getElementById('orderItem').textContent = order.item.name;
+        document.getElementById('orderQuantity').textContent = order.quantity;
+        document.getElementById('orderTotal').textContent = `${order.totalAmount} moedas`;
+        document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleString();
+        
+        // Selecionar status atuais
+        document.getElementById('newStatus').value = order.status;
+        document.getElementById('newDeliveryStatus').value = order.deliveryStatus;
+
+        // Preencher histórico
+        const timeline = document.getElementById('orderTimeline');
+        timeline.innerHTML = '';
+
+        // Adicionar eventos ao timeline
+        const events = [
+            { date: order.createdAt, text: 'Pedido criado' },
+            { date: order.deliveryDetails.processedAt, text: 'Em processamento' },
+            { date: order.deliveryDetails.readyAt, text: 'Pronto para entrega' },
+            { date: order.deliveryDetails.deliveredAt, text: 'Entregue' }
+        ].filter(event => event.date);
+
+        events.forEach(event => {
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-content">
+                    <small class="text-muted">${new Date(event.date).toLocaleString()}</small>
+                    <p class="mb-0">${event.text}</p>
+                </div>
+            `;
+            timeline.appendChild(item);
+        });
+
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+        modal.show();
+
+    } catch (error) {
+        console.error('Erro:', error);
+        Swal.fire('Erro', 'Erro ao carregar detalhes do pedido', 'error');
+    }
+}
+
+// Função para atualizar status do pedido
+async function updateOrderStatus() {
+    try {
+        const form = document.getElementById('updateStatusForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        const response = await fetch(`/admin/store/orders/${currentOrderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.error);
+
+        Swal.fire({
+            title: 'Sucesso!',
+            text: 'Status atualizado com sucesso',
+            icon: 'success'
+        }).then(() => {
+            window.location.reload();
+        });
+
+    } catch (error) {
+        console.error('Erro:', error);
+        Swal.fire('Erro', 'Erro ao atualizar status', 'error');
+    }
+}
+
+// Funções para aprovar/rejeitar solicitações
+async function approveRequest(orderId) {
+    try {
+        const response = await fetch(`/admin/store/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: 'completed',
+                deliveryStatus: 'processing',
+                notes: 'Solicitação aprovada'
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.error);
+
+        Swal.fire({
+            title: 'Sucesso!',
+            text: 'Solicitação aprovada com sucesso',
+            icon: 'success'
+        }).then(() => {
+            window.location.reload();
+        });
+
+    } catch (error) {
+        console.error('Erro:', error);
+        Swal.fire('Erro', 'Erro ao aprovar solicitação', 'error');
+    }
+}
+
+async function rejectRequest(orderId) {
+    try {
+        const { value: notes } = await Swal.fire({
+            title: 'Motivo da Rejeição',
+            input: 'textarea',
+            inputLabel: 'Por favor, informe o motivo da rejeição',
+            inputPlaceholder: 'Digite aqui...',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Você precisa informar um motivo';
+                }
+            }
+        });
+
+        if (notes) {
+            const response = await fetch(`/admin/store/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: 'cancelled',
+                    deliveryStatus: 'cancelled',
+                    notes: notes
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.error);
+
+            Swal.fire({
+                title: 'Sucesso!',
+                text: 'Solicitação rejeitada com sucesso',
+                icon: 'success'
+            }).then(() => {
+                window.location.reload();
+            });
+        }
+
+    } catch (error) {
+        console.error('Erro:', error);
+        Swal.fire('Erro', 'Erro ao rejeitar solicitação', 'error');
+    }
+}
+
+// Filtros e busca
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const deliveryFilter = document.getElementById('deliveryFilter');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    function filterOrders() {
+        const status = statusFilter.value;
+        const delivery = deliveryFilter.value;
+        const search = searchInput.value.toLowerCase();
+
+        document.querySelectorAll('#all-orders tbody tr').forEach(row => {
+            const rowStatus = row.querySelector('td:nth-child(7)').textContent.toLowerCase();
+            const rowDelivery = row.querySelector('td:nth-child(8)').textContent.toLowerCase();
+            const rowText = row.textContent.toLowerCase();
+
+            const matchesStatus = status === 'all' || rowStatus.includes(status);
+            const matchesDelivery = delivery === 'all' || rowDelivery.includes(delivery);
+            const matchesSearch = search === '' || rowText.includes(search);
+
+            row.style.display = matchesStatus && matchesDelivery && matchesSearch ? '' : 'none';
+        });
+    }
+
+    statusFilter.addEventListener('change', filterOrders);
+    deliveryFilter.addEventListener('change', filterOrders);
+    searchButton.addEventListener('click', filterOrders);
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') filterOrders();
+    });
+});
+</script> 

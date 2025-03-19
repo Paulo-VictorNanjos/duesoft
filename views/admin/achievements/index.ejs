@@ -1,0 +1,117 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gerenciador de Conquistas</h2>
+        <a href="/admin/achievements/new" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Conquista
+        </a>
+    </div>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoria</th>
+                            <th>Raridade</th>
+                            <th>XP</th>
+                            <th>Condição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% achievements.forEach(achievement => { %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="<%= achievement.icon %>"></i>
+                                        <%= achievement.title %>
+                                    </div>
+                                </td>
+                                <td><%= achievement.category %></td>
+                                <td>
+                                    <span class="badge" data-rarity="<%= achievement.rarity %>">
+                                        <%= achievement.rarity %>
+                                    </span>
+                                </td>
+                                <td><%= achievement.xpReward %> XP</td>
+                                <td>
+                                    <%= achievement.condition.type %>: <%= achievement.condition.value %>
+                                    <% if (achievement.condition.days) { %>
+                                        (em <%= achievement.condition.days %> dias)
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="/admin/achievements/<%= achievement._id %>/edit" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteAchievement('<%= achievement._id %>')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+[data-rarity="comum"] {
+    background-color: #d1d5db;
+}
+[data-rarity="raro"] {
+    background-color: #3b82f6;
+    color: white;
+}
+[data-rarity="épico"] {
+    background-color: #8b5cf6;
+    color: white;
+}
+[data-rarity="lendário"] {
+    background-color: #f59e0b;
+    color: white;
+}
+</style>
+
+<script>
+async function deleteAchievement(id) {
+    if (!confirm('Tem certeza que deseja excluir esta conquista?')) return;
+    
+    try {
+        const response = await fetch(`/admin/achievements/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Erro ao excluir conquista');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir conquista');
+    }
+}
+</script> 

@@ -1,0 +1,439 @@
+<section id="pricing" class="pricing">
+    <div class="container">
+        <div class="section-header">
+            <h2>Planos e Preços</h2>
+            <p>Escolha o plano ideal para sua jornada de aprendizado</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Plano Básico -->
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Básico</h3>
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount">49</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p>Perfeito para iniciantes</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Acesso a 5 cursos por mês</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Certificados inclusos</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Suporte via email</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Acesso ao fórum da comunidade</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="/register?plan=basic" class="btn-pricing">Começar Agora</a>
+                </div>
+            </div>
+
+            <!-- Plano Pro -->
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Mais Popular</div>
+                <div class="pricing-header">
+                    <h3>Pro</h3>
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount">89</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p>Para alunos dedicados</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Acesso ilimitado aos cursos</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Certificados inclusos</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Suporte prioritário 24/7</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Projetos práticos exclusivos</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Mentoria em grupo semanal</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="/register?plan=pro" class="btn-pricing">Começar Agora</a>
+                </div>
+            </div>
+
+            <!-- Plano Enterprise -->
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Enterprise</h3>
+                    <div class="price">
+                        <span class="currency">R$</span>
+                        <span class="amount">199</span>
+                        <span class="period">/mês</span>
+                    </div>
+                    <p>Para times e empresas</p>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Tudo do plano Pro</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Painel administrativo</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Relatórios detalhados</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>API de integração</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Mentoria individual</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Customização de conteúdo</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="pricing-footer">
+                    <a href="/register?plan=enterprise" class="btn-pricing">Falar com Vendas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../components/wave-divider') %>
+</section>
+
+<style>
+.pricing {
+    position: relative;
+    padding: 6rem 0;
+    background: var(--dark-color);
+    overflow: hidden;
+}
+
+.pricing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, var(--primary-color) 0%, transparent 70%);
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.section-header h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.25rem;
+    color: var(--gray-300);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.pricing-card {
+    background: var(--gray-900);
+    border: 1px solid var(--gray-800);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.15);
+}
+
+.pricing-card.featured {
+    border: 2px solid var(--primary-color);
+    transform: scale(1.05);
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.05) translateY(-10px);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--primary-color);
+    color: var(--dark-color);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pricing-header h3 {
+    color: var(--light-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.pricing-header p {
+    color: var(--gray-300);
+    font-size: 1rem;
+}
+
+.price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 1.5rem 0;
+}
+
+.price .currency {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.price .amount {
+    color: var(--primary-color);
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.price .period {
+    color: var(--gray-300);
+    font-size: 1rem;
+}
+
+.pricing-features {
+    margin-bottom: 2rem;
+}
+
+.pricing-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--gray-300);
+    margin-bottom: 1rem;
+}
+
+.pricing-features i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.pricing-footer {
+    text-align: center;
+}
+
+.btn-pricing {
+    display: inline-block;
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-pricing:hover {
+    background: var(--primary-color);
+    color: var(--dark-color);
+    transform: translateY(-2px);
+}
+
+.pricing-card.featured .btn-pricing {
+    background: var(--primary-color);
+    color: var(--dark-color);
+}
+
+.pricing-card.featured .btn-pricing:hover {
+    background: var(--orange-light);
+}
+
+@media (max-width: 768px) {
+    .pricing {
+        padding: 4rem 0;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .pricing-card.featured {
+        transform: scale(1);
+    }
+
+    .pricing-card.featured:hover {
+        transform: translateY(-10px);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stripe = Stripe('<%= stripePublicKey %>');
+    let selectedPlan = null;
+    let selectedButton = null;
+    const modalElement = document.getElementById('planFormModal');
+    const modal = modalElement ? new bootstrap.Modal(modalElement) : null;
+
+    window.showPlanForm = function(plan, button) {
+        selectedPlan = plan;
+        selectedButton = button;
+        
+        const planTitles = {
+            'basic': 'Plano Basic',
+            'pro': 'Plano Pro',
+            'enterprise': 'Plano Enterprise'
+        };
+        
+        document.querySelector('.plan-title').textContent = planTitles[plan];
+        modal.show();
+    }
+
+    document.getElementById('submitPlan')?.addEventListener('click', async function() {
+        try {
+            const form = document.getElementById('companyForm');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
+
+            const companyData = {
+                name: document.getElementById('companyName').value,
+                email: document.getElementById('email').value,
+                domain: document.getElementById('domain').value,
+                cpfCnpj: document.getElementById('cpfCnpj').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                responsible: document.getElementById('responsible').value
+            };
+
+            const response = await fetch('/plans/checkout', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ 
+                    plan: selectedPlan, 
+                    companyData
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erro ao processar checkout');
+            }
+
+            const { sessionId } = await response.json();
+            const result = await stripe.redirectToCheckout({ sessionId });
+
+            if (result.error) {
+                throw new Error(result.error.message);
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao processar pagamento. Tente novamente.');
+        } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continuar para Pagamento';
+        }
+    });
+});
+
+// Máscaras para os campos
+document.getElementById('cpfCnpj')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 11) {
+        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else {
+        value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+    e.target.value = value;
+});
+
+document.getElementById('phone')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    e.target.value = value;
+});
+</script> 

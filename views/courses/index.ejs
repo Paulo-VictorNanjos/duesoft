@@ -1,0 +1,640 @@
+<div class="courses-container">
+    <div class="section-header mb-5">
+        <h2 class="display-6 fw-bold">Explore seus Cursos</h2>
+        <p class="text-muted">Aprenda, evolua e conquiste novos níveis</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="search-input">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="courseSearch" placeholder="Buscar cursos..." class="form-control">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="progressFilter" class="form-select">
+                    <option value="all">Todos os Status</option>
+                    <option value="not-started">Não Iniciados</option>
+                    <option value="in-progress">Em Andamento</option>
+                    <option value="completed">Concluídos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="sortFilter" class="form-select">
+                    <option value="xp-high">XP (Maior)</option>
+                    <option value="xp-low">XP (Menor)</option>
+                    <option value="progress-high">Progresso (Maior)</option>
+                    <option value="progress-low">Progresso (Menor)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <% if (courses && courses.length > 0) { %>
+        <div class="row g-4">
+            <% courses.forEach(course => { %>
+                <div class="col-lg-4 col-md-6">
+                    <div class="course-card">
+                        <div class="course-image">
+                            <img src="<%= course.coverImage %>" alt="<%= course.title %>">
+                        </div>
+                        <div class="course-card-content">
+                            <!-- Course Header -->
+                            <div class="course-header">
+                                <div class="course-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="course-xp">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <span><%= course.experiencePoints || 100 %> XP</span>
+                                </div>
+                            </div>
+
+                            <!-- Course Info -->
+                            <h3 class="course-title"><%= course.title %></h3>
+                            <p class="course-description"><%= course.description %></p>
+
+                            <% const history = userHistory ? userHistory.find(h => h.course.toString() === course._id.toString()) : null %>
+
+                            <!-- Progress Section -->
+                            <% if (history) { %>
+                                <div class="course-progress">
+                                    <div class="progress-label">
+                                        <span>Seu Progresso</span>
+                                        <span class="progress-percentage"><%= history.progress %>%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: <%= history.progress %>%"
+                                             aria-valuenow="<%= history.progress %>" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <!-- Course Stats -->
+                            <div class="course-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-book"></i>
+                                    <span><%= course.modules.length %> módulos</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span><%= course.modules.reduce((total, module) => 
+                                        total + module.lessons.reduce((sum, lesson) => 
+                                            sum + (lesson.duration || 0), 0), 0) %> min</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="course-action">
+                                <% if (history) { %>
+                                    <a href="/courses/<%= course._id %>" class="action-button continue">
+                                        <% if (history.progress === 100) { %>
+                                            <i class="fas fa-redo-alt me-2"></i>Revisar Curso
+                                        <% } else { %>
+                                            <i class="fas fa-play me-2"></i>Continuar
+                                        <% } %>
+                                    </a>
+                                <% } else { %>
+                                    <form action="/courses/<%= course._id %>/enroll" method="POST">
+                                        <button type="submit" class="action-button enroll">
+                                            <i class="fas fa-plus-circle me-2"></i>Matricular
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-books"></i>
+            </div>
+            <h3>Nenhum Curso Disponível</h3>
+            <p>Novos cursos serão adicionados em breve. Fique ligado!</p>
+        </div>
+    <% } %>
+</div>
+
+<style>
+    /* Container */
+    .courses-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Section Header */
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .section-header h2 {
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .section-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .search-input input {
+        padding-left: 2.75rem;
+        height: 48px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-main);
+        color: var(--text-primary);
+    }
+
+    .form-select {
+        height: 48px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-main);
+        color: var(--text-primary);
+        padding-left: 1rem;
+    }
+
+    /* Course Card */
+    .course-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(10px);
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
+        border-color: rgba(var(--primary-rgb), 0.2);
+    }
+
+    .course-image {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .course-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        pointer-events: none;
+    }
+
+    .course-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .course-card:hover .course-image img {
+        transform: scale(1.05);
+    }
+
+    .course-card-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Course Header */
+    .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .course-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(var(--primary-rgb), 0.15);
+        border: 1px solid rgba(var(--primary-rgb), 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .course-card:hover .course-icon {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .course-xp {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.2);
+        border-radius: 8px;
+        color: #ffc107;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .course-title {
+        font-size: 1.25rem;
+        margin: 0 0 0.75rem 0;
+        color: var(--text-primary);
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        line-height: 1.4;
+    }
+
+    .course-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        opacity: 0.8;
+    }
+
+    /* Progress Section */
+    .course-progress {
+        margin: 1.5rem 0;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .progress-percentage {
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .progress {
+        height: 0.5rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 1rem;
+        background: var(--primary);
+        transition: width 0.6s ease;
+    }
+
+    /* Course Stats */
+    .course-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0 1.5rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .stat-item i {
+        color: var(--primary);
+        opacity: 0.9;
+    }
+
+    /* Action Button */
+    .course-action {
+        margin-top: auto;
+    }
+
+    .action-button {
+        width: 100%;
+        padding: 0.875rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        letter-spacing: 0.3px;
+    }
+
+    .action-button.continue {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-button.enroll {
+        background: rgba(var(--primary-rgb), 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(var(--primary-rgb), 0.2);
+    }
+
+    .action-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.2);
+        text-decoration: none;
+    }
+
+    .action-button.continue:hover {
+        background: var(--primary-dark);
+        color: white;
+    }
+
+    .action-button.enroll:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+
+    /* Grid System */
+    @media (min-width: 992px) {
+        .col-lg-4 {
+            width: 33.333333%;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991px) {
+        .col-md-6 {
+            width: 50%;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .courses-container {
+            padding: 1rem;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+        }
+
+        .filter-section {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input input,
+        .form-select {
+            height: 44px;
+            font-size: 0.95rem;
+        }
+
+        .course-image {
+            height: 160px;
+        }
+
+        .course-card-content {
+            padding: 1.25rem;
+        }
+
+        .course-title {
+            font-size: 1.1rem;
+        }
+
+        .course-description {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .course-stats {
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .action-button {
+            padding: 0.6rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .courses-container {
+            padding: 0.75rem;
+        }
+
+        .col-md-6 {
+            width: 100%;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .filter-section {
+            padding: 0.75rem;
+        }
+
+        .course-stats {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin: -0.25rem -1rem 1rem;
+            padding: 0.25rem 1rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .course-stats::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stat-item {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+    }
+
+    /* Dark Mode Optimizations */
+    [data-bs-theme="dark"] .course-card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-bs-theme="dark"] .filter-section {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearch = document.getElementById('courseSearch');
+    const progressFilter = document.getElementById('progressFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const coursesContainer = document.querySelector('.row.g-4');
+
+    function filterAndSortCourses() {
+        const searchTerm = courseSearch.value.toLowerCase();
+        const progressValue = progressFilter.value;
+        const sortValue = sortFilter.value;
+
+        const courseCards = Array.from(document.querySelectorAll('.col-lg-4'));
+
+        // Filter courses
+        courseCards.forEach(card => {
+            const title = card.querySelector('.course-title').textContent.toLowerCase();
+            const description = card.querySelector('.course-description').textContent.toLowerCase();
+            const progressBar = card.querySelector('.progress-bar');
+            const progress = progressBar ? parseInt(progressBar.getAttribute('aria-valuenow')) : 0;
+
+            let matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+            let matchesProgress = true;
+
+            switch(progressValue) {
+                case 'not-started':
+                    matchesProgress = !progressBar;
+                    break;
+                case 'in-progress':
+                    matchesProgress = progressBar && progress < 100;
+                    break;
+                case 'completed':
+                    matchesProgress = progressBar && progress === 100;
+                    break;
+            }
+
+            card.style.display = matchesSearch && matchesProgress ? '' : 'none';
+        });
+
+        // Sort visible courses
+        const visibleCards = courseCards.filter(card => card.style.display !== 'none');
+        visibleCards.sort((a, b) => {
+            const getXP = card => parseInt(card.querySelector('.course-xp span').textContent);
+            const getProgress = card => {
+                const progressBar = card.querySelector('.progress-bar');
+                return progressBar ? parseInt(progressBar.getAttribute('aria-valuenow')) : 0;
+            };
+
+            switch(sortValue) {
+                case 'xp-high':
+                    return getXP(b) - getXP(a);
+                case 'xp-low':
+                    return getXP(a) - getXP(b);
+                case 'progress-high':
+                    return getProgress(b) - getProgress(a);
+                case 'progress-low':
+                    return getProgress(a) - getProgress(b);
+            }
+        });
+
+        // Reorder cards
+        visibleCards.forEach(card => coursesContainer.appendChild(card));
+
+        // Show empty state if no results
+        const emptyState = document.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.style.display = visibleCards.length === 0 ? 'block' : 'none';
+        }
+    }
+
+    // Event listeners
+    courseSearch.addEventListener('input', filterAndSortCourses);
+    progressFilter.addEventListener('change', filterAndSortCourses);
+    sortFilter.addEventListener('change', filterAndSortCourses);
+
+    // Initialize
+    filterAndSortCourses();
+});
+</script>

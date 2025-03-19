@@ -1,0 +1,166 @@
+<!-- Login Form -->
+<div class="auth-container">
+    <div class="auth-form">
+        <div class="logo-container">
+            <img src="/img/logo.png" alt="Logo" class="logo">
+        </div>
+        
+        <h2>Acesse sua conta</h2>
+        
+        <form method="POST" action="/auth/login" class="mt-4">
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" name="email" placeholder="Seu e-mail" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" name="password" placeholder="Sua senha" required>
+                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="mt-1">
+                    <a href="/auth/forgot-password" class="text-muted small">Esqueci minha senha</a>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">Ou se preferir</p>
+                <a href="/auth/github" class="btn btn-outline-secondary w-100">
+                    <i class="fab fa-github me-2"></i> Entre com github
+                </a>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="mb-0">Não tem uma conta?</p>
+                <a href="/auth/register" class="text-primary">Se inscreva gratuitamente</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="auth-background"></div>
+</div>
+
+<style>
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+    background: #121214;
+}
+
+.auth-form {
+    width: 480px;
+    padding: 40px;
+    background: #121214;
+    color: #fff;
+}
+
+.logo-container {
+    margin-bottom: 2rem;
+}
+
+.logo {
+    height: 40px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.form-control {
+    background: #202024;
+    border: 1px solid #323238;
+    color: #fff;
+    padding: 12px 16px;
+}
+
+.form-control:focus {
+    background: #202024;
+    border-color: #8257e5;
+    color: #fff;
+    box-shadow: none;
+}
+
+.form-label {
+    color: #e1e1e6;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #8257e5;
+    border: none;
+    padding: 12px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: #9466ff;
+}
+
+.btn-outline-secondary {
+    border-color: #323238;
+    color: #e1e1e6;
+}
+
+.btn-outline-secondary:hover {
+    background: #323238;
+    border-color: #323238;
+    color: #fff;
+}
+
+.text-muted {
+    color: #7c7c8a !important;
+}
+
+.auth-background {
+    flex: 1;
+    background: linear-gradient(45deg, #8257e5, #6833e4);
+    clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.toggle-password {
+    background: #202024;
+    border-color: #323238;
+    color: #7c7c8a;
+}
+
+.toggle-password:hover {
+    background: #323238;
+    border-color: #323238;
+    color: #e1e1e6;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+    }
+    
+    .auth-form {
+        width: 100%;
+    }
+    
+    .auth-background {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+});
+</script>

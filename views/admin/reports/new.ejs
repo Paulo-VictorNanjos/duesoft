@@ -1,0 +1,146 @@
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Gerar Novo Relatório</h4>
+                </div>
+                <div class="card-body">
+                    <form id="reportForm">
+                        <div class="mb-3">
+                            <label class="form-label">Título do Relatório</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Relatório</label>
+                            <select class="form-select" name="type" id="reportType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="curso">Relatório de Cursos</option>
+                                <option value="prova">Relatório de Provas</option>
+                                <option value="usuario">Relatório de Usuários</option>
+                                <option value="conquista">Relatório de Conquistas</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data Inicial</label>
+                                    <input type="date" class="form-control" name="dateStart" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data Final</label>
+                                    <input type="date" class="form-control" name="dateEnd" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Formato do Relatório</label>
+                            <select class="form-select" name="format" required>
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+
+                        <div id="dynamicFilters" class="mb-3">
+                            <!-- Filtros dinâmicos serão inseridos aqui -->
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/reports" class="btn btn-secondary">Voltar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-alt me-2"></i>Gerar Relatório
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reportForm = document.getElementById('reportForm');
+    const reportType = document.getElementById('reportType');
+    const dynamicFilters = document.getElementById('dynamicFilters');
+
+    const filterTemplates = {
+        curso: `
+            <div class="mb-3">
+                <label class="form-label">Filtrar por Curso</label>
+                <select class="form-select" name="courseId">
+                    <option value="">Todos os cursos</option>
+                    <% courses.forEach(course => { %>
+                        <option value="<%= course._id %>"><%= course.title %></option>
+                    <% }) %>
+                </select>
+            </div>
+        `,
+        usuario: `
+            <div class="mb-3">
+                <label class="form-label">Categoria de Usuário</label>
+                <select class="form-select" name="category">
+                    <option value="">Todas as categorias</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Pleno">Pleno</option>
+                    <option value="Senior">Senior</option>
+                </select>
+            </div>
+        `
+    };
+
+    reportType.addEventListener('change', function() {
+        const template = filterTemplates[this.value];
+        dynamicFilters.innerHTML = template || '';
+    });
+
+    reportForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const filters = {};
+        
+        formData.forEach((value, key) => {
+            if (key !== 'title' && key !== 'type' && key !== 'dateStart' && 
+                key !== 'dateEnd' && key !== 'format' && value) {
+                filters[key] = value;
+            }
+        });
+
+        try {
+            const response = await fetch('/admin/reports/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: formData.get('title'),
+                    type: formData.get('type'),
+                    dateStart: formData.get('dateStart'),
+                    dateEnd: formData.get('dateEnd'),
+                    format: formData.get('format'),
+                    filters: JSON.stringify(filters)
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('Iniciando download do relatório:', data.reportId);
+                window.location.href = `/admin/reports/${data.reportId}/download`;
+            } else {
+                console.error('Erro na resposta:', data);
+                alert('Erro ao gerar relatório: ' + (data.error || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Erro ao enviar requisição:', error);
+        }
+    });
+});
+</script> 

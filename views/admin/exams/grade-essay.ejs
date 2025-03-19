@@ -1,0 +1,110 @@
+<div class="container py-4">
+    <div class="card">
+        <div class="card-body">
+            <h3>Correção de Prova Dissertativa</h3>
+            <h4 class="mb-4"><%= exam.title %></h4>
+
+            <div class="student-info mb-4">
+                <h5>Aluno: <%= attempt.user.name %></h5>
+                <p>Data de envio: <%= new Date(attempt.endTime).toLocaleString() %></p>
+            </div>
+
+            <% attempt.answers.forEach((answer, index) => { %>
+                <div class="question-grading card mb-4">
+                    <div class="card-body">
+                        <h5>Questão <%= index + 1 %></h5>
+                        
+                        <div class="base-text-container mb-4">
+                            <h6>Texto Base</h6>
+                            <div class="base-text p-3 bg-light">
+                                <%= exam.questions[index].baseText %>
+                            </div>
+                        </div>
+
+                        <div class="student-answer mb-4">
+                            <h6>Resposta do Aluno</h6>
+                            <div class="p-3 bg-light">
+                                <%= answer.text %>
+                            </div>
+                        </div>
+
+                        <div class="expected-answer mb-4">
+                            <h6>Resposta Esperada</h6>
+                            <div class="p-3 bg-light">
+                                <%= exam.questions[index].expectedAnswer %>
+                            </div>
+                        </div>
+
+                        <div class="grading-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="number" 
+                                               class="form-control" 
+                                               name="grades[<%= index %>]" 
+                                               value="<%= answer.score || 0 %>"
+                                               min="0" 
+                                               max="<%= exam.questions[index].maxScore %>">
+                                        <label>Nota (Máx: <%= exam.questions[index].maxScore %>)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" 
+                                          name="feedback[<%= index %>]" 
+                                          style="height: 100px"><%= answer.feedback || '' %></textarea>
+                                <label>Feedback para o Aluno</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+
+            <div class="text-end">
+                <button type="button" class="btn btn-secondary me-2" onclick="history.back()">
+                    Voltar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitGrades()">
+                    Salvar Avaliação
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitGrades() {
+    const grades = [];
+    const feedback = [];
+    
+    document.querySelectorAll('input[name^="grades"]').forEach(input => {
+        grades.push(parseFloat(input.value) || 0);
+    });
+    
+    document.querySelectorAll('textarea[name^="feedback"]').forEach(textarea => {
+        feedback.push(textarea.value);
+    });
+
+    fetch(`/admin/exams/<%= exam._id %>/attempts/<%= attempt._id %>/grade`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ grades, feedback })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Avaliação salva com sucesso!');
+            window.location.href = '/admin/exams/<%= exam._id %>/results';
+        } else {
+            alert('Erro ao salvar avaliação');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao salvar avaliação');
+    });
+}
+</script> 

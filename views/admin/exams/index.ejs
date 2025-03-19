@@ -1,0 +1,114 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gerenciador de Provas</h2>
+        <a href="/admin/exams/new" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Prova
+        </a>
+    </div>
+
+    <!-- Debug info - remova após resolver o problema -->
+    <% if (typeof exams !== 'undefined') { %>
+        <div class="alert alert-info">
+            Número de provas encontradas: <%= exams.length %>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Curso</th>
+                            <th>Questões</th>
+                            <th>Nota Mínima</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (exams && exams.length > 0) { %>
+                            <% exams.forEach(exam => { %>
+                                <tr>
+                                    <td><%= exam.title %></td>
+                                    <td><%= exam.course ? exam.course.title : 'N/A' %></td>
+                                    <td><%= exam.questions.length %></td>
+                                    <td><%= exam.minimumScore %>%</td>
+                                    <td>
+                                        <span class="badge <%= exam.active ? 'bg-success' : 'bg-secondary' %>">
+                                            <%= exam.active ? 'Ativa' : 'Inativa' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/admin/exams/<%= exam._id %>/edit" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="/admin/exams/<%= exam._id %>/results" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                            <button onclick="deleteExam('<%= exam._id %>')" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">Nenhuma prova encontrada</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function toggleExamStatus(examId) {
+    try {
+        const response = await fetch(`/admin/exams/${examId}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Failed to toggle status');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Erro ao alterar status da prova');
+        // Revert checkbox state
+        const checkbox = document.getElementById(`status-${examId}`);
+        checkbox.checked = !checkbox.checked;
+    }
+}
+
+async function deleteExam(examId) {
+    if (!confirm('Tem certeza que deseja excluir esta prova?')) return;
+    
+    try {
+        const response = await fetch(`/admin/exams/${examId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Failed to delete exam');
+        
+        window.location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Erro ao excluir prova');
+    }
+}
+</script>

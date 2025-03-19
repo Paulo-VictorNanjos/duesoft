@@ -1,0 +1,260 @@
+<div class="video-section">
+    <div class="video-card">
+        <button class="close-video" onclick="toggleVideoCard()">&times;</button>
+        <div class="video-container">
+            <video id="myVideo" controls>
+                <source src="/videos/videoplayback.mp4" type="video/mp4">
+                Seu navegador não suporta o elemento de vídeo.
+            </video>
+        </div>
+        <div class="video-info">
+            <div class="progress-container">
+                <div class="progress-avatar">
+                    <img src="/images/logo.png" alt="StudyWob">
+                </div>
+                <div class="progress-details">
+                    <span class="progress-text">0/3 watched</span>
+                    <h3>Welcome to StudyWob!</h3>
+                </div>
+            </div>
+            <div class="video-controls">
+                <button class="btn-see-all">See all</button>
+                <div class="navigation-buttons">
+                    <button class="btn-nav prev" aria-label="Previous">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <button class="btn-nav next" aria-label="Next">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.video-section {
+    position: fixed;
+    bottom: 100px;
+    left: 24px;
+    z-index: 999;
+    padding: 0;
+    max-width: 400px;
+    margin: 0;
+    display: none;
+    animation: slideUp 0.3s ease-out;
+}
+
+.video-section.video-visible {
+    display: block;
+}
+
+.video-card {
+    position: relative;
+}
+
+.close-video {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-section {
+        left: 24px;
+        right: 24px;
+        max-width: calc(100vw - 48px);
+    }
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    background: #000; /* Fundo preto para o vídeo */
+    border-radius: 12px;
+}
+
+.video-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+/* Estilizando os controles nativos do vídeo */
+video::-webkit-media-controls {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+video::-webkit-media-controls-panel {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
+.video-info {
+    padding: 1.5rem;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.progress-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.progress-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.progress-details {
+    flex: 1;
+}
+
+.progress-text {
+    font-size: 14px;
+    color: #666;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.progress-details h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.video-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.btn-see-all {
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-see-all:hover {
+    background: #ebebeb;
+}
+
+.navigation-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-nav {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f5f5f5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-nav:hover {
+    background: #ebebeb;
+}
+
+.btn-nav svg {
+    width: 20px;
+    height: 20px;
+    stroke: #666;
+}
+
+@media (max-width: 768px) {
+    .video-section {
+        padding: 1rem;
+    }
+    
+    .progress-details h3 {
+        font-size: 16px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('myVideo');
+    
+    // Pausar o vídeo quando fechar o card
+    function pauseVideo() {
+        if (video) {
+            video.pause();
+        }
+    }
+
+    // Adicionar ao toggleVideoCard existente
+    window.toggleVideoCard = function() {
+        const videoSection = document.querySelector('.video-section');
+        if (videoSection) {
+            const isVisible = videoSection.classList.contains('video-visible');
+            videoSection.classList.toggle('video-visible');
+            
+            if (!isVisible) {
+                videoSection.style.display = 'block';
+            } else {
+                pauseVideo();
+                setTimeout(() => {
+                    if (!videoSection.classList.contains('video-visible')) {
+                        videoSection.style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+    }
+});
+</script> 

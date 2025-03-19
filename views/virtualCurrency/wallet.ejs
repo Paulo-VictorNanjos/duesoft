@@ -1,0 +1,915 @@
+<!-- Header da Carteira -->
+<div class="wallet-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="wallet-title">Carteira Digital</h1>
+                <p class="wallet-description">Gerencie suas moedas e realize saques de forma simples e segura</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="balance-card">
+                    <div class="balance-info">
+                        <i class="fas fa-coins balance-icon"></i>
+                        <div class="balance-details">
+                            <span class="balance-label">Saldo Disponível</span>
+                            <span class="balance-value"><%= wallet?.balance || 0 %> <%= currency?.symbol || 'moedas' %></span>
+                        </div>
+                    </div>
+                    <div class="balance-actions">
+                        <a href="/virtual-currency/payment-info" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-cog me-2"></i>Dados de Pagamento
+                        </a>
+                        <% if (currency?.settings?.withdrawEnabled) { %>
+                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                                <i class="fas fa-money-bill-wave me-2"></i>Solicitar Saque
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wallet-content">
+    <div class="container">
+        <div class="row">
+            <!-- Informações da Carteira -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <div class="info-header">
+                        <h5><i class="fas fa-info-circle me-2"></i>Informações da Carteira</h5>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-row">
+                            <span class="info-label">Taxa de Conversão</span>
+                            <span class="info-value">1 <%= currency?.symbol %> = R$ <%= currency?.conversionRate %></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Saque Mínimo</span>
+                            <span class="info-value">R$ <%= currency?.settings?.minWithdraw %></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Taxa de Saque</span>
+                            <span class="info-value"><%= currency?.settings?.withdrawFee %>%</span>
+                        </div>
+                    </div>
+
+                    <div class="info-divider"></div>
+
+                    <div class="info-header">
+                        <h5><i class="fas fa-money-check-alt me-2"></i>Métodos de Saque</h5>
+                    </div>
+
+                    <div class="method-section">
+                        <!-- PIX -->
+                        <div class="method-card">
+                            <div class="method-icon">
+                                <i class="fab fa-pix"></i>
+                            </div>
+                            <div class="method-info">
+                                <div class="method-header">
+                                    <span class="method-name">PIX</span>
+                                    <% if (currency?.settings?.withdrawMethods?.pix?.enabled) { %>
+                                        <span class="method-badge badge-success">Disponível</span>
+                                    <% } else { %>
+                                        <span class="method-badge badge-disabled">Indisponível</span>
+                                    <% } %>
+                                </div>
+                                <div class="method-details">
+                                    <span class="detail-item">
+                                        <i class="fas fa-percentage"></i>
+                                        Taxa: <%= currency?.settings?.withdrawMethods?.pix?.fee %>%
+                                    </span>
+                                    <span class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        Prazo: <%= currency?.settings?.withdrawMethods?.pix?.delay === 0 ? 'Imediato' : currency?.settings?.withdrawMethods?.pix?.delay + ' dia(s) útil(eis)' %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transferência Bancária -->
+                        <div class="method-card">
+                            <div class="method-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="method-info">
+                                <div class="method-header">
+                                    <span class="method-name">Transferência Bancária</span>
+                                    <% if (currency?.settings?.withdrawMethods?.bankTransfer?.enabled) { %>
+                                        <span class="method-badge badge-success">Disponível</span>
+                                    <% } else { %>
+                                        <span class="method-badge badge-disabled">Indisponível</span>
+                                    <% } %>
+                                </div>
+                                <div class="method-details">
+                                    <span class="detail-item">
+                                        <i class="fas fa-percentage"></i>
+                                        Taxa: <%= currency?.settings?.withdrawMethods?.bankTransfer?.fee %>%
+                                    </span>
+                                    <span class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        Prazo: <%= currency?.settings?.withdrawMethods?.bankTransfer?.delay %> dia(s) útil(eis)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico de Transações -->
+            <div class="col-lg-8">
+                <div class="transactions-card">
+                    <div class="transactions-header">
+                        <h5><i class="fas fa-history me-2"></i>Histórico de Transações</h5>
+                        <select class="form-select form-select-sm" id="transactionFilter">
+                            <option value="all">Todas</option>
+                            <option value="CREDIT">Recebimentos</option>
+                            <option value="DEBIT">Pagamentos</option>
+                            <option value="WITHDRAW">Saques</option>
+                            <option value="REFUND">Reembolsos</option>
+                            <option value="STORE">Compras</option>
+                        </select>
+                    </div>
+
+                    <div class="transactions-content">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Descrição</th>
+                                        <th class="text-center">Valor</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (transactions && transactions.length > 0) { %>
+                                        <% transactions.forEach(transaction => { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="transaction-type">
+                                                        <div class="type-icon <%= transaction.type.toLowerCase() %>">
+                                                            <i class="fas <%= 
+                                                                transaction.type === 'CREDIT' ? 'fa-plus' : 
+                                                                transaction.type === 'WITHDRAW' ? 'fa-money-bill-wave' :
+                                                                transaction.reference === 'STORE' ? 'fa-shopping-cart' :
+                                                                'fa-minus' %>">
+                                                            </i>
+                                                        </div>
+                                                        <div class="type-info">
+                                                            <span class="type-label">
+                                                                <%= transaction.type === 'CREDIT' ? 'Recebimento' : 
+                                                                    transaction.type === 'WITHDRAW' ? 'Saque' : 
+                                                                    transaction.reference === 'STORE' ? 'Compra' :
+                                                                    'Pagamento' %>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="transaction-description">
+                                                        <%= transaction.description %>
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="transaction-amount <%= transaction.type === 'DEBIT' || transaction.type === 'WITHDRAW' ? 'amount-negative' : 'amount-positive' %>">
+                                                        <%= transaction.type === 'DEBIT' || transaction.type === 'WITHDRAW' ? '-' : '+' %><%= transaction.amount %> <%= currency?.symbol %>
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="transaction-status status-<%= transaction.status.toLowerCase() %>">
+                                                        <%= transaction.status === 'COMPLETED' ? 'Concluído' : 
+                                                            transaction.status === 'PENDING' ? 'Pendente' : 
+                                                            'Cancelado' %>
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="transaction-date">
+                                                        <%= new Date(transaction.createdAt).toLocaleDateString('pt-BR') %>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <div class="empty-state">
+                                                    <i class="fas fa-receipt"></i>
+                                                    <p>Nenhuma transação encontrada</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Saque -->
+<div class="modal fade" id="withdrawModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Solicitar Saque</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="withdrawForm">
+                    <div class="mb-3">
+                        <label class="form-label">Valor do Saque</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" class="form-control" name="amount" required min="<%= currency?.settings?.minWithdraw %>" step="0.01">
+                        </div>
+                        <small class="text-muted">Mínimo: R$ <%= currency?.settings?.minWithdraw %></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Método de Saque</label>
+                        <select class="form-select" name="method" required>
+                            <% if (currency?.settings?.withdrawMethods?.pix?.enabled) { %>
+                                <option value="pix">PIX</option>
+                            <% } %>
+                            <% if (currency?.settings?.withdrawMethods?.bankTransfer?.enabled) { %>
+                                <option value="bankTransfer">Transferência Bancária</option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <div id="pixFields" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label">Chave PIX</label>
+                            <input type="text" class="form-control" name="pixKey">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Chave</label>
+                            <select class="form-select" name="pixKeyType">
+                                <option value="cpf">CPF</option>
+                                <option value="email">E-mail</option>
+                                <option value="phone">Telefone</option>
+                                <option value="random">Chave Aleatória</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="bankFields" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label">Banco</label>
+                            <input type="text" class="form-control" name="bankName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Agência</label>
+                            <input type="text" class="form-control" name="bankBranch">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Conta</label>
+                            <input type="text" class="form-control" name="bankAccount">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CPF/CNPJ do Titular</label>
+                            <input type="text" class="form-control" name="bankDocument">
+                        </div>
+                    </div>
+
+                    <div class="withdraw-summary">
+                        <h6>Resumo do Saque</h6>
+                        <div class="summary-row">
+                            <span>Valor Solicitado:</span>
+                            <span id="withdrawAmount">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Taxa de Saque (<%= currency?.settings?.withdrawFee %>%):</span>
+                            <span id="withdrawFee">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Taxa do Método:</span>
+                            <span id="methodFee">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <strong>Valor Final:</strong>
+                            <strong id="finalAmount">R$ 0,00</strong>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" form="withdrawForm" class="btn btn-primary">
+                    <i class="fas fa-money-bill-wave me-2"></i>Solicitar Saque
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Variáveis de Tema */
+:root {
+    /* Cores Base */
+    --wallet-primary: var(--primary);
+    --wallet-primary-hover: var(--primary-hover);
+    --wallet-success: #28a745;
+    --wallet-warning: #ffc107;
+    --wallet-danger: #dc3545;
+    
+    /* Cores de Texto */
+    --wallet-text: var(--text-primary);
+    --wallet-text-secondary: var(--text-secondary);
+    --wallet-text-light: #ffffff;
+    
+    /* Cores de Fundo */
+    --wallet-bg: var(--bg-main);
+    --wallet-card-bg: var(--bg-card);
+    --wallet-border: var(--border-color);
+    
+    /* Cores de Texto Específicas */
+    --wallet-text-dark: #2c3e50;
+    --wallet-text-muted: #6c757d;
+    
+    /* Sombras */
+    --wallet-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --wallet-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] {
+    --wallet-text: #2c3e50;
+    --wallet-text-secondary: #6c757d;
+    --wallet-border: #dee2e6;
+    --wallet-bg: #f8f9fa;
+    --wallet-card-bg: #ffffff;
+}
+
+[data-bs-theme="dark"] {
+    --wallet-text: #e9ecef;
+    --wallet-text-secondary: #adb5bd;
+    --wallet-border: #2d3436;
+    --wallet-bg: #1a1d20;
+    --wallet-card-bg: #2c3e50;
+}
+
+/* Header da Carteira */
+.wallet-header {
+    background: linear-gradient(45deg, var(--wallet-primary), var(--wallet-primary-hover));
+    color: #dfff00;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.wallet-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.wallet-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Card de Saldo */
+.balance-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.balance-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.balance-icon {
+    font-size: 2.5rem;
+    color: #FFD700;
+}
+
+.balance-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.balance-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.balance-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.balance-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Cards de Informação */
+.info-card {
+    background: var(--wallet-card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--wallet-border);
+    overflow: hidden;
+}
+
+.info-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--wallet-border);
+}
+
+.info-header h5 {
+    margin: 0;
+    color: var(--wallet-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-section {
+    padding: 1.5rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.info-row:not(:last-child) {
+    border-bottom: 1px solid var(--wallet-border);
+}
+
+.info-label {
+    color: var(--wallet-text-secondary);
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--wallet-text);
+}
+
+.info-divider {
+    height: 1px;
+    background: var(--wallet-border);
+}
+
+/* Métodos de Saque */
+.method-section {
+    padding: 1.5rem;
+}
+
+.method-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--wallet-bg);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.method-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--wallet-card-bg);
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
+.method-info {
+    flex: 1;
+}
+
+.method-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.method-name {
+    font-weight: 600;
+    color: var(--wallet-text);
+}
+
+.method-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.badge-success {
+    background: var(--wallet-success);
+    color: white;
+}
+
+.badge-disabled {
+    background: var(--wallet-text-secondary);
+    color: white;
+}
+
+.method-details {
+    display: flex;
+    gap: 1rem;
+}
+
+.detail-item {
+    font-size: 0.9rem;
+    color: var(--wallet-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Histórico de Transações */
+.transactions-card {
+    background: var(--wallet-card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--wallet-border);
+    overflow: hidden;
+}
+
+.transactions-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--wallet-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.transactions-header h5 {
+    margin: 0;
+    color: var(--wallet-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.transactions-content {
+    padding: 1.5rem;
+}
+
+/* Tabela de Transações */
+.table {
+    color: var(--wallet-text);
+}
+
+.table thead th {
+    background: var(--wallet-bg);
+    color: var(--wallet-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 1rem;
+    border-bottom: 1px solid var(--wallet-border);
+}
+
+.transaction-type {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.type-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: white;
+}
+
+.type-icon.credit {
+    background: var(--wallet-success);
+}
+
+.type-icon.debit {
+    background: var(--wallet-danger);
+}
+
+.type-icon.withdraw {
+    background: var(--wallet-warning);
+}
+
+.type-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.type-label {
+    font-weight: 600;
+    color: var(--wallet-text);
+}
+
+.transaction-description {
+    color: var(--wallet-text);
+}
+
+.transaction-amount {
+    font-weight: 600;
+}
+
+.amount-positive {
+    color: var(--wallet-success);
+}
+
+.amount-negative {
+    color: var(--wallet-danger);
+}
+
+.transaction-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.status-completed {
+    background: var(--wallet-success);
+    color: white;
+}
+
+.status-pending {
+    background: var(--wallet-warning);
+    color: var(--wallet-text);
+}
+
+.status-cancelled {
+    background: var(--wallet-danger);
+    color: white;
+}
+
+.transaction-date {
+    color: var(--wallet-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Estado Vazio */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--wallet-text-secondary);
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Modal de Saque */
+.modal-content {
+    background: var(--wallet-card-bg);
+    border: none;
+    border-radius: 16px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--wallet-border);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.withdraw-summary {
+    background: var(--wallet-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.withdraw-summary h6 {
+    margin-bottom: 1rem;
+    color: var(--wallet-text);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: var(--wallet-text);
+}
+
+.summary-row:not(:last-child) {
+    border-bottom: 1px solid var(--wallet-border);
+}
+
+.summary-row.total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--wallet-border);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .wallet-header {
+        padding: 2rem 0;
+    }
+
+    .wallet-title {
+        font-size: 2rem;
+    }
+
+    .balance-card {
+        margin-top: 2rem;
+    }
+
+    .balance-actions {
+        flex-direction: column;
+    }
+
+    .method-details {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Ajustes para o tema light */
+[data-bs-theme="light"] {
+    .info-card,
+    .transactions-card,
+    .method-card {
+        box-shadow: var(--wallet-shadow);
+    }
+
+    .method-icon {
+        background: var(--wallet-bg);
+        color: var(--wallet-text);
+    }
+
+    .transaction-type .type-icon {
+        box-shadow: var(--wallet-shadow);
+    }
+
+    .table thead th {
+        background: var(--wallet-bg);
+        color: var(--wallet-text-secondary);
+        border-bottom: 2px solid var(--wallet-border);
+    }
+
+    .transaction-description,
+    .type-label,
+    .method-name {
+        color: var(--wallet-text-dark);
+    }
+
+    .info-label,
+    .detail-item,
+    .transaction-date {
+        color: var(--wallet-text-muted);
+    }
+
+    .modal-content {
+        box-shadow: var(--wallet-shadow);
+    }
+
+    .withdraw-summary {
+        background: var(--wallet-bg);
+        border: 1px solid var(--wallet-border);
+    }
+}
+
+/* Ajustes para o tema dark */
+[data-bs-theme="dark"] {
+    .info-card,
+    .transactions-card,
+    .method-card {
+        box-shadow: none;
+    }
+
+    .method-icon {
+        background: var(--wallet-bg);
+        color: var(--wallet-text-light);
+    }
+
+    .transaction-description,
+    .type-label,
+    .method-name {
+        color: var(--wallet-text);
+    }
+
+    .info-label,
+    .detail-item,
+    .transaction-date {
+        color: var(--wallet-text-secondary);
+    }
+
+    .modal-content {
+        box-shadow: none;
+    }
+
+    .withdraw-summary {
+        background: var(--wallet-bg);
+        border: 1px solid var(--wallet-border);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtro de transações
+    const transactionFilter = document.getElementById('transactionFilter');
+    if (transactionFilter) {
+        transactionFilter.addEventListener('change', function() {
+            const type = this.value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const typeCell = row.querySelector('.type-label');
+                if (!typeCell) return;
+                
+                const shouldShow = type === 'all' || 
+                    (type === 'CREDIT' && typeCell.textContent.includes('Recebimento')) ||
+                    (type === 'DEBIT' && typeCell.textContent.includes('Pagamento')) ||
+                    (type === 'WITHDRAW' && typeCell.textContent.includes('Saque')) ||
+                    (type === 'REFUND' && typeCell.textContent.includes('Reembolso')) ||
+                    (type === 'STORE' && typeCell.textContent.includes('Compra'));
+                
+                row.style.display = shouldShow ? '' : 'none';
+            });
+        });
+    }
+
+    // Formulário de Saque
+    const withdrawForm = document.getElementById('withdrawForm');
+    if (withdrawForm) {
+        const methodSelect = withdrawForm.querySelector('[name="method"]');
+        const pixFields = document.getElementById('pixFields');
+        const bankFields = document.getElementById('bankFields');
+        const amountInput = withdrawForm.querySelector('[name="amount"]');
+        
+        // Alternar campos baseado no método
+        methodSelect?.addEventListener('change', function() {
+            const method = this.value;
+            pixFields.classList.toggle('d-none', method !== 'pix');
+            bankFields.classList.toggle('d-none', method !== 'bankTransfer');
+        });
+        
+        // Calcular valores
+        amountInput?.addEventListener('input', function() {
+            const amount = parseFloat(this.value) || 0;
+            const withdrawFee = amount * (<%= currency?.settings?.withdrawFee %> / 100);
+            const methodFee = amount * (
+                methodSelect.value === 'pix' 
+                    ? <%= currency?.settings?.withdrawMethods?.pix?.fee %> 
+                    : <%= currency?.settings?.withdrawMethods?.bankTransfer?.fee %> / 100
+            );
+            const finalAmount = amount - withdrawFee - methodFee;
+            
+            document.getElementById('withdrawAmount').textContent = `R$ ${amount.toFixed(2)}`;
+            document.getElementById('withdrawFee').textContent = `R$ ${withdrawFee.toFixed(2)}`;
+            document.getElementById('methodFee').textContent = `R$ ${methodFee.toFixed(2)}`;
+            document.getElementById('finalAmount').textContent = `R$ ${finalAmount.toFixed(2)}`;
+        });
+        
+        // Submeter formulário
+        withdrawForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/virtual-currency/withdraw', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    toastr.success('Solicitação de saque enviada com sucesso!');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    toastr.error(result.message || 'Erro ao processar solicitação de saque');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                toastr.error('Erro ao processar solicitação');
+            }
+        });
+    }
+});
+</script> 

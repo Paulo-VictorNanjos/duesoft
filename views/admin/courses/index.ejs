@@ -1,0 +1,1272 @@
+<!-- Flash Messages -->
+<% if (success && success.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<% if (error && error.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<!-- Courses Container -->
+<div class="courses-container">
+    <!-- Header Section -->
+    <div class="courses-header">
+        <div class="header-content">
+            <div class="header-title-wrapper">
+                <h1 class="courses-title">Gerenciador de Cursos</h1>
+                <span class="courses-count"><%= courses.length %> cursos</span>
+            </div>
+            <p class="courses-subtitle">Gerencie e organize todos os cursos da plataforma</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="courseSearch" placeholder="Buscar cursos..." class="search-input">
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='/admin/courses/new'">
+                <i class="fas fa-plus"></i>
+                <span>Novo Curso</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total de Cursos</h3>
+                <div class="stat-value"><%= courses.length %></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total de Módulos</h3>
+                <div class="stat-value">
+                    <%= courses.reduce((total, course) => total + (course.modules?.length || 0), 0) %>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total de Aulas</h3>
+                <div class="stat-value">
+                    <%= courses.reduce((total, course) => {
+                        return total + (course.modules?.reduce((sum, module) => 
+                            sum + (module.lessons?.length || 0), 0) || 0)
+                    }, 0) %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Table Card -->
+    <div class="table-card">
+        <div class="table-toolbar">
+            <div class="toolbar-filters">
+                <select class="filter-select">
+                    <option value="all">Todos os Cursos</option>
+                    <option value="active">Ativos</option>
+                    <option value="draft">Rascunhos</option>
+                </select>
+                <select class="filter-select">
+                    <option value="newest">Mais Recentes</option>
+                    <option value="oldest">Mais Antigos</option>
+                    <option value="name">Nome (A-Z)</option>
+                </select>
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn btn-icon" title="Exportar">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="btn btn-icon" title="Configurações">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="th-check">
+                            <input type="checkbox" class="form-check-input" id="selectAll">
+                        </th>
+                        <th>TÍTULO</th>
+                        <th class="text-center">MÓDULOS</th>
+                        <th class="text-center">AULAS</th>
+                        <th class="text-center">XP</th>
+                        <th class="text-center">AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% courses.forEach(course => { %>
+                        <tr class="course-row" data-course-id="<%= course._id %>">
+                            <td class="td-check">
+                                <input type="checkbox" class="form-check-input course-check">
+                            </td>
+                            <td>
+                                <div class="course-info">
+                                    <div class="course-icon">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="course-details">
+                                        <span class="course-title"><%= course.title %></span>
+                                        <span class="course-meta">Criado em <%= new Date(course.createdAt).toLocaleDateString() %></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark"><%= course.modulesCount %></span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark"><%= course.lessonsCount %></span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary"><%= course.xp %> XP</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-icon btn-view" data-course-id="<%= course._id %>" title="Visualizar">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="/admin/courses/<%= course._id %>/edit" class="btn btn-icon btn-edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-icon btn-delete" onclick="deleteCourse('<%= course._id %>')" title="Excluir">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-more" 
+                                            onclick="showMoreOptions(event, '<%= course._id %>')" 
+                                            data-course-id="<%= course._id %>" 
+                                            title="Mais opções">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Dropdown Menu Template -->
+                                <div class="dropdown-menu course-actions-menu">
+                                    <a class="dropdown-item preview-course" onclick="viewCourse('<%= course._id %>'); return false;">
+                                        <i class="fas fa-eye"></i> Pré-visualizar
+                                    </a>
+                                    <a class="dropdown-item duplicate-course" onclick="duplicateCourse('<%= course._id %>'); return false;">
+                                        <i class="fas fa-copy"></i> Duplicar
+                                    </a>
+                                    <a class="dropdown-item export-course" onclick="exportSingleCourse('<%= course._id %>'); return false;">
+                                        <i class="fas fa-download"></i> Exportar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="footer-info">
+                Mostrando <%= courses.length %> de <%= courses.length %> cursos
+            </div>
+            <div class="footer-pagination">
+                <button class="btn btn-icon" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-number">1</span>
+                <button class="btn btn-icon" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Adicionar form oculto para deleção -->
+<form id="deleteForm" method="POST" style="display: none;">
+    <input type="hidden" name="_method" value="DELETE">
+</form>
+
+<!-- Adicionar Modal de Visualização -->
+<div class="modal fade" id="viewCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Curso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="course-preview">
+                    <div class="preview-header">
+                        <img id="courseImage" src="" alt="Capa do curso" class="course-cover">
+                        <div class="preview-info">
+                            <h3 id="courseTitle"></h3>
+                            <p id="courseDescription"></p>
+                        </div>
+                    </div>
+                    <div class="preview-stats">
+                        <div class="stat">
+                            <i class="fas fa-book"></i>
+                            <span>Módulos: </span>
+                            <strong id="courseModules"></strong>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-video"></i>
+                            <span>Aulas: </span>
+                            <strong id="courseLessons"></strong>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>XP: </span>
+                            <strong id="courseXP"></strong>
+                        </div>
+                    </div>
+                    <div class="preview-modules" id="modulesList">
+                        <!-- Módulos serão inseridos aqui via JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <a href="#" id="editCourseBtn" class="btn btn-primary">Editar Curso</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Container */
+.courses-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Header */
+.courses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.header-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.courses-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.courses-count {
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.courses-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+.search-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 16px 0 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    outline: none;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 20px;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+}
+
+/* Quick Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-info h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0 0 4px 0;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Table Card */
+.table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-filters {
+    display: flex;
+    gap: 12px;
+}
+
+.filter-select {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+    min-width: 140px;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.table {
+    margin: 0;
+    width: 100%;
+}
+
+.table th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    padding: 16px 24px;
+    background: var(--bg-main);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.th-check, .td-check {
+    width: 48px;
+    text-align: center;
+}
+
+.table td {
+    font-size: 14px;
+    padding: 16px 24px;
+    color: var(--text-primary);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.course-row {
+    transition: all 0.2s ease;
+}
+
+.course-row:hover {
+    background: rgba(var(--primary-rgb), 0.02);
+}
+
+/* Course Info */
+.course-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.course-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.course-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.course-title {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.course-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Badges */
+.badge {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.status-inactive {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-edit:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-delete:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-more:hover {
+    background: var(--hover-color);
+    color: var(--text-primary);
+}
+
+/* Table Footer */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.footer-pagination {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-number {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Form Check */
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .header-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .search-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .courses-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .toolbar-filters {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .table-toolbar {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .table-responsive {
+        margin: 0 -24px;
+        overflow-x: auto;
+    }
+
+    .table td, .table th {
+        white-space: nowrap;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* Alert Styles */
+.alert {
+    margin: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border: 1px solid #198754;
+    color: #198754;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.alert-dismissible .btn-close:hover {
+    opacity: 1;
+}
+
+/* Modal Styles */
+.course-preview {
+    padding: 20px;
+}
+
+.preview-header {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.course-cover {
+    width: 200px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.preview-info h3 {
+    margin: 0 0 12px 0;
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+.preview-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.preview-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: 12px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.stat i {
+    color: var(--primary-color);
+}
+
+.preview-modules {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.module-item {
+    background: var(--bg-main);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.module-title {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.lesson-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.lesson-item i {
+    color: var(--text-secondary);
+}
+
+/* Dropdown Menu Styles */
+.course-actions-menu {
+    position: absolute;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    min-width: 180px;
+    z-index: 1000;
+    display: none;
+}
+
+.course-actions-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: var(--text-primary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 8px 0;
+}
+</style>
+
+<script>
+// Seleção de múltiplos cursos
+document.addEventListener('DOMContentLoaded', function() {
+    // Variáveis globais
+    let currentCourses = [...document.querySelectorAll('.course-row')];
+    const itemsPerPage = 10;
+    let currentPage = 1;
+
+    // Seleção de todos
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.course-check');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        updateToolbarActions();
+    });
+
+    // Busca de cursos
+    document.getElementById('courseSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterAndDisplayCourses();
+    });
+
+    // Filtro de status
+    document.querySelector('.filter-select:first-child').addEventListener('change', function() {
+        filterAndDisplayCourses();
+    });
+
+    // Ordenação
+    document.querySelector('.filter-select:last-child').addEventListener('change', function() {
+        filterAndDisplayCourses();
+    });
+
+    // Exportar cursos
+    document.querySelector('.toolbar-actions .btn-icon[title="Exportar"]').addEventListener('click', function() {
+        exportCourses();
+    });
+
+    // Configurações
+    document.querySelector('.toolbar-actions .btn-icon[title="Configurações"]').addEventListener('click', function() {
+        showSettings();
+    });
+
+    // Paginação
+    const prevButton = document.querySelector('.footer-pagination .btn-icon:first-child');
+    const nextButton = document.querySelector('.footer-pagination .btn-icon:last-child');
+    
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayCourses(currentCourses);
+        }
+    });
+    
+    nextButton.addEventListener('click', () => {
+        const maxPages = Math.ceil(currentCourses.length / itemsPerPage);
+        if (currentPage < maxPages) {
+            currentPage++;
+            displayCourses(currentCourses);
+        }
+    });
+
+    // Funções auxiliares
+    function filterAndDisplayCourses() {
+        const searchTerm = document.getElementById('courseSearch').value.toLowerCase();
+        const statusFilter = document.querySelector('.filter-select:first-child').value;
+        const sortBy = document.querySelector('.filter-select:last-child').value;
+
+        // Filtrar cursos
+        let filteredCourses = [...document.querySelectorAll('.course-row')];
+        
+        // Aplicar filtro de busca
+        if (searchTerm) {
+            filteredCourses = filteredCourses.filter(row => {
+                const title = row.querySelector('.course-title').textContent.toLowerCase();
+                return title.includes(searchTerm);
+            });
+        }
+
+        // Aplicar filtro de status
+        if (statusFilter !== 'all') {
+            filteredCourses = filteredCourses.filter(row => {
+                const status = row.querySelector('.status-badge').textContent.toLowerCase();
+                return status === statusFilter;
+            });
+        }
+
+        // Aplicar ordenação
+        filteredCourses.sort((a, b) => {
+            const titleA = a.querySelector('.course-title').textContent.toLowerCase();
+            const titleB = b.querySelector('.course-title').textContent.toLowerCase();
+            const dateA = new Date(a.querySelector('.course-meta').textContent.replace('Criado em ', ''));
+            const dateB = new Date(b.querySelector('.course-meta').textContent.replace('Criado em ', ''));
+
+            switch (sortBy) {
+                case 'name':
+                    return titleA.localeCompare(titleB);
+                case 'newest':
+                    return dateB - dateA;
+                case 'oldest':
+                    return dateA - dateB;
+                default:
+                    return 0;
+            }
+        });
+
+        currentCourses = filteredCourses;
+        currentPage = 1;
+        displayCourses(filteredCourses);
+    }
+
+    function displayCourses(courses) {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const maxPages = Math.ceil(courses.length / itemsPerPage);
+
+        // Atualizar visibilidade dos cursos
+        courses.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+
+        // Atualizar informações de paginação
+        document.querySelector('.footer-info').textContent = 
+            `Mostrando ${Math.min(courses.length, start + 1)}-${Math.min(courses.length, end)} de ${courses.length} cursos`;
+        document.querySelector('.page-number').textContent = currentPage;
+
+        // Atualizar estado dos botões de paginação
+        document.querySelector('.footer-pagination .btn-icon:first-child').disabled = currentPage === 1;
+        document.querySelector('.footer-pagination .btn-icon:last-child').disabled = currentPage === maxPages;
+
+        updateToolbarActions();
+    }
+
+    function updateToolbarActions() {
+        const selectedCount = document.querySelectorAll('.course-check:checked').length;
+        const exportBtn = document.querySelector('.toolbar-actions .btn-icon[title="Exportar"]');
+        const settingsBtn = document.querySelector('.toolbar-actions .btn-icon[title="Configurações"]');
+
+        exportBtn.disabled = selectedCount === 0;
+        exportBtn.style.opacity = selectedCount === 0 ? '0.5' : '1';
+    }
+
+    function exportCourses() {
+        const selectedCourses = Array.from(document.querySelectorAll('.course-check:checked')).map(checkbox => {
+            const row = checkbox.closest('.course-row');
+            return {
+                title: row.querySelector('.course-title').textContent,
+                modules: row.querySelector('td:nth-child(3)').textContent,
+                lessons: row.querySelector('td:nth-child(4)').textContent,
+                xp: row.querySelector('td:nth-child(5)').textContent,
+                status: row.querySelector('.status-badge').textContent
+            };
+        });
+
+        if (selectedCourses.length === 0) {
+            toastr.warning('Selecione pelo menos um curso para exportar');
+            return;
+        }
+
+        // Criar CSV
+        const csvContent = [
+            ['Título', 'Módulos', 'Aulas', 'XP', 'Status'],
+            ...selectedCourses.map(course => [
+                course.title,
+                course.modules,
+                course.lessons,
+                course.xp,
+                course.status
+            ])
+        ].map(row => row.join(',')).join('\n');
+
+        // Download do arquivo
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'cursos_exportados.csv';
+        link.click();
+        
+        toastr.success('Cursos exportados com sucesso!');
+    }
+
+    function showSettings() {
+        toastr.info('Configurações em desenvolvimento');
+    }
+
+    // Inicialização
+    filterAndDisplayCourses();
+});
+
+// Função para deletar curso
+function deleteCourse(courseId) {
+    if (confirm('Tem certeza que deseja excluir este curso?')) {
+        const form = document.getElementById('deleteForm');
+        form.action = `/admin/courses/${courseId}/delete`;
+        
+        // Adicionar feedback visual
+        const row = document.querySelector(`[data-course-id="${courseId}"]`);
+        if (row) {
+            row.style.opacity = '0.5';
+            row.style.pointerEvents = 'none';
+        }
+        
+        form.submit();
+    }
+}
+
+// Adicionar atributo data-course-id nas linhas da tabela
+document.addEventListener('DOMContentLoaded', function() {
+    const courseRows = document.querySelectorAll('.course-row');
+    courseRows.forEach(row => {
+        const deleteBtn = row.querySelector('.btn-delete');
+        if (deleteBtn) {
+            const courseId = deleteBtn.getAttribute('onclick').match(/'([^']+)'/)[1];
+            row.setAttribute('data-course-id', courseId);
+        }
+    });
+});
+
+// Função para visualizar curso
+function viewCourse(courseId) {
+    console.log('Visualizando curso:', courseId); // Debug
+    fetch(`/admin/courses/${courseId}/details`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar detalhes do curso');
+            }
+            return response.json();
+        })
+        .then(course => {
+            console.log('Dados do curso:', course); // Debug
+            
+            // Preencher dados no modal
+            document.getElementById('courseTitle').textContent = course.title;
+            document.getElementById('courseDescription').textContent = course.description || 'Sem descrição';
+            document.getElementById('courseImage').src = course.coverImage || '/images/default-course-cover.jpg';
+            document.getElementById('courseModules').textContent = course.modules?.length || 0;
+            document.getElementById('courseLessons').textContent = 
+                course.modules?.reduce((sum, module) => sum + (module.lessons?.length || 0), 0) || 0;
+            document.getElementById('courseXP').textContent = `${course.experiencePoints || 0} XP`;
+            
+            // Preencher lista de módulos
+            const modulesList = document.getElementById('modulesList');
+            if (course.modules && course.modules.length > 0) {
+                modulesList.innerHTML = course.modules.map((module, index) => `
+                    <div class="module-item">
+                        <div class="module-header">
+                            <h4 class="module-title">Módulo ${index + 1}: ${module.title}</h4>
+                            <span class="badge bg-primary">${module.lessons?.length || 0} aulas</span>
+                        </div>
+                        <div class="lesson-list">
+                            ${module.lessons?.map(lesson => `
+                                <div class="lesson-item">
+                                    <i class="fas fa-play-circle"></i>
+                                    ${lesson.title}
+                                    <span class="ms-auto">${lesson.duration || 0}min</span>
+                                </div>
+                            `).join('') || ''}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                modulesList.innerHTML = '<p class="text-muted">Nenhum módulo cadastrado</p>';
+            }
+
+            // Atualizar link de edição
+            document.getElementById('editCourseBtn').href = `/admin/courses/${courseId}/edit`;
+
+            // Abrir modal
+            const modal = new bootstrap.Modal(document.getElementById('viewCourseModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro ao carregar detalhes do curso:', error);
+            toastr.error('Erro ao carregar detalhes do curso');
+        });
+}
+
+// Função para mostrar menu de mais opções
+function showMoreOptions(event, courseId) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Remover qualquer menu existente
+    const existingMenu = document.querySelector('.course-actions-menu.show');
+    if (existingMenu) {
+        existingMenu.classList.remove('show');
+    }
+
+    // Encontrar o menu do curso atual
+    const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
+    const menu = row.querySelector('.course-actions-menu');
+    
+    // Mostrar menu
+    menu.classList.add('show');
+    
+    // Posicionar menu
+    const button = event.target.closest('.btn-more');
+    const rect = button.getBoundingClientRect();
+    menu.style.position = 'absolute';
+    menu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+    menu.style.left = `${rect.left + window.scrollX - 150}px`; // 150px é aproximadamente a largura do menu
+    
+    // Fechar menu ao clicar fora
+    function closeMenu(e) {
+        if (!menu.contains(e.target) && !button.contains(e.target)) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+        }
+    }
+    
+    document.addEventListener('click', closeMenu);
+}
+
+// Funções auxiliares para as ações do menu
+async function duplicateCourse(courseId) {
+    try {
+        toastr.info('Duplicando curso...');
+        const response = await fetch(`/admin/courses/${courseId}/duplicate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao duplicar curso');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            toastr.success('Curso duplicado com sucesso!');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Erro ao duplicar curso');
+        }
+    } catch (error) {
+        console.error('Erro ao duplicar curso:', error);
+        toastr.error(error.message || 'Erro ao duplicar curso');
+    }
+}
+
+function exportSingleCourse(courseId) {
+    window.location.href = `/admin/courses/${courseId}/export`;
+}
+
+// Função para alternar o status do curso
+async function toggleCourseStatus(courseId) {
+    if (!courseId) {
+        console.error('ID do curso não fornecido');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/courses/${courseId}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor');
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+            // Atualizar o badge de status
+            const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
+            if (!row) {
+                console.error('Linha do curso não encontrada:', courseId);
+                return;
+            }
+
+            const statusBadge = row.querySelector('.status-badge');
+            const statusMenuItem = row.querySelector('.toggle-status-item');
+            
+            if (statusBadge && statusMenuItem) {
+                if (data.isActive) {
+                    statusBadge.classList.remove('status-inactive');
+                    statusBadge.classList.add('status-active');
+                    statusBadge.textContent = 'Ativo';
+                    statusMenuItem.textContent = 'Desativar';
+                } else {
+                    statusBadge.classList.remove('status-active');
+                    statusBadge.classList.add('status-inactive');
+                    statusBadge.textContent = 'Inativo';
+                    statusMenuItem.textContent = 'Ativar';
+                }
+                
+                // Fechar o menu dropdown
+                const menu = row.querySelector('.course-actions-menu');
+                if (menu) {
+                    menu.classList.remove('show');
+                }
+                
+                toastr.success(data.message);
+            } else {
+                console.error('Elementos de status não encontrados');
+            }
+        } else {
+            throw new Error(data.message || 'Erro ao alterar status');
+        }
+    } catch (error) {
+        console.error('Erro ao alternar status:', error);
+        toastr.error('Erro ao alterar status do curso');
+    }
+}
+
+// Atualizar event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões de visualizar
+    document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const courseId = this.getAttribute('data-course-id');
+            viewCourse(courseId);
+        });
+    });
+
+    // Botões de mais opções
+    document.querySelectorAll('.btn-more').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const courseId = this.getAttribute('data-course-id');
+            showMoreOptions(e, courseId);
+        });
+    });
+});
+</script>

@@ -1,0 +1,146 @@
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header">
+            <h3><%= achievement._id ? 'Editar' : 'Nova' %> Conquista</h3>
+        </div>
+        <div class="card-body">
+            <form action="/admin/achievements/<%= achievement._id %>" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Título</label>
+                    <input type="text" name="title" class="form-control" value="<%= achievement.title || '' %>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <textarea name="description" class="form-control" required><%= achievement.description || '' %></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ícone</label>
+                    <div class="input-group">
+                        <input type="text" name="icon" id="iconInput" class="form-control" value="<%= achievement.icon || '' %>" required>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#iconModal">
+                            Escolher Ícone
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <i id="iconPreview" class="<%= achievement.icon || 'fas fa-trophy' %> fa-2x"></i>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Categoria</label>
+                    <select name="category" class="form-select" required>
+                        <option value="cursos">Cursos</option>
+                        <option value="provas">Provas</option>
+                        <option value="experiência">Experiência</option>
+                        <option value="social">Social</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Raridade</label>
+                    <select name="rarity" class="form-select" required>
+                        <option value="comum">Comum</option>
+                        <option value="raro">Raro</option>
+                        <option value="épico">Épico</option>
+                        <option value="lendário">Lendário</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tipo de Condição</label>
+                    <select name="conditionType" class="form-select" required>
+                        <% conditionTypes.forEach(type => { %>
+                            <option value="<%= type %>"><%= type %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Valor da Condição</label>
+                    <input type="number" name="conditionValue" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Dias (opcional, apenas para coursesCompletedInPeriod)</label>
+                    <input type="number" name="conditionDays" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">XP da Recompensa</label>
+                    <input type="number" name="xpReward" class="form-control" required>
+                </div>
+
+                <div class="text-end">
+                    <a href="/admin/achievements" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Seleção de Ícones -->
+<div class="modal fade" id="iconModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Escolher Ícone</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-grid">
+                    <!-- Lista de ícones do FontAwesome -->
+                    <div class="icon-item" data-icon="fas fa-trophy"><i class="fas fa-trophy"></i></div>
+                    <div class="icon-item" data-icon="fas fa-star"><i class="fas fa-star"></i></div>
+                    <div class="icon-item" data-icon="fas fa-graduation-cap"><i class="fas fa-graduation-cap"></i></div>
+                    <!-- Adicione mais ícones... -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style> 
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.icon-item {
+    text-align: center;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.icon-item:hover {
+    background-color: var(--bs-primary);
+    color: white;
+} 
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const iconInput = document.getElementById('iconInput');
+    const iconPreview = document.getElementById('iconPreview');
+    const iconItems = document.querySelectorAll('.icon-item');
+
+    iconItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const iconClass = this.dataset.icon;
+            iconInput.value = iconClass;
+            iconPreview.className = iconClass + ' fa-2x';
+            bootstrap.Modal.getInstance(document.getElementById('iconModal')).hide();
+        });
+    });
+
+    iconInput.addEventListener('input', function() {
+        iconPreview.className = this.value + ' fa-2x';
+    });
+});
+</script>

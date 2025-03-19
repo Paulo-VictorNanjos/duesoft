@@ -1,0 +1,903 @@
+<!-- O layout principal já inclui o cabeçalho e rodapé -->
+
+<div class="forum-container">
+    <!-- Header -->
+    <div class="forum-header">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/forum">Fórum</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/forum/category/<%= topic.category.slug %>"><%= topic.category.name %></a>
+                    </li>
+                    <li class="breadcrumb-item active"><%= topic.title %></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Topic -->
+    <div class="forum-content">
+        <div class="container">
+            <div class="topic-main">
+                <!-- Topic Header -->
+                <div class="topic-header">
+                    <div class="topic-info">
+                        <h1 class="topic-title">
+                            <%= topic.title %>
+                            <% if (topic.isPinned) { %>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-thumbtack"></i>
+                                </span>
+                            <% } %>
+                            <% if (topic.isSolved) { %>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Resolvido
+                                </span>
+                            <% } %>
+                        </h1>
+                        <div class="topic-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-user"></i>
+                                <%= topic.author.name %>
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <%= topic.createdAt %>
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-comments"></i>
+                                <%= topic.repliesCount || 0 %> respostas
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-eye"></i>
+                                <%= topic.viewsCount || 0 %> visualizações
+                            </span>
+                        </div>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="btn btn-light">
+                            <i class="fas fa-bookmark me-2"></i>Salvar
+                        </button>
+                        <button class="btn btn-light">
+                            <i class="fas fa-share-alt me-2"></i>Compartilhar
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-light" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-flag me-2"></i>Denunciar
+                                    </a>
+                                </li>
+                                <% if (isAuthor || isAdmin) { %>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-edit me-2"></i>Editar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#">
+                                            <i class="fas fa-trash me-2"></i>Excluir
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Topic Content -->
+                <div class="post-card main-post">
+                    <div class="post-sidebar">
+                        <div class="author-info">
+                            <% if (topic.author.avatar) { %>
+                                <img src="<%= topic.author.avatar %>" alt="Avatar" class="avatar">
+                            <% } else { %>
+                                <div class="avatar avatar-placeholder">
+                                    <%= topic.author.name.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                            <div class="author-name">
+                                <%= topic.author.name %>
+                                <% if (topic.author.role) { %>
+                                    <span class="author-badge"><%= topic.author.role %></span>
+                                <% } %>
+                            </div>
+                            <div class="author-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-star"></i>
+                                    <%= topic.author.reputation || 0 %>
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-comment"></i>
+                                    <%= topic.author.postsCount || 0 %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="post-votes">
+                            <button class="vote-btn">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <span class="votes-count"><%= topic.votes || 0 %></span>
+                            <button class="vote-btn">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-body">
+                            <%= topic.content %>
+                        </div>
+                        <div class="post-footer">
+                            <div class="post-tags">
+                                <% if (topic.tags && topic.tags.length > 0) { %>
+                                    <% topic.tags.forEach(tag => { %>
+                                        <span class="topic-tag"><%= tag %></span>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn btn-sm btn-light">
+                                    <i class="fas fa-reply me-1"></i>Citar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Replies -->
+                <div class="replies-section">
+                    <div class="replies-header">
+                        <h3><%= topic.repliesCount || 0 %> Respostas</h3>
+                        <div class="replies-sort">
+                            <select class="form-select form-select-sm">
+                                <option value="votes">Mais Votadas</option>
+                                <option value="newest">Mais Recentes</option>
+                                <option value="oldest">Mais Antigas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <% if (replies && replies.length > 0) { %>
+                        <% replies.forEach(reply => { %>
+                            <div class="post-card reply <%= reply.isAnswer ? 'is-answer' : '' %>">
+                                <div class="post-sidebar">
+                                    <div class="author-info">
+                                        <% if (reply.author.avatar) { %>
+                                            <img src="<%= reply.author.avatar %>" alt="Avatar" class="avatar">
+                                        <% } else { %>
+                                            <div class="avatar avatar-placeholder">
+                                                <%= reply.author.name.charAt(0).toUpperCase() %>
+                                            </div>
+                                        <% } %>
+                                        <div class="author-name">
+                                            <%= reply.author.name %>
+                                            <% if (reply.author.role) { %>
+                                                <span class="author-badge"><%= reply.author.role %></span>
+                                            <% } %>
+                                        </div>
+                                        <div class="author-stats">
+                                            <span class="stat-item">
+                                                <i class="fas fa-star"></i>
+                                                <%= reply.author.reputation || 0 %>
+                                            </span>
+                                            <span class="stat-item">
+                                                <i class="fas fa-comment"></i>
+                                                <%= reply.author.postsCount || 0 %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="post-votes">
+                                        <button class="vote-btn">
+                                            <i class="fas fa-chevron-up"></i>
+                                        </button>
+                                        <span class="votes-count"><%= reply.votes || 0 %></span>
+                                        <button class="vote-btn">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="post-content">
+                                    <div class="post-body">
+                                        <%= reply.content %>
+                                    </div>
+                                    <div class="post-footer">
+                                        <div class="post-meta">
+                                            <span class="meta-item">
+                                                <i class="fas fa-clock"></i>
+                                                <%= reply.createdAt %>
+                                            </span>
+                                            <% if (reply.isEdited) { %>
+                                                <span class="meta-item">
+                                                    <i class="fas fa-edit"></i>
+                                                    editado
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                        <div class="post-actions">
+                                            <button class="btn btn-sm btn-light">
+                                                <i class="fas fa-reply me-1"></i>Citar
+                                            </button>
+                                            <% if (isAuthor && !topic.isSolved) { %>
+                                                <button class="btn btn-sm btn-success mark-answer">
+                                                    <i class="fas fa-check me-1"></i>Marcar como Resposta
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+
+                        <!-- Pagination -->
+                        <nav class="pagination-wrapper">
+                            <ul class="pagination">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">2</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">3</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <% } %>
+                </div>
+
+                <!-- Reply Form -->
+                <div class="reply-form">
+                    <h3>Sua Resposta</h3>
+                    <form action="/forum/topic/<%= topic._id %>/reply" method="POST">
+                        <div class="mb-4">
+                            <textarea class="form-control form-control-lg" name="content" rows="6" required
+                                      placeholder="Digite sua resposta..."></textarea>
+                        </div>
+                        <div class="form-footer">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="notifyReplies" name="notifyReplies" checked>
+                                <label class="form-check-label" for="notifyReplies">
+                                    Receber notificações de respostas
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Resposta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="topic-sidebar">
+                <!-- Related Topics -->
+                <div class="sidebar-section">
+                    <h4>Tópicos Relacionados</h4>
+                    <div class="related-topics">
+                        <% if (relatedTopics && relatedTopics.length > 0) { %>
+                            <% relatedTopics.forEach(relatedTopic => { %>
+                                <div class="related-topic">
+                                    <a href="/forum/topic/<%= relatedTopic.slug %>">
+                                        <%= relatedTopic.title %>
+                                    </a>
+                                    <div class="topic-meta">
+                                        <span class="meta-item">
+                                            <i class="fas fa-comments"></i>
+                                            <%= relatedTopic.repliesCount || 0 %>
+                                        </span>
+                                        <span class="meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <%= relatedTopic.createdAt %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p class="text-muted">Nenhum tópico relacionado encontrado.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Category Info -->
+                <div class="sidebar-section">
+                    <h4>Sobre a Categoria</h4>
+                    <div class="category-info">
+                        <div class="category-header">
+                            <div class="category-icon">
+                                <i class="<%= topic.category.icon %>"></i>
+                            </div>
+                            <div class="category-details">
+                                <h5><%= topic.category.name %></h5>
+                                <p><%= topic.category.description %></p>
+                            </div>
+                        </div>
+                        <div class="category-stats">
+                            <div class="stat-box">
+                                <span class="stat-value"><%= topic.category.topicsCount || 0 %></span>
+                                <span class="stat-label">Tópicos</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-value"><%= topic.category.repliesCount || 0 %></span>
+                                <span class="stat-label">Respostas</span>
+                            </div>
+                        </div>
+                        <a href="/forum/category/<%= topic.category.slug %>" class="btn btn-light btn-sm w-100">
+                            Ver Todos os Tópicos
+                        </a>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">Sobre o Autor</h4>
+                    <div class="author-card">
+                        <div class="author-avatar">
+                            <% if (topic.author.profilePicture || topic.author.avatar) { %>
+                                <img src="<%= topic.author.profilePicture || topic.author.avatar %>" alt="<%= topic.author.name %>">
+                            <% } else { %>
+                                <div class="avatar-placeholder">
+                                    <%= topic.author.name.charAt(0).toUpperCase() %>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="author-details">
+                            <div class="author-name"><%= topic.author.name %></div>
+                            <div class="author-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-comment"></i> <%= topic.author.postsCount || 0 %> posts
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-calendar"></i> Membro desde <%= topic.author.createdAt %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --forum-bg: #0f172a;
+    --card-bg: #1e293b;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+}
+
+.forum-container {
+    background: var(--forum-bg);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+}
+
+.forum-header {
+    background: var(--card-bg);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.breadcrumb {
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+.forum-content {
+    padding: 0 0 4rem;
+}
+
+.forum-content .container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+}
+
+.topic-header {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.topic-title {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.topic-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.meta-item {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item i {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.topic-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 2rem;
+}
+
+.post-card.main-post {
+    border-color: var(--primary-color);
+}
+
+.post-card.is-answer {
+    border-color: var(--success-color);
+}
+
+.post-sidebar {
+    width: 200px;
+    padding: 2rem;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.author-info {
+    margin-bottom: 1.5rem;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    object-fit: cover;
+}
+
+.author-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.author-badge {
+    display: inline-block;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.author-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.post-votes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.25rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.vote-btn:hover {
+    color: var(--primary-color);
+}
+
+.votes-count {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.post-content {
+    flex: 1;
+    padding: 2rem;
+    min-width: 0;
+}
+
+.post-body {
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.topic-tag {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+
+.replies-section {
+    margin-top: 3rem;
+}
+
+.replies-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.replies-header h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.reply-form {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 3rem;
+}
+
+.reply-form h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topic-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebar-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.sidebar-section h4 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.related-topic {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.related-topic:last-child {
+    border-bottom: none;
+}
+
+.related-topic a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.related-topic a:hover {
+    color: var(--primary-color);
+}
+
+.category-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.category-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.category-details h5 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.category-details p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.category-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-box {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+}
+
+.stat-value {
+    display: block;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.dropdown-menu {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.form-select {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0.75rem;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0.75rem;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    color: var(--text-primary);
+}
+
+.form-check-label {
+    color: var(--text-secondary);
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.mark-answer {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid var(--success-color);
+    color: var(--success-color);
+}
+
+.mark-answer:hover {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success-color);
+}
+
+.pagination-wrapper {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    gap: 0.5rem;
+}
+
+.page-link {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem !important;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.page-item.active .page-link {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+@media (max-width: 1200px) {
+    .forum-content .container {
+        grid-template-columns: 1fr;
+    }
+
+    .topic-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .topic-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .topic-title {
+        font-size: 1.5rem;
+    }
+
+    .topic-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .post-card {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .post-sidebar {
+        width: 100%;
+        padding: 1.5rem;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .post-content {
+        padding: 1.5rem;
+    }
+
+    .post-footer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+}
+</style> 

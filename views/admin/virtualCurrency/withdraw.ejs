@@ -1,0 +1,190 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Políticas de Saque</h5>
+    </div>
+    <div class="card-body">
+        <form id="withdrawSettingsForm" method="POST" action="/admin/virtual-currency/withdraw-settings">
+            <!-- Habilitar/Desabilitar Saques -->
+            <div class="form-check form-switch mb-4">
+                <input type="checkbox" class="form-check-input" name="enabled" id="withdrawEnabled" 
+                    <%= currency?.settings?.withdrawSettings?.enabled ? 'checked' : '' %>>
+                <label class="form-check-label" for="withdrawEnabled">Permitir Saques</label>
+                <small class="form-text text-muted d-block">Ative ou desative a funcionalidade de saque para todos os usuários</small>
+            </div>
+
+            <!-- Valor Mínimo e Taxa -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Valor Mínimo para Saque</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="minAmount" 
+                            value="<%= currency?.settings?.withdrawSettings?.minAmount || '25' %>" min="0">
+                        <span class="input-group-text"><%= currency?.symbol || 'B' %></span>
+                    </div>
+                    <small class="text-muted">Valor mínimo que o usuário precisa ter para solicitar saque</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Taxa de Saque</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="fee" 
+                            value="<%= currency?.settings?.withdrawSettings?.fee || '5' %>" min="0">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <small class="text-muted">Taxa cobrada em cada saque (em porcentagem)</small>
+                </div>
+            </div>
+
+            <!-- Métodos de Saque Disponíveis -->
+            <h6 class="mb-3">Métodos de Saque Disponíveis</h6>
+            
+            <!-- Transferência Bancária -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-university me-2"></i> Transferência Bancária
+                                </h6>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" name="methods.bankTransfer.enabled" 
+                                        <%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.enabled ? 'checked' : '' %>>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Taxa Adicional</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="methods.bankTransfer.fee" 
+                                            value="<%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.fee || '0' %>" min="0">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Prazo</label>
+                                    <select class="form-select" name="methods.bankTransfer.delay">
+                                        <option value="1" <%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.delay === 1 ? 'selected' : '' %>>1 dia útil</option>
+                                        <option value="2" <%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.delay === 2 ? 'selected' : '' %>>2 dias úteis</option>
+                                        <option value="3" <%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.delay === 3 ? 'selected' : '' %>>3 dias úteis</option>
+                                        <option value="5" <%= currency?.settings?.withdrawSettings?.methods?.bankTransfer?.delay === 5 ? 'selected' : '' %>>5 dias úteis</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIX -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-qrcode me-2"></i> PIX
+                                </h6>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" name="methods.pix.enabled" 
+                                        <%= currency?.settings?.withdrawSettings?.methods?.pix?.enabled ? 'checked' : '' %>>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Taxa Adicional</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="methods.pix.fee" 
+                                            value="<%= currency?.settings?.withdrawSettings?.methods?.pix?.fee || '0' %>" min="0">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Prazo</label>
+                                    <select class="form-select" name="methods.pix.delay">
+                                        <option value="0" <%= currency?.settings?.withdrawSettings?.methods?.pix?.delay === 0 ? 'selected' : '' %>>Imediato</option>
+                                        <option value="1" <%= currency?.settings?.withdrawSettings?.methods?.pix?.delay === 1 ? 'selected' : '' %>>1 dia útil</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estatísticas de Saque -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h6 class="mb-3">Estatísticas de Saque</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-dark text-white">
+                                <div class="card-body">
+                                    <h5>TOTAL SACADO</h5>
+                                    <h2><%= currency?.stats?.totalWithdraws || '0.00' %> <%= currency?.symbol || 'B' %></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-dark text-white">
+                                <div class="card-body">
+                                    <h5>SAQUES PENDENTES</h5>
+                                    <h2><%= currency?.stats?.pendingWithdraws || '0' %></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-dark text-white">
+                                <div class="card-body">
+                                    <h5>TAXA MÉDIA</h5>
+                                    <h2><%= currency?.stats?.averageWithdrawFee || '0.00' %>%</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Salvar Configurações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('withdrawSettingsForm');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        
+        try {
+            const response = await fetch('/admin/virtual-currency/withdraw-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Configurações salvas com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao salvar configurações: ' + result.message);
+            }
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao salvar configurações');
+        }
+    });
+});
+</script> 

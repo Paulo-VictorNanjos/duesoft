@@ -1,0 +1,489 @@
+<style>
+    .exams-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .exam-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        position: relative;
+        backdrop-filter: blur(10px);
+    }
+
+    .exam-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
+        border-color: rgba(var(--primary-rgb), 0.2);
+    }
+
+    .exam-status {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        backdrop-filter: blur(8px);
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .status-available {
+        background: rgba(var(--primary-rgb), 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(var(--primary-rgb), 0.2);
+    }
+
+    .exam-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .exam-title {
+        font-size: 1.25rem;
+        margin: 0 0 0.5rem 0;
+        color: var(--text-primary);
+        font-weight: 600;
+        letter-spacing: -0.3px;
+    }
+
+    .exam-info {
+        padding: 1.5rem;
+    }
+
+    .exam-meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .exam-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .exam-meta i {
+        color: var(--primary);
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .exam-description {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .progress-container {
+        margin: 1.5rem 0;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .progress {
+        height: 0.5rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 1rem;
+        transition: width 0.6s ease;
+        font-size: 0.75rem;
+        line-height: 0.5rem;
+        text-align: center;
+        color: transparent;
+    }
+
+    .exam-footer {
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .attempts-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .btn-take-exam {
+        width: 100%;
+        padding: 0.875rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-take-exam:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.2);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-take-exam:disabled {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.5);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-take-exam i {
+        font-size: 0.875rem;
+    }
+
+    .exam-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.5rem;
+        height: 1.5rem;
+        padding: 0 0.5rem;
+        background: rgba(var(--primary-rgb), 0.2);
+        color: var(--primary);
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .exam-result {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .result-passed {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success);
+    }
+
+    .result-failed {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger);
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+    }
+
+    .btn-show-more {
+        display: block;
+        width: 200px;
+        margin: 2rem auto;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--primary);
+        background: transparent;
+        color: var(--primary);
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-show-more:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .exam-card.hidden {
+        display: none;
+    }
+</style>
+
+<div class="container py-4">
+    <h2 class="mb-4 text-center">Provas Disponíveis</h2>
+
+    <!-- Botões de alternância -->
+    <div class="exam-toggle-buttons">
+        <button class="exam-toggle-btn <%= activeTab === 'pending' ? 'active' : '' %>" onclick="window.location.href='/exams?tab=pending'">
+            <i class="fas fa-clipboard-list"></i>
+            <span>A Fazer</span>
+            <% if (pendingCount > 0) { %>
+                <div class="exam-count"><%= pendingCount %></div>
+            <% } %>
+        </button>
+        <button class="exam-toggle-btn <%= activeTab === 'completed' ? 'active' : '' %>" onclick="window.location.href='/exams?tab=completed'">
+            <i class="fas fa-check-circle"></i>
+            <span>Finalizadas</span>
+            <% if (completedCount > 0) { %>
+                <div class="exam-count"><%= completedCount %></div>
+            <% } %>
+        </button>
+    </div>
+
+    <!-- Conteúdo das abas -->
+    <div class="tab-content" id="examTabsContent">
+        <!-- Aba "A Fazer" -->
+        <div class="tab-pane fade <%= activeTab === 'pending' ? 'show active' : '' %>" id="todo" role="tabpanel">
+            <div class="exams-container">
+                <% 
+                const todoExams = exams.filter(exam => exam.attemptsRemaining > 0);
+                if (todoExams.length > 0) { 
+                    todoExams.forEach((exam, index) => { 
+                %>
+                    <% 
+                    const examAttempts = attempts.filter(a => 
+                        a.exam && a.exam._id.toString() === exam._id.toString()
+                    );
+                    const attemptsUsed = examAttempts.length;
+                    const attemptsRemaining = exam.attempts - attemptsUsed;
+                    const bestScore = Math.max(...examAttempts.map(a => a.score || 0), 0);
+                    const hasPassed = examAttempts.some(a => a.passed);
+                    %>
+                    <div class="exam-card <%= index >= 6 ? 'hidden' : '' %>" data-index="<%= index %>">
+                        <div class="exam-status <%= hasPassed ? 'status-completed' : 'status-available' %>">
+                            <%= hasPassed ? 'Aprovado' : 'Disponível' %>
+                        </div>
+
+                        <div class="exam-header">
+                            <h3 class="exam-title"><%= exam.title %></h3>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-book me-2"></i><%= exam.course ? exam.course.title : 'Curso não especificado' %>
+                            </p>
+                        </div>
+
+                        <div class="exam-info">
+                            <div class="exam-meta">
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span><%= exam.timeLimit %> minutos</span>
+                                </div>
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span><%= exam.questions.length %> questões</span>
+                                </div>
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-percentage"></i>
+                                    <span>Mínimo: <%= exam.minimumScore %>%</span>
+                                </div>
+                            </div>
+
+                            <% if (attemptsUsed > 0) { %>
+                                <div class="progress-container">
+                                    <div class="progress">
+                                        <div class="progress-bar <%= hasPassed ? 'bg-success' : 'bg-primary' %>"
+                                             style="width: <%= `${bestScore}%` %>">
+                                            <%= bestScore.toFixed(1) %>%
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <div class="exam-footer">
+                            <div class="attempts-info">
+                                <span>Tentativas restantes: <%= attemptsRemaining %></span>
+                                <span>Total: <%= exam.attempts %></span>
+                            </div>
+
+                            <a href="/exams/<%= exam._id %>/take" class="btn-take-exam">
+                                <i class="fas fa-play me-2"></i>
+                                <%= hasPassed ? 'Tentar Novamente' : 'Iniciar Prova' %>
+                            </a>
+                        </div>
+                    </div>
+                <% 
+                    }); 
+                } else { 
+                %>
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Não há provas pendentes no momento.
+                    </div>
+                <% } %>
+            </div>
+            <% if (todoExams.length === 0) { %>
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Não há provas pendentes no momento.
+                </div>
+            <% } else if (todoExams.length > 6) { %>
+                <button class="btn-show-more" onclick="showMoreExams('todo')">
+                    <i class="fas fa-plus me-2"></i>Ver mais
+                </button>
+            <% } %>
+        </div>
+
+        <!-- Aba "Finalizadas" -->
+        <div class="tab-pane fade <%= activeTab === 'completed' ? 'show active' : '' %>" id="completed" role="tabpanel">
+            <div class="exams-container">
+                <% 
+                const completedExams = exams.filter(exam => exam.attemptsRemaining === 0 || exam.hasPassed);
+                if (completedExams.length > 0) {
+                    completedExams.forEach((exam, index) => { 
+                %>
+                    <% 
+                    const examAttempts = attempts.filter(a => 
+                        a.exam && a.exam._id.toString() === exam._id.toString()
+                    );
+                    const attemptsUsed = examAttempts.length;
+                    const attemptsRemaining = exam.attempts - attemptsUsed;
+                    const bestScore = Math.max(...examAttempts.map(a => a.score || 0), 0);
+                    const hasPassed = examAttempts.some(a => a.passed);
+                    const isEssayExam = exam.questions.some(q => q.type === 'essay');
+                    %>
+                    <div class="exam-card <%= index >= 6 ? 'hidden' : '' %>" data-index="<%= index %>">
+                        <div class="exam-status <%= hasPassed ? 'status-completed' : 'status-pending' %>">
+                            <%= hasPassed ? 'Aprovado' : 'Sem tentativas' %>
+                        </div>
+
+                        <div class="exam-header">
+                            <h3 class="exam-title"><%= exam.title %></h3>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-book me-2"></i><%= exam.course ? exam.course.title : 'Curso não especificado' %>
+                            </p>
+                        </div>
+
+                        <div class="exam-info">
+                            <div class="exam-meta">
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span><%= exam.timeLimit %> minutos</span>
+                                </div>
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span><%= exam.questions.length %> questões</span>
+                                </div>
+                                <div class="exam-meta-item">
+                                    <i class="fas fa-percentage"></i>
+                                    <span>Mínimo: <%= exam.minimumScore %>%</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-container">
+                                <div class="progress">
+                                    <div class="progress-bar <%= hasPassed ? 'bg-success' : 'bg-primary' %>"
+                                         style="width: <%= `${bestScore}%` %>">
+                                        <%= bestScore.toFixed(1) %>%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="exam-footer">
+                            <div class="attempts-info">
+                                <span>Tentativas restantes: <%= attemptsRemaining %></span>
+                                <span>Total: <%= exam.attempts %></span>
+                            </div>
+
+                            <% if (examAttempts.length > 0) { %>
+                                <% if (isEssayExam) { %>
+                                    <a href="/exams/<%= exam._id %>/feedback" class="btn-take-exam">
+                                        <i class="fas fa-comments me-2"></i>Ver Feedback
+                                    </a>
+                                <% } else { %>
+                                    <a href="/exams/<%= exam._id %>/result" class="btn-take-exam">
+                                        <i class="fas fa-chart-bar me-2"></i>Ver Resultado
+                                    </a>
+                                <% } %>
+                            <% } else { %>
+                                <button class="btn-take-exam" disabled>
+                                    Sem tentativas restantes
+                                </button>
+                            <% } %>
+                        </div>
+                    </div>
+                <% 
+                    }); 
+                } else { 
+                %>
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Você ainda não completou nenhuma prova.
+                    </div>
+                <% } %>
+            </div>
+            <% if (completedExams.length === 0) { %>
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Você ainda não completou nenhuma prova.
+                </div>
+            <% } else if (completedExams.length > 6) { %>
+                <button class="btn-show-more" onclick="showMoreExams('completed')">
+                    <i class="fas fa-plus me-2"></i>Ver mais
+                </button>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const todoCount = document.querySelectorAll('#todo .exam-card').length;
+    const completedCount = document.querySelectorAll('#completed .exam-card').length;
+    
+    document.getElementById('todoCount').textContent = todoCount;
+    document.getElementById('completedCount').textContent = completedCount;
+});
+
+function showMoreExams(tabId) {
+    const container = document.querySelector(`#${tabId} .exams-container`);
+    const hiddenCards = container.querySelectorAll('.exam-card.hidden');
+    const showMoreBtn = document.querySelector(`#${tabId} .btn-show-more`);
+    
+    // Mostra os próximos 6 cards
+    for (let i = 0; i < 6 && i < hiddenCards.length; i++) {
+        hiddenCards[i].classList.remove('hidden');
+    }
+    
+    // Se não houver mais cards escondidos, remove o botão
+    if (container.querySelectorAll('.exam-card.hidden').length === 0) {
+        showMoreBtn.style.display = 'none';
+    }
+}
+</script>

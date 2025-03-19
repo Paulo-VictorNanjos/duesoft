@@ -1,0 +1,618 @@
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">Quadro Kanban</h2>
+        <div>
+            <a href="/admin/tasks/new" class="btn btn-primary me-2">Nova Task</a>
+            <a href="/admin/tasks" class="btn btn-secondary">Visualização em Lista</a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="kanban-board">
+        <div class="kanban-column" data-status="pendente">
+            <div class="column-header">
+                <h3>Pendente</h3>
+                <span class="task-count"><%= tasks.filter(t => t.status === 'pendente').length %></span>
+            </div>
+            <div class="column-content" id="pendente">
+                <% tasks.filter(t => t.status === 'pendente').forEach(task => { %>
+                    <div class="task-card" draggable="true" data-task-id="<%= task._id %>">
+                        <div class="task-header">
+                            <div class="task-title-wrapper">
+                                <h4 class="task-title"><%= task.title %></h4>
+                                <% if (task.category) { %>
+                                    <span class="category-badge"><%= task.category %></span>
+                                <% } %>
+                            </div>
+                            <div class="task-actions">
+                                <a href="/admin/tasks/<%= task._id %>/edit" class="btn-icon" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <% if (task.description) { %>
+                            <div class="task-description"><%= task.description.substring(0, 100) %><%= task.description.length > 100 ? '...' : '' %></div>
+                        <% } %>
+
+                        <div class="task-meta">
+                            <div class="meta-group">
+                                <span class="priority-badge <%= task.priority === 'alta' ? 'priority-high' : task.priority === 'media' ? 'priority-medium' : 'priority-low' %>">
+                                    <i class="fas fa-flag"></i>
+                                    <%= task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa' %>
+                                </span>
+
+                                <% if (task.dueDate) { %>
+                                    <span class="due-date <%= new Date(task.dueDate) < new Date() ? 'overdue' : '' %>">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <%= new Date(task.dueDate).toLocaleDateString('pt-BR') %>
+                                    </span>
+                                <% } %>
+                            </div>
+
+                            <div class="meta-group">
+                                <% if (task.assignedTo) { %>
+                                    <span class="assigned-to" title="Responsável">
+                                        <i class="far fa-user"></i>
+                                        <%= task.assignedTo.name %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.attachments && task.attachments.length > 0) { %>
+                                    <span class="attachments-count" title="Anexos">
+                                        <i class="fas fa-paperclip"></i>
+                                        <%= task.attachments.length %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.comments && task.comments.length > 0) { %>
+                                    <span class="comments-count" title="Comentários">
+                                        <i class="far fa-comment"></i>
+                                        <%= task.comments.length %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <% if (task.tags && task.tags.length > 0) { %>
+                            <div class="task-tags">
+                                <% task.tags.forEach(tag => { %>
+                                    <span class="tag"><%= tag %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <div class="kanban-column" data-status="em_andamento">
+            <div class="column-header">
+                <h3>Em Andamento</h3>
+                <span class="task-count"><%= tasks.filter(t => t.status === 'em_andamento').length %></span>
+            </div>
+            <div class="column-content" id="em_andamento">
+                <% tasks.filter(t => t.status === 'em_andamento').forEach(task => { %>
+                    <div class="task-card" draggable="true" data-task-id="<%= task._id %>">
+                        <div class="task-header">
+                            <div class="task-title-wrapper">
+                                <h4 class="task-title"><%= task.title %></h4>
+                                <% if (task.category) { %>
+                                    <span class="category-badge"><%= task.category %></span>
+                                <% } %>
+                            </div>
+                            <div class="task-actions">
+                                <a href="/admin/tasks/<%= task._id %>/edit" class="btn-icon" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <% if (task.description) { %>
+                            <div class="task-description"><%= task.description.substring(0, 100) %><%= task.description.length > 100 ? '...' : '' %></div>
+                        <% } %>
+
+                        <div class="task-meta">
+                            <div class="meta-group">
+                                <span class="priority-badge <%= task.priority === 'alta' ? 'priority-high' : task.priority === 'media' ? 'priority-medium' : 'priority-low' %>">
+                                    <i class="fas fa-flag"></i>
+                                    <%= task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa' %>
+                                </span>
+
+                                <% if (task.dueDate) { %>
+                                    <span class="due-date <%= new Date(task.dueDate) < new Date() ? 'overdue' : '' %>">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <%= new Date(task.dueDate).toLocaleDateString('pt-BR') %>
+                                    </span>
+                                <% } %>
+                            </div>
+
+                            <div class="meta-group">
+                                <% if (task.assignedTo) { %>
+                                    <span class="assigned-to" title="Responsável">
+                                        <i class="far fa-user"></i>
+                                        <%= task.assignedTo.name %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.attachments && task.attachments.length > 0) { %>
+                                    <span class="attachments-count" title="Anexos">
+                                        <i class="fas fa-paperclip"></i>
+                                        <%= task.attachments.length %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.comments && task.comments.length > 0) { %>
+                                    <span class="comments-count" title="Comentários">
+                                        <i class="far fa-comment"></i>
+                                        <%= task.comments.length %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <% if (task.tags && task.tags.length > 0) { %>
+                            <div class="task-tags">
+                                <% task.tags.forEach(tag => { %>
+                                    <span class="tag"><%= tag %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <div class="kanban-column" data-status="concluida">
+            <div class="column-header">
+                <h3>Concluída</h3>
+                <span class="task-count"><%= tasks.filter(t => t.status === 'concluida').length %></span>
+            </div>
+            <div class="column-content" id="concluida">
+                <% tasks.filter(t => t.status === 'concluida').forEach(task => { %>
+                    <div class="task-card" draggable="true" data-task-id="<%= task._id %>">
+                        <div class="task-header">
+                            <div class="task-title-wrapper">
+                                <h4 class="task-title"><%= task.title %></h4>
+                                <% if (task.category) { %>
+                                    <span class="category-badge"><%= task.category %></span>
+                                <% } %>
+                            </div>
+                            <div class="task-actions">
+                                <a href="/admin/tasks/<%= task._id %>/edit" class="btn-icon" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <% if (task.description) { %>
+                            <div class="task-description"><%= task.description.substring(0, 100) %><%= task.description.length > 100 ? '...' : '' %></div>
+                        <% } %>
+
+                        <div class="task-meta">
+                            <div class="meta-group">
+                                <span class="priority-badge <%= task.priority === 'alta' ? 'priority-high' : task.priority === 'media' ? 'priority-medium' : 'priority-low' %>">
+                                    <i class="fas fa-flag"></i>
+                                    <%= task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa' %>
+                                </span>
+
+                                <% if (task.dueDate) { %>
+                                    <span class="due-date <%= new Date(task.dueDate) < new Date() ? 'overdue' : '' %>">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <%= new Date(task.dueDate).toLocaleDateString('pt-BR') %>
+                                    </span>
+                                <% } %>
+                            </div>
+
+                            <div class="meta-group">
+                                <% if (task.assignedTo) { %>
+                                    <span class="assigned-to" title="Responsável">
+                                        <i class="far fa-user"></i>
+                                        <%= task.assignedTo.name %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.attachments && task.attachments.length > 0) { %>
+                                    <span class="attachments-count" title="Anexos">
+                                        <i class="fas fa-paperclip"></i>
+                                        <%= task.attachments.length %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.comments && task.comments.length > 0) { %>
+                                    <span class="comments-count" title="Comentários">
+                                        <i class="far fa-comment"></i>
+                                        <%= task.comments.length %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <% if (task.tags && task.tags.length > 0) { %>
+                            <div class="task-tags">
+                                <% task.tags.forEach(tag => { %>
+                                    <span class="tag"><%= tag %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <div class="kanban-column" data-status="cancelada">
+            <div class="column-header">
+                <h3>Cancelada</h3>
+                <span class="task-count"><%= tasks.filter(t => t.status === 'cancelada').length %></span>
+            </div>
+            <div class="column-content" id="cancelada">
+                <% tasks.filter(t => t.status === 'cancelada').forEach(task => { %>
+                    <div class="task-card" draggable="true" data-task-id="<%= task._id %>">
+                        <div class="task-header">
+                            <div class="task-title-wrapper">
+                                <h4 class="task-title"><%= task.title %></h4>
+                                <% if (task.category) { %>
+                                    <span class="category-badge"><%= task.category %></span>
+                                <% } %>
+                            </div>
+                            <div class="task-actions">
+                                <a href="/admin/tasks/<%= task._id %>/edit" class="btn-icon" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <% if (task.description) { %>
+                            <div class="task-description"><%= task.description.substring(0, 100) %><%= task.description.length > 100 ? '...' : '' %></div>
+                        <% } %>
+
+                        <div class="task-meta">
+                            <div class="meta-group">
+                                <span class="priority-badge <%= task.priority === 'alta' ? 'priority-high' : task.priority === 'media' ? 'priority-medium' : 'priority-low' %>">
+                                    <i class="fas fa-flag"></i>
+                                    <%= task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa' %>
+                                </span>
+
+                                <% if (task.dueDate) { %>
+                                    <span class="due-date <%= new Date(task.dueDate) < new Date() ? 'overdue' : '' %>">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <%= new Date(task.dueDate).toLocaleDateString('pt-BR') %>
+                                    </span>
+                                <% } %>
+                            </div>
+
+                            <div class="meta-group">
+                                <% if (task.assignedTo) { %>
+                                    <span class="assigned-to" title="Responsável">
+                                        <i class="far fa-user"></i>
+                                        <%= task.assignedTo.name %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.attachments && task.attachments.length > 0) { %>
+                                    <span class="attachments-count" title="Anexos">
+                                        <i class="fas fa-paperclip"></i>
+                                        <%= task.attachments.length %>
+                                    </span>
+                                <% } %>
+
+                                <% if (task.comments && task.comments.length > 0) { %>
+                                    <span class="comments-count" title="Comentários">
+                                        <i class="far fa-comment"></i>
+                                        <%= task.comments.length %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <% if (task.tags && task.tags.length > 0) { %>
+                            <div class="task-tags">
+                                <% task.tags.forEach(tag => { %>
+                                    <span class="tag"><%= tag %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .kanban-board {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding: 1rem;
+        min-height: calc(100vh - 200px);
+        background: var(--bg-main);
+    }
+
+    .kanban-column {
+        flex: 1;
+        min-width: 300px;
+        max-width: 350px;
+        background: var(--bg-card);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .column-header {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .column-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .task-count {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .column-content {
+        padding: 1rem;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 100px;
+    }
+
+    .task-card {
+        background: var(--bg-main);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: grab;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .task-card.dragging {
+        opacity: 0.7;
+        cursor: grabbing;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .task-title-wrapper {
+        flex: 1;
+        margin-right: 1rem;
+    }
+
+    .task-title {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.4;
+    }
+
+    .task-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+
+    .task-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .meta-group {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .priority-high {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+
+    .priority-medium {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning);
+    }
+
+    .priority-low {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+    }
+
+    .due-date {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .due-date.overdue {
+        color: var(--danger);
+    }
+
+    .assigned-to, .attachments-count, .comments-count {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .category-badge {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.25rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--primary);
+    }
+
+    .task-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.25rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+    }
+
+    .btn-icon {
+        color: var(--text-secondary);
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-icon:hover {
+        color: var(--primary);
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .column-content.drag-over {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0.5rem;
+    }
+
+    .kanban-column[data-status="pendente"] .column-header {
+        border-top: 3px solid var(--warning);
+    }
+
+    .kanban-column[data-status="em_andamento"] .column-header {
+        border-top: 3px solid var(--primary);
+    }
+
+    .kanban-column[data-status="concluida"] .column-header {
+        border-top: 3px solid var(--success);
+    }
+
+    .kanban-column[data-status="cancelada"] .column-header {
+        border-top: 3px solid var(--danger);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const taskCards = document.querySelectorAll('.task-card');
+    const columns = document.querySelectorAll('.column-content');
+
+    taskCards.forEach(card => {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+    });
+
+    columns.forEach(column => {
+        column.addEventListener('dragover', handleDragOver);
+        column.addEventListener('dragleave', handleDragLeave);
+        column.addEventListener('drop', handleDrop);
+    });
+
+    function handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    async function handleDrop(e) {
+        e.preventDefault();
+        const column = e.currentTarget;
+        column.classList.remove('drag-over');
+
+        const taskId = e.dataTransfer.getData('text/plain');
+        const newStatus = column.id;
+
+        try {
+            const response = await fetch(`/admin/tasks/${taskId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(error);
+            }
+
+            // Recarrega a página para mostrar a atualização
+            location.reload();
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao mover a task: ' + error.message);
+        }
+    }
+});
+</script> 

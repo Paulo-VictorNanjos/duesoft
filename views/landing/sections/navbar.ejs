@@ -1,0 +1,554 @@
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <img src="/images/study.png" alt="EduPro LMS">
+        </div>
+        
+        <div class="navbar-menu">
+            <a href="#features">Recursos</a>
+            <a href="#how-it-works">Como Funciona</a>
+            <a href="#courses">Cursos</a>
+            <a href="#pricing">Preços</a>
+        </div>
+
+        <div class="navbar-auth">
+            <a href="#" class="btn btn-outline" onclick="abrirModalEmpresas(); return false;">Entrar</a>
+            <a href="/auth/register" class="btn btn-primary">Registre-se</a>
+        </div>
+
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</nav> 
+
+<!-- Modal de Empresas -->
+<div id="empresaModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>
+                <i class="fas fa-building"></i>
+                Selecione sua Empresa
+            </h2>
+            <button class="close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       id="empresaBusca" 
+                       placeholder="Buscar empresa..." 
+                       autocomplete="off">
+            </div>
+
+            <div class="empresas-wrapper">
+                <div id="empresasContainer">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+
+            <button id="btnContinuar" class="btn-continuar" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span>Selecione uma empresa</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Navbar */
+.navbar {
+    background: rgba(13, 13, 13, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-800);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    background: var(--darker-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Botões e Links */
+.navbar-menu a {
+    color: var(--gray-300);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.navbar-menu a:hover {
+    color: var(--primary-color);
+}
+
+.navbar-menu a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background: var(--primary-color);
+    transition: all 0.3s ease-in-out;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.navbar-menu a:hover::after {
+    width: 70%;
+}
+
+.navbar-menu a.active {
+    color: var(--primary-color);
+}
+
+.navbar-menu a.active::after {
+    width: 70%;
+    background: var(--primary-color);
+}
+
+/* Botões de Ação */
+.btn-outline {
+    color: var(--primary-color);
+    border: 1.5px solid var(--gray-800);
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: rgba(255, 107, 0, 0.1);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.1);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--dark-color);
+    border: 1.5px solid var(--primary-color);
+}
+
+.btn-primary:hover {
+    background: var(--orange-light);
+    border-color: var(--orange-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+}
+
+.btn-primary:active {
+    transform: translateY(0px);
+    background: var(--orange-dark);
+    border-color: var(--orange-dark);
+    box-shadow: none;
+}
+
+/* Modal Base */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(13, 13, 13, 0.9);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--gray-900);
+    margin: 5% auto;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    border: 1px solid var(--gray-800);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+    overflow: hidden;
+}
+
+/* Modal Header */
+.modal-header {
+    background: var(--gray-800);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-700);
+}
+
+.modal-header h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.modal-header h2 i {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.close {
+    background: transparent;
+    border: none;
+    color: var(--gray-300);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close:hover {
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--primary-color);
+    transform: rotate(90deg);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+#empresaBusca {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.75rem;
+    background: var(--gray-800);
+    border: 2px solid var(--gray-700);
+    border-radius: 0.75rem;
+    color: var(--light-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#empresaBusca::placeholder {
+    color: var(--gray-500);
+}
+
+#empresaBusca:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+#empresaBusca:focus + .search-icon {
+    color: var(--primary-color);
+}
+
+/* Empresas Container */
+.empresas-wrapper {
+    position: relative;
+    min-height: 200px;
+    max-height: 350px;
+}
+
+#empresasContainer {
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    height: 100%;
+}
+
+#empresasContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+#empresasContainer::-webkit-scrollbar-track {
+    background: var(--gray-800);
+    border-radius: 3px;
+}
+
+#empresasContainer::-webkit-scrollbar-thumb {
+    background: var(--gray-700);
+    border-radius: 3px;
+}
+
+#empresasContainer::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+.empresa-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: var(--gray-800);
+    border: 2px solid var(--gray-700);
+    border-radius: 0.75rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.empresa-item:hover {
+    transform: translateX(5px);
+    border-color: var(--primary-color);
+    background: rgba(255, 107, 0, 0.05);
+}
+
+.empresa-item.selecionada {
+    border-color: var(--primary-color);
+    background: rgba(255, 107, 0, 0.1);
+}
+
+.empresa-item img {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    margin-right: 1rem;
+    object-fit: cover;
+    border: 2px solid var(--gray-700);
+    transition: all 0.3s ease;
+}
+
+.empresa-item:hover img {
+    border-color: var(--primary-color);
+}
+
+.empresa-item span {
+    color: var(--gray-300);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.empresa-item-empty, 
+.empresa-item-error {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.empresa-item-empty {
+    color: var(--gray-300);
+    background: var(--gray-800);
+}
+
+.empresa-item-error {
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+}
+
+.empresa-item-empty i,
+.empresa-item-error i {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+/* Continue Button */
+.btn-continuar {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--primary-color);
+    color: var(--dark-color);
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-continuar:not(:disabled):hover {
+    background: var(--orange-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+}
+
+.btn-continuar:disabled {
+    background: var(--gray-800);
+    color: var(--gray-500);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0;
+        backdrop-filter: blur(0);
+    }
+    to { 
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+@keyframes slideIn {
+    from { 
+        transform: translateY(-40px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+    .modal-content {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .empresas-wrapper {
+        flex: 1;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let empresaSelecionada = null;
+    let empresasList = [];
+    
+    window.abrirModalEmpresas = async function() {
+        const modal = document.getElementById('empresaModal');
+        if (!modal) {
+            console.error('Modal não encontrado');
+            return;
+        }
+        modal.style.display = 'block';
+        await carregarEmpresas();
+    }
+
+    async function carregarEmpresas() {
+        try {
+            const response = await fetch('/api/empresas');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            empresasList = data;
+            atualizarListaEmpresas(empresasList);
+        } catch (error) {
+            console.error('Erro ao carregar empresas:', error);
+            document.getElementById('empresasContainer').innerHTML = `
+                <div class="empresa-item-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Erro ao carregar empresas. Tente novamente mais tarde.</span>
+                </div>`;
+        }
+    }
+
+    function atualizarListaEmpresas(empresas) {
+        const container = document.getElementById('empresasContainer');
+        if (empresas.length === 0) {
+            container.innerHTML = `
+                <div class="empresa-item-empty">
+                    <i class="fas fa-search"></i>
+                    <span>Nenhuma empresa encontrada</span>
+                </div>`;
+            return;
+        }
+        
+        container.innerHTML = empresas.map(empresa => `
+            <div class="empresa-item" data-dominio="${empresa.dominio}" onclick="selecionarEmpresa(this, '${empresa.dominio}')">
+                <img src="${empresa.logo || '/img/default-company-logo.png'}" 
+                     alt="${empresa.nome}" 
+                     onerror="this.src='/img/default-company-logo.png'">
+                <span>${empresa.nome}</span>
+            </div>
+        `).join('');
+    }
+
+    window.selecionarEmpresa = function(elemento, dominio) {
+        document.querySelectorAll('.empresa-item').forEach(item => {
+            item.classList.remove('selecionada');
+        });
+        
+        elemento.classList.add('selecionada');
+        empresaSelecionada = dominio;
+        
+        const btnContinuar = document.getElementById('btnContinuar');
+        btnContinuar.disabled = false;
+        btnContinuar.innerHTML = `
+            <i class="fas fa-arrow-right"></i>
+            <span>Continuar</span>
+        `;
+    }
+
+    document.getElementById('btnContinuar').addEventListener('click', function() {
+        if (empresaSelecionada) {
+            window.location.href = `http://${empresaSelecionada}.studywob.com.br:3008/auth/login`;
+        }
+    });
+
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('empresaModal').style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('empresaModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Busca com debounce
+    let timeoutId;
+    document.getElementById('empresaBusca').addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            const busca = this.value.toLowerCase().trim();
+            const empresasFiltradas = empresasList.filter(empresa => 
+                empresa.nome.toLowerCase().includes(busca)
+            );
+            atualizarListaEmpresas(empresasFiltradas);
+        }, 300);
+    });
+});
+</script> 

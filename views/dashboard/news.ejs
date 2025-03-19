@@ -1,0 +1,239 @@
+<!-- Lista de Novidades -->
+<div class="news-list">
+    <% news.forEach(item => { %>
+        <!-- Item de Novidade -->
+        <div class="news-item <%= item.type === 'highlight' ? 'highlight' : '' %>">
+            <div class="news-date">
+                <div class="date"><%= new Date(item.event_date).getDate() %></div>
+                <div class="month"><%= new Date(item.event_date).toLocaleString('pt-BR', { month: 'short' }).replace('.', '') %></div>
+                <div class="time"><%= item.time %></div>
+            </div>
+            
+            <div class="news-content">
+                <div class="news-info">
+                    <% if (item.platform) { %>
+                        <div class="news-meta">
+                            <span class="venue"><%= item.platform %></span>
+                            <% if (item.platform_details) { %>
+                                <span class="separator">•</span>
+                                <span class="platform"><%= item.platform_details %></span>
+                            <% } %>
+                        </div>
+                    <% } %>
+
+                    <% if (item.tags && item.tags.length > 0) { %>
+                        <div class="news-tags">
+                            <% item.tags.forEach(tag => { %>
+                                <span class="tag"><%= tag %></span>
+                            <% }) %>
+                        </div>
+                    <% } %>
+
+                    <h3>
+                        <% if (item.type === 'free') { %>👋 <% } %>
+                        <%= item.title %>
+                    </h3>
+                    <p><%= item.description %></p>
+
+                    <% if (item.type === 'free') { %>
+                        <span class="free-tag">GRÁTIS</span>
+                    <% } %>
+                </div>
+                
+                <div class="news-action">
+                    <% if (item.type === 'highlight') { %>
+                        <a href="<%= item.link %>" class="btn-action">Ver oferta <i class="fas fa-arrow-right"></i></a>
+                    <% } else { %>
+                        <a href="<%= item.link %>" class="btn-action"><i class="fas fa-chevron-right"></i></a>
+                    <% } %>
+                </div>
+            </div>
+
+            <% if (item.type === 'highlight' && item.image_url) { %>
+                <div class="news-image">
+                    <img src="<%= item.image_url %>" alt="<%= item.title %>">
+                </div>
+            <% } %>
+        </div>
+    <% }) %>
+</div>
+
+<style>
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.news-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+    border-left: 4px solid #8257e5;
+    transition: all 0.3s ease;
+}
+
+.news-item:hover {
+    transform: translateX(4px);
+    border-left-color: #9466ff;
+}
+
+.news-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+}
+
+.news-date .date {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.news-date .month {
+    font-size: 0.875rem;
+    color: #8257e5;
+    text-transform: uppercase;
+}
+
+.news-date .time {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.news-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.news-info h3 {
+    font-size: 1.25rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.news-info p {
+    color: #999;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.news-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tag {
+    background: rgba(130, 87, 229, 0.2);
+    color: #8257e5;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.news-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.separator {
+    color: #666;
+}
+
+.free-tag {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 179, 126, 0.2);
+    color: #00b37e;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.75rem;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: #8257e5;
+    border: 1px solid #8257e5;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    background: #8257e5;
+    color: #fff;
+}
+
+.news-item.highlight {
+    background: linear-gradient(90deg, #8257e5 0%, #6833e4 100%);
+    border-left: none;
+    color: #fff;
+}
+
+.news-item.highlight .news-info h3,
+.news-item.highlight .news-info p {
+    color: #fff;
+}
+
+.news-item.highlight .btn-action {
+    background: #fff;
+    color: #8257e5;
+    border: none;
+}
+
+.news-item.highlight .btn-action:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.news-image {
+    width: 200px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .news-item {
+        flex-direction: column;
+    }
+
+    .news-date {
+        flex-direction: row;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .news-image {
+        width: 100%;
+        height: 160px;
+    }
+}
+</style> 

@@ -1,0 +1,362 @@
+<!-- Register Form -->
+<div class="auth-container">
+    <div class="auth-form">
+        <div class="logo-container">
+            <img src="/img/logo.png" alt="Logo" class="logo">
+        </div>
+        
+        <h2>Cadastre-se gratuitamente</h2>
+        
+        <form method="POST" action="/auth/register">
+            <div class="mb-4">
+                <input type="text" class="form-control" name="name" placeholder="Nome completo" required>
+            </div>
+
+            <div class="mb-4">
+                <input type="email" class="form-control" name="email" placeholder="E-mail" required>
+            </div>
+
+            <div class="mb-4">
+                <div class="input-group">
+                    <input type="password" class="form-control" name="password" id="password"
+                        placeholder="Deve ter no mínimo 7 caracteres" required>
+                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <small class="text-muted mt-1 d-block">Segurança da senha: <span class="strength-text">Fraca</span></small>
+            </div>
+
+            <div class="mb-4">
+                <div class="input-group">
+                    <input type="password" class="form-control" name="confirmPassword" id="confirmPassword"
+                        placeholder="Confirme sua senha" required>
+                    <button type="button" class="btn btn-outline-secondary toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <select class="form-select" name="companyId" required>
+                    <option value="" disabled selected>Selecione sua empresa</option>
+                    <% if (companies && companies.length > 0) { %>
+                        <% companies.forEach(company => { %>
+                            <option value="<%= company._id %>"><%= company.name %></option>
+                        <% }) %>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <div class="checkbox">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        Ao se cadastrar, você aceita nossos 
+                        <a href="/terms" class="text-primary">termos de uso</a> 
+                        e a nossa 
+                        <a href="/privacy" class="text-primary">política de privacidade</a>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-4">Cadastrar-se gratuitamente</button>
+
+            <div class="text-center mb-4">
+                <p class="text-muted mb-3">Ou se preferir</p>
+                <a href="/auth/github" class="btn btn-outline-secondary w-100">
+                    <i class="fab fa-github me-2"></i> Entre com github
+                </a>
+            </div>
+
+            <div class="text-center">
+                <p class="mb-0">Já tem uma conta? <a href="/auth/login" class="text-primary">Faça login</a></p>
+            </div>
+        </form>
+    </div>
+    
+    <div class="auth-background"></div>
+</div>
+
+<style>
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+    background: #121214;
+}
+
+.auth-form {
+    width: 480px;
+    padding: 40px;
+    background: #121214;
+    color: #fff;
+}
+
+.logo-container {
+    margin-bottom: 2rem;
+}
+
+.logo {
+    height: 40px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: #e1e1e6;
+}
+
+.form-control, .form-select {
+    background: #121214;
+    border: 2px solid #323238;
+    color: #fff;
+    padding: 16px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+    background: #121214;
+    border-color: #8257e5;
+    color: #fff;
+    box-shadow: none;
+}
+
+.form-control::placeholder {
+    color: #7c7c8a;
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237c7c8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    color: #7c7c8a;
+    background-color: #121214;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 40px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.form-select:focus {
+    background-color: #121214;
+    border-color: #8257e5;
+    color: #fff;
+}
+
+.form-select option {
+    background-color: #121214;
+    color: #e1e1e6;
+    padding: 8px;
+}
+
+.form-check-input {
+    background-color: #121214;
+    border: 2px solid #323238;
+    width: 18px;
+    height: 18px;
+}
+
+.form-check-input:checked {
+    background-color: #8257e5;
+    border-color: #8257e5;
+}
+
+.form-check-label {
+    color: #7c7c8a;
+    padding-left: 4px;
+}
+
+.btn-primary {
+    background: #8257e5;
+    border: none;
+    padding: 16px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+.btn-primary:hover {
+    background: #9466ff;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 2px solid #323238;
+    color: #e1e1e6;
+    padding: 16px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+.btn-outline-secondary:hover {
+    background: #323238;
+    border-color: #323238;
+    color: #fff;
+}
+
+.text-muted {
+    color: #7c7c8a !important;
+}
+
+.text-primary {
+    color: #8257e5 !important;
+    text-decoration: none;
+}
+
+.text-primary:hover {
+    color: #9466ff !important;
+}
+
+.auth-background {
+    flex: 1;
+    background: linear-gradient(45deg, #8257e5, #6833e4);
+    clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.toggle-password {
+    background: transparent;
+    border: 2px solid #323238;
+    border-left: none;
+    color: #7c7c8a;
+    padding: 0 16px;
+}
+
+.toggle-password:hover {
+    background: transparent;
+    color: #e1e1e6;
+}
+
+.input-group .form-control {
+    border-right: none;
+}
+
+.input-group .form-control:focus + .toggle-password {
+    border-color: #8257e5;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+    }
+    
+    .auth-form {
+        width: 100%;
+    }
+    
+    .auth-background {
+        display: none;
+    }
+}
+
+.checkbox {
+    position: relative;
+    user-select: none;
+}
+
+.checkbox input {
+    visibility: hidden;
+    position: absolute;
+}
+
+.checkbox label {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+    color: #7c7c8a;
+    padding-left: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1.6;
+}
+
+.checkbox label a {
+    display: inline-block;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.checkbox label::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 2px solid #323238;
+    content: "";
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+    background: #121214;
+}
+
+.checkbox input:checked ~ label::before {
+    transform: rotate(45deg);
+    border-width: 2px;
+    border-top-color: transparent;
+    border-left-color: transparent;
+    border-right-color: #8257e5;
+    border-bottom-color: #8257e5;
+    width: 6px;
+    height: 12px;
+    left: 7px;
+    top: 2px;
+}
+
+.checkbox input:checked ~ label {
+    color: #e1e1e6;
+}
+
+.checkbox input:checked ~ label .text-primary {
+    color: #9466ff !important;
+}
+</style>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    const strength = checkPasswordStrength(this.value);
+    updateStrengthIndicator(strength);
+});
+
+function checkPasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.match(/[A-Z]/)) score++;
+    if (password.match(/[0-9]/)) score++;
+    if (password.match(/[^A-Za-z0-9]/)) score++;
+    return score;
+}
+
+function updateStrengthIndicator(score) {
+    const strengthText = document.querySelector('.strength-text');
+    
+    if (score === 0) {
+        strengthText.textContent = 'Fraca';
+        strengthText.style.color = '#ef4444';
+    } else if (score === 1) {
+        strengthText.textContent = 'Moderada';
+        strengthText.style.color = '#f59e0b';
+    } else if (score === 2) {
+        strengthText.textContent = 'Boa';
+        strengthText.style.color = '#10b981';
+    } else if (score === 3) {
+        strengthText.textContent = 'Forte';
+        strengthText.style.color = '#059669';
+    } else {
+        strengthText.textContent = 'Muito forte';
+        strengthText.style.color = '#047857';
+    }
+}
+</script>

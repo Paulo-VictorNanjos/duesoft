@@ -1,0 +1,447 @@
+<!-- views/admin/exams/form.ejs -->
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><%= exam ? 'Editar Prova' : 'Nova Prova' %></h2>
+        <a href="/admin/exams" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form action="/admin/exams<%= exam ? '/' + exam._id : '' %>" 
+                  method="POST" 
+                  enctype="multipart/form-data" 
+                  id="examForm">
+                
+                <!-- Informações Básicas -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="title" 
+                                   name="title" 
+                                   value="<%= exam ? exam.title : '' %>"
+                                   required>
+                            <label for="title">Título da Prova</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" 
+                                    id="courseId" 
+                                    name="courseId" 
+                                    required>
+                                <option value="">Selecione um curso</option>
+                                <% courses.forEach(course => { %>
+                                    <option value="<%= course._id %>" 
+                                            <%= exam && exam.course && exam.course._id.toString() === course._id.toString() ? 'selected' : '' %>>
+                                        <%= course.title %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                            <label for="courseId">Curso</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      style="height: 100px" 
+                                      required><%= exam ? exam.description : '' %></textarea>
+                            <label for="description">Descrição da Prova</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="timeLimit" 
+                                   name="timeLimit" 
+                                   value="<%= exam ? exam.timeLimit : '60' %>"
+                                   min="1" 
+                                   required>
+                            <label for="timeLimit">Tempo Limite (minutos)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="minimumScore" 
+                                   name="minimumScore" 
+                                   value="<%= exam ? exam.minimumScore : '70' %>"
+                                   min="0" 
+                                   max="100" 
+                                   required>
+                            <label for="minimumScore">Nota Mínima (%)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="attempts" 
+                                   name="attempts" 
+                                   value="<%= exam ? exam.attempts : '1' %>"
+                                   min="1" 
+                                   required>
+                            <label for="attempts">Tentativas Permitidas</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="isCategoryExam" 
+                                           name="isCategoryExam" 
+                                           value="true"
+                                           <%= exam && exam.isCategoryExam ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="isCategoryExam">
+                                        <i class="fas fa-level-up-alt me-2"></i>
+                                        Prova de Mudança de Categoria
+                                    </label>
+                                </div>
+
+                                <div id="categoryOptions" class="<%= exam && exam.isCategoryExam ? '' : 'd-none' %>">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" 
+                                                id="targetCategory" 
+                                                name="targetCategory">
+                                            <option value="">Selecione a categoria alvo</option>
+                                            <option value="Pleno" <%= exam && exam.targetCategory === 'Pleno' ? 'selected' : '' %>>
+                                                Pleno
+                                            </option>
+                                            <option value="Senior" <%= exam && exam.targetCategory === 'Senior' ? 'selected' : '' %>>
+                                                Senior
+                                            </option>
+                                        </select>
+                                        <label for="targetCategory">Categoria Alvo</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <select class="form-select" 
+                                    id="examType" 
+                                    name="examType" 
+                                    required 
+                                    onchange="toggleQuestionType(this.value)">
+                                <option value="multiple_choice" <%= exam && exam.type === 'multiple_choice' ? 'selected' : '' %>>
+                                    Múltipla Escolha
+                                </option>
+                                <option value="essay" <%= exam && exam.type === 'essay' ? 'selected' : '' %>>
+                                    Dissertativa
+                                </option>
+                            </select>
+                            <label for="examType">Tipo de Prova</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questões -->
+                <div class="questions-section mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Questões</h4>
+                        <button type="button" class="btn btn-success" onclick="addQuestion()">
+                            <i class="fas fa-plus me-2"></i>Adicionar Questão
+                        </button>
+                    </div>
+
+                    <div id="questions">
+                        <% if (exam && exam.questions) { %>
+                            <% exam.questions.forEach((question, qIndex) => { %>
+                                <div class="question-card card mb-4" data-question-index="<%= qIndex %>">
+                                    <div class="card-body">
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control" 
+                                                      name="questions[<%= qIndex %>][text]" 
+                                                      required><%= question.questionText %></textarea>
+                                            <label>Texto da Questão</label>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Imagem da Questão (opcional)</label>
+                                            <input type="file" 
+                                                   class="form-control" 
+                                                   name="questionImages" 
+                                                   accept="image/*">
+                                            <% if (exam && exam.questions[qIndex] && exam.questions[qIndex].image) { %>
+                                                <div class="mt-2">
+                                                    <small class="text-muted">Imagem atual:</small>
+                                                    <img src="<%= exam.questions[qIndex].image %>" class="img-thumbnail mt-1" style="max-height: 100px">
+                                                </div>
+                                            <% } %>
+                                        </div>
+
+                                        <div class="options-container">
+                                            <% question.options.forEach((option, oIndex) => { %>
+                                                <div class="input-group mb-2">
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name="questions[<%= qIndex %>][options][<%= oIndex %>]" 
+                                                           value="<%= option.text %>"
+                                                           required>
+                                                    <div class="input-group-text">
+                                                        <input type="radio" 
+                                                               name="questions[<%= qIndex %>][correctOption]" 
+                                                               value="<%= oIndex %>"
+                                                               <%= option.isCorrect ? 'checked' : '' %>
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+
+                                        <button type="button" 
+                                                class="btn btn-danger btn-sm mt-2"
+                                                onclick="removeQuestion(this)">
+                                            <i class="fas fa-trash me-1"></i>Remover Questão
+                                        </button>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Salvar Prova
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="essayQuestionTemplate">
+    <div class="question-card card mb-4" data-question-index="${index}">
+        <div class="card-body">
+            <div class="form-floating mb-3">
+                <textarea class="form-control" 
+                          name="questions[${index}][text]" 
+                          required
+                          style="height: 100px"></textarea>
+                <label>Enunciado da Questão</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea class="form-control" 
+                          name="questions[${index}][baseText]" 
+                          style="height: 200px"
+                          required></textarea>
+                <label>Texto Base</label>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="number" 
+                               class="form-control" 
+                               name="questions[${index}][maxScore]" 
+                               value="10" 
+                               min="0" 
+                               max="100" 
+                               required>
+                        <label>Pontuação Máxima</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea class="form-control" 
+                          name="questions[${index}][evaluationCriteria]" 
+                          style="height: 100px"></textarea>
+                <label>Critérios de Avaliação</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea class="form-control" 
+                          name="questions[${index}][expectedAnswer]" 
+                          style="height: 150px"></textarea>
+                <label>Resposta Esperada (Guia para Correção)</label>
+            </div>
+
+            <button type="button" 
+                    class="btn btn-danger btn-sm mt-2"
+                    onclick="removeQuestion(this)">
+                <i class="fas fa-trash me-1"></i>Remover Questão
+            </button>
+        </div>
+    </div>
+</template>
+
+<script>
+    function addQuestion() {
+        const questionsContainer = document.getElementById('questions');
+        const questionIndex = questionsContainer.children.length;
+
+        const questionCard = document.createElement('div');
+        questionCard.className = 'question-card card mb-4';
+        questionCard.dataset.questionIndex = questionIndex;
+
+        questionCard.innerHTML = `
+            <div class="card-body">
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" 
+                              name="questions[${questionIndex}][text]" 
+                              required></textarea>
+                    <label>Texto da Questão</label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Imagem da Questão (opcional)</label>
+                    <input type="file" 
+                           class="form-control" 
+                           name="questionImages" 
+                           accept="image/*">
+                </div>
+
+                <div class="options-container">
+                    ${Array(4).fill(0).map((_, i) => `
+                        <div class="input-group mb-2">
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="questions[${questionIndex}][options][${i}]" 
+                                   placeholder="Opção ${i + 1}"
+                                   required>
+                            <div class="input-group-text">
+                                <input type="radio" 
+                                       name="questions[${questionIndex}][correctOption]" 
+                                       value="${i}"
+                                       required>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button type="button" 
+                        class="btn btn-danger btn-sm mt-2"
+                        onclick="removeQuestion(this)">
+                    <i class="fas fa-trash me-1"></i>Remover Questão
+                </button>
+            </div>
+        `;
+
+        questionsContainer.appendChild(questionCard);
+    }
+
+    function removeQuestion(button) {
+        if (confirm('Tem certeza que deseja remover esta questão?')) {
+            button.closest('.question-card').remove();
+            updateQuestionIndexes();
+        }
+    }
+
+    function updateQuestionIndexes() {
+        const questions = document.querySelectorAll('.question-card');
+        questions.forEach((question, index) => {
+            question.dataset.questionIndex = index;
+            // Update input names
+            question.querySelectorAll('[name*="questions["]').forEach(input => {
+                input.name = input.name.replace(/questions\[\d+\]/, `questions[${index}]`);
+            });
+            question.querySelectorAll('[name*="questionImages["]').forEach(input => {
+                input.name = input.name.replace(/questionImages\[\d+\]/, `questionImages[${index}]`);
+            });
+        });
+    }
+
+    document.getElementById('isCategoryExam').addEventListener('change', function() {
+        const categoryOptions = document.getElementById('categoryOptions');
+        const targetCategory = document.getElementById('targetCategory');
+        const minimumScore = document.getElementById('minimumScore');
+        
+        categoryOptions.classList.toggle('d-none', !this.checked);
+        targetCategory.required = this.checked;
+        
+        if (this.checked && (!minimumScore.value || minimumScore.value < 80)) {
+            minimumScore.value = 80;
+        }
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Dados do formulário:', new FormData(this));
+        this.submit();
+    });
+
+    function toggleQuestionType(type) {
+        const questionsContainer = document.getElementById('questions');
+        questionsContainer.innerHTML = ''; // Limpa questões existentes
+        
+        // Atualiza o comportamento do botão "Adicionar Questão"
+        const addButton = document.querySelector('.btn-success');
+        addButton.onclick = type === 'multiple_choice' ? addMultipleChoiceQuestion : addEssayQuestion;
+    }
+
+    function addEssayQuestion() {
+        const questionsContainer = document.getElementById('questions');
+        const index = questionsContainer.children.length;
+        
+        const template = document.getElementById('essayQuestionTemplate');
+        const questionHtml = template.innerHTML.replace(/\${index}/g, index);
+        
+        const questionDiv = document.createElement('div');
+        questionDiv.innerHTML = questionHtml;
+        questionsContainer.appendChild(questionDiv);
+    }
+</script>
+
+<style>
+    .question-card {
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .question-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .input-group-text {
+        background-color: var(--bg-main);
+        border-color: var(--border-color);
+    }
+
+    .input-group-text input[type="radio"] {
+        cursor: pointer;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.1);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    #categoryOptions {
+        transition: all 0.3s ease;
+    }
+</style>

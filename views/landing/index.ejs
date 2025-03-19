@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPro LMS - Plataforma de Ensino Online</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/landing.css">
+    
+    <!-- Stripe.js - Carregue apenas uma vez, no head -->
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <%- include('./sections/navbar') %>
+
+    <!-- Hero Section -->
+    <%- include('./sections/hero') %>
+
+    <!-- Adicione o video-intro aqui -->
+    <%- include('./sections/video-intro') %>
+
+    <!-- Botão flutuante de play -->
+    <div class="floating-play-button">
+        <button onclick="toggleVideoCard()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="5 3 19 12 5 21" fill="currentColor"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Features Section -->
+    <%- include('./sections/features') %>
+
+
+    <!-- Testimonials -->
+    <%- include('./sections/testimonials') %>
+
+    <!-- Pricing -->
+    <%- include('./sections/pricing') %>
+
+    <!-- CTA Section -->
+    <%- include('./sections/cta') %>
+
+    <!-- Footer -->
+    <%- include('./sections/footer') %>
+
+    <!-- Scripts -->
+    <script src="/js/landing.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Modal de Seleção de Empresa -->
+    <div id="empresaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Selecione sua Empresa</h2>
+            <div class="empresa-search">
+                <input type="text" id="empresaBusca" placeholder="Buscar empresa..." autocomplete="off">
+            </div>
+            <div id="empresasContainer"></div>
+            <button id="btnContinuar" class="btn btn-primary" disabled>Continuar</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let empresaSelecionada = null;
+        
+        async function carregarEmpresas() {
+            try {
+                const response = await fetch('/auth/companies');
+                if (!response.ok) throw new Error('Erro ao carregar empresas');
+                
+                const empresas = await response.json();
+                atualizarListaEmpresas(empresas);
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('empresasContainer').innerHTML = 
+                    '<div class="erro">Erro ao carregar empresas. Tente novamente.</div>';
+            }
+        }
+
+        function atualizarListaEmpresas(empresas) {
+            const container = document.getElementById('empresasContainer');
+            if (!empresas.length) {
+                container.innerHTML = '<div class="empty">Nenhuma empresa encontrada</div>';
+                return;
+            }
+
+            container.innerHTML = empresas.map(empresa => `
+                <div class="empresa-item" data-domain="${empresa.domain}">
+                    <img src="${empresa.logo || '/img/default-logo.png'}" alt="${empresa.name}">
+                    <span>${empresa.name}</span>
+                </div>
+            `).join('');
+
+            // Adicionar eventos de clique
+            document.querySelectorAll('.empresa-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.empresa-item').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    empresaSelecionada = this.dataset.domain;
+                    document.getElementById('btnContinuar').disabled = false;
+                });
+            });
+        }
+
+        // Busca com debounce
+        const empresaBusca = document.getElementById('empresaBusca');
+        let timeoutId;
+        empresaBusca.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(async () => {
+                const busca = this.value.toLowerCase();
+                const response = await fetch('/auth/companies');
+                const empresas = await response.json();
+                const empresasFiltradas = empresas.filter(empresa => 
+                    empresa.name.toLowerCase().includes(busca)
+                );
+                atualizarListaEmpresas(empresasFiltradas);
+            }, 300);
+        });
+
+        // Botão continuar
+        document.getElementById('btnContinuar').addEventListener('click', function() {
+            if (empresaSelecionada) {
+                window.location.href = `http://${empresaSelecionada}.studywob.com.br:3008/auth/login`;
+            }
+        });
+
+        // Abrir modal
+        window.abrirModalEmpresas = function() {
+            document.getElementById('empresaModal').style.display = 'block';
+            carregarEmpresas();
+        }
+
+        // Fechar modal
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('empresaModal').style.display = 'none';
+        });
+
+        // Fechar ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('empresaModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+    </script>
+
+    <style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 20px;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+        position: relative;
+    }
+
+    .empresa-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 5px 0;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 4px;
+    }
+
+    .empresa-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .empresa-item.selected {
+        border-color: #f56000;
+        background-color: #f8f7ff;
+    }
+
+    .empresa-item img {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        border-radius: 4px;
+        object-fit: contain;
+    }
+
+    #empresaBusca {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    #btnContinuar {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .close {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .floating-play-button {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        z-index: 1000;
+    }
+
+    .floating-play-button button {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #f56000;;
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .floating-play-button button:hover {
+        transform: scale(1.1);
+        background: #f56000;;
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+    }
+
+    .floating-play-button button:active {
+        transform: scale(0.95);
+    }
+
+    @media (max-width: 768px) {
+        .floating-play-button {
+            bottom: 16px;
+            left: 16px;
+        }
+    }
+    </style>
+
+    <script>
+    function toggleVideoCard() {
+        const videoSection = document.querySelector('.video-section');
+        if (videoSection) {
+            videoSection.classList.toggle('video-visible');
+            
+            // Se estiver abrindo o vídeo, garanta que ele esteja visível
+            if (videoSection.classList.contains('video-visible')) {
+                videoSection.style.display = 'block';
+            } else {
+                // Se estiver fechando, aguarde a animação terminar antes de esconder
+                setTimeout(() => {
+                    if (!videoSection.classList.contains('video-visible')) {
+                        videoSection.style.display = 'none';
+                    }
+                }, 300); // 300ms é a duração da animação
+            }
+        }
+    }
+
+    // Fechar ao clicar fora do card
+    document.addEventListener('click', function(event) {
+        const videoSection = document.querySelector('.video-section');
+        const playButton = document.querySelector('.floating-play-button');
+        
+        if (videoSection && videoSection.classList.contains('video-visible')) {
+            if (!videoSection.contains(event.target) && !playButton.contains(event.target)) {
+                toggleVideoCard();
+            }
+        }
+    });
+    </script>
+</body>
+</html> 

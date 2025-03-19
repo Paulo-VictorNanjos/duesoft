@@ -1,0 +1,110 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gerenciador de Notificações</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newNotificationModal">
+            <i class="fas fa-plus me-2"></i>Nova Notificação
+        </button>
+    </div>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Usuário</th>
+                            <th>Título</th>
+                            <th>Mensagem</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% notifications.forEach(notification => { %>
+                            <tr>
+                                <td><%= new Date(notification.createdAt).toLocaleString() %></td>
+                                <td><%= notification.user.name %></td>
+                                <td><%= notification.title %></td>
+                                <td><%= notification.message %></td>
+                                <td>
+                                    <span class="badge bg-<%= notification.type %>">
+                                        <%= notification.type %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <% if (notification.read) { %>
+                                        <span class="badge bg-success">Lida</span>
+                                    <% } else { %>
+                                        <span class="badge bg-warning">Não lida</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Nova Notificação -->
+<div class="modal fade" id="newNotificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nova Notificação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/notifications" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mensagem</label>
+                        <textarea name="message" class="form-control" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select name="type" class="form-select">
+                            <option value="info">Info</option>
+                            <option value="success">Sucesso</option>
+                            <option value="warning">Aviso</option>
+                            <option value="error">Erro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Grupo de Usuários</label>
+                        <select name="userGroup" class="form-select">
+                            <option value="all">Todos</option>
+                            <option value="admin">Administradores</option>
+                            <option value="Junior">Júnior</option>
+                            <option value="Pleno">Pleno</option>
+                            <option value="Senior">Sênior</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

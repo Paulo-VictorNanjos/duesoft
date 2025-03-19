@@ -1,0 +1,369 @@
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0">
+                        <i class="fas fa-trophy text-warning me-2"></i>
+                        Suas Conquistas
+                    </h2>
+                    <p class="text-muted">Desbloqueie conquistas completando objetivos</p>
+                </div>
+                <div class="achievement-stats">
+                    <div class="stat-box">
+                        <span class="stat-value"><%= Object.values(achievementsByCategory).flat().filter(a => a.unlocked).length %></span>
+                        <span class="stat-label">Desbloqueadas</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value"><%= Object.values(achievementsByCategory).flat().length %></span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <% Object.entries(achievementsByCategory).forEach(([category, achievements]) => { %>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas <%= 
+                                category === 'cursos' ? 'fa-graduation-cap' :
+                                category === 'provas' ? 'fa-file-alt' :
+                                category === 'experiência' ? 'fa-star' : 'fa-users'
+                            %> me-2"></i>
+                            <%= category.charAt(0).toUpperCase() + category.slice(1) %>
+                            <span class="badge bg-primary float-end">
+                                <%= achievements.filter(a => a.unlocked).length %>/<%= achievements.length %>
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="achievement-grid">
+                            <% achievements.forEach(achievement => { %>
+                                <div class="achievement-item <%= achievement.unlocked ? 'unlocked' : 'locked' %>"
+                                     data-rarity="<%= achievement.rarity %>"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
+                                     title="<%= achievement.description %>">
+                                    <div class="achievement-icon">
+                                        <i class="<%= achievement.icon %>"></i>
+                                    </div>
+                                    <div class="achievement-info">
+                                        <h6 class="mb-1"><%= achievement.title %></h6>
+                                        <div class="achievement-details">
+                                            <% if (achievement.unlocked) { %>
+                                                <div class="d-flex justify-content-between align-items-center w-100">
+                                                    <div class="unlocked-info">
+                                                        <i class="fas fa-check-circle text-success me-1"></i>
+                                                        <small><%= new Date(achievement.unlockedAt).toLocaleDateString() %></small>
+                                                    </div>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link btn-sm p-0" type="button" data-bs-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item highlight-achievement" 
+                                                                   href="#" 
+                                                                   data-id="<%= achievement._id %>"
+                                                                   <%= user.highlightedAchievement && user.highlightedAchievement.equals(achievement._id) ? 'disabled' : '' %>>
+                                                                    <i class="fas fa-star me-2"></i>
+                                                                    <%= user.highlightedAchievement && user.highlightedAchievement.equals(achievement._id) ? 'Em Destaque' : 'Destacar' %>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="xp-reward">
+                                                    <i class="fas fa-star text-warning me-1"></i>
+                                                    <small>+<%= achievement.xpReward %> XP</small>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar" style="width: 0%"></div>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-lock me-1"></i>
+                                                    Bloqueado
+                                                </small>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+
+    // Manipula clique no botão de destacar
+    document.querySelectorAll('.highlight-achievement').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const achievementId = this.dataset.id;
+            
+            try {
+                const response = await fetch(`/achievements/highlight/${achievementId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Erro ao destacar conquista');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao processar solicitação');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+:root {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --bg-hover: #2d3748;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #818cf8;
+    --border-color: #334155;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+}
+
+.container {
+    padding: 2rem;
+}
+
+/* Header e Stats */
+.achievement-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat-box {
+    background: var(--bg-card);
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Cards */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem;
+}
+
+.card-header h5 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+}
+
+/* Achievement Grid */
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.achievement-item {
+    background: var(--bg-hover);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.achievement-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.achievement-item.locked {
+    opacity: 0.7;
+}
+
+.achievement-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-card);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.achievement-icon i {
+    color: var(--primary);
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-info h6 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.achievement-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.unlocked-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.xp-reward {
+    color: var(--warning);
+    font-size: 0.875rem;
+}
+
+/* Progress Bar */
+.progress {
+    background: var(--bg-card);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transition: width 0.3s ease;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.dropdown-item i {
+    color: var(--primary);
+}
+
+/* Raridade das Conquistas */
+.achievement-item[data-rarity="comum"] .achievement-icon {
+    background: linear-gradient(135deg, #4b5563, #1f2937);
+}
+
+.achievement-item[data-rarity="rara"] .achievement-icon {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.achievement-item[data-rarity="épica"] .achievement-icon {
+    background: linear-gradient(135deg, #9333ea, #7e22ce);
+}
+
+.achievement-item[data-rarity="lendária"] .achievement-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .achievement-stats {
+        flex-direction: column;
+    }
+
+    .stat-box {
+        width: 100%;
+    }
+
+    .achievement-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style> 

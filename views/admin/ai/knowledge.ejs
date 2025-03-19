@@ -1,0 +1,150 @@
+<!-- Gerenciamento de Conhecimento AI -->
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Gerenciar Base de Conhecimento</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addKnowledgeModal">
+            <i class="fas fa-plus"></i> Adicionar Conhecimento
+        </button>
+    </div>
+
+    <!-- Lista de Conhecimento -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoria</th>
+                            <th>Fonte</th>
+                            <th>Data de Criação</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% knowledge.forEach(item => { %>
+                            <tr>
+                                <td><%= item.title %></td>
+                                <td><%= item.category %></td>
+                                <td><%= item.metadata.sourceType %></td>
+                                <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+                                <td>
+                                    <span class="badge bg-<%= item.active ? 'success' : 'danger' %>">
+                                        <%= item.active ? 'Ativo' : 'Inativo' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="editKnowledge('<%= item._id %>')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteKnowledge('<%= item._id %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Adicionar Conhecimento -->
+<div class="modal fade" id="addKnowledgeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Conhecimento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="knowledgeForm">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Categoria</label>
+                        <select class="form-select" name="category" required>
+                            <option value="curso">Curso</option>
+                            <option value="faq">FAQ</option>
+                            <option value="documento">Documento</option>
+                            <option value="tutorial">Tutorial</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Conteúdo</label>
+                        <textarea class="form-control" name="content" rows="10" required></textarea>
+                        <small class="text-muted">
+                            Insira o conteúdo que será usado para responder as perguntas dos usuários.
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="submitKnowledge()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function submitKnowledge() {
+    const form = document.getElementById('knowledgeForm');
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('/ai/knowledge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Conhecimento adicionado com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro ao adicionar conhecimento: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao processar requisição');
+    }
+}
+
+async function deleteKnowledge(id) {
+    if (!confirm('Tem certeza que deseja excluir este conhecimento?')) return;
+    
+    try {
+        const response = await fetch(`/ai/knowledge/${id}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Conhecimento excluído com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro ao excluir conhecimento: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao processar requisição');
+    }
+}
+
+async function editKnowledge(id) {
+    // Implementar edição
+    alert('Funcionalidade em desenvolvimento');
+}
+</script> 

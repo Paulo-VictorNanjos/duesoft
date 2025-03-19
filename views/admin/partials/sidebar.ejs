@@ -1,0 +1,85 @@
+<div class="admin-sidebar">
+    <nav>
+        <ul>
+            <li>
+                <a href="/admin/dashboard" class="<%= path === '/admin/dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/admin/users" class="<%= path.startsWith('/admin/users') ? 'active' : '' %>">
+                    <i class="fas fa-users"></i>
+                    Usuários
+                    <% if (stats?.totalUsers > 0) { %>
+                        <span class="badge"><%= stats.totalUsers %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/courses" class="<%= path.startsWith('/admin/courses') ? 'active' : '' %>">
+                    <i class="fas fa-graduation-cap"></i>
+                    Cursos
+                    <% if (stats?.totalCourses > 0) { %>
+                        <span class="badge"><%= stats.totalCourses %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/exams" class="<%= path.startsWith('/admin/exams') ? 'active' : '' %>">
+                    <i class="fas fa-file-alt"></i>
+                    Provas
+                    <% if (stats?.totalExams > 0) { %>
+                        <span class="badge"><%= stats.totalExams %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/licenses" class="<%= path.startsWith('/admin/licenses') ? 'active' : '' %>">
+                    <i class="fas fa-key"></i>
+                    Licenças
+                    <% if (stats?.activeLicenses > 0) { %>
+                        <span class="badge"><%= stats.activeLicenses %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/license-requests" class="<%= path.startsWith('/admin/license-requests') ? 'active' : '' %>">
+                    <i class="fas fa-file-contract"></i>
+                    Solicitações
+                    <% if (stats?.pendingRequests > 0) { %>
+                        <span class="badge bg-warning"><%= stats.pendingRequests %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/achievements" class="<%= path.startsWith('/admin/achievements') ? 'active' : '' %>">
+                    <i class="fas fa-trophy"></i>
+                    Conquistas
+                    <% if (stats?.totalAchievements > 0) { %>
+                        <span class="badge"><%= stats.totalAchievements %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/mentoring" class="<%= path.startsWith('/admin/mentoring') ? 'active' : '' %>">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Mentoria
+                    <% if (stats?.pendingSessions > 0) { %>
+                        <span class="badge bg-warning"><%= stats.pendingSessions %></span>
+                    <% } %>
+                </a>
+            </li>
+            <!-- Marketing -->
+            <div class="sb-sidenav-menu-heading">Marketing</div>
+            <a class="nav-link" href="/admin/banners">
+                <div class="sb-nav-link-icon"><i class="fas fa-image"></i></div>
+                Banners
+            </a>
+            <a class="nav-link" href="/admin/news">
+                <div class="sb-nav-link-icon"><i class="fas fa-newspaper"></i></div>
+                Novidades
+            </a>
+        </ul>
+    </nav>
+</div> 

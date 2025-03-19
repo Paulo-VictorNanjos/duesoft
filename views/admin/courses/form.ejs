@@ -1,0 +1,489 @@
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h3 class="mb-0"><%= course._id ? 'Edit Course' : 'New Course' %></h3>
+                </div>
+                <div class="card-body">
+                    <form id="courseForm" action="/admin/courses<%= course._id ? '/' + course._id : '' %>" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" id="currentModuleId" value="">
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Imagem de Capa</label>
+                            <div class="cover-image-preview mb-2">
+                                <img src="<%= course.coverImage || '/images/default-course-cover.jpg' %>" 
+                                     id="coverPreview" 
+                                     class="img-fluid rounded">
+                            </div>
+                            <input type="file" 
+                                   class="form-control" 
+                                   name="coverImage" 
+                                   accept="image/*"
+                                   onchange="previewImage(this)">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Curso</label>
+                            <input type="text" class="form-control" name="title" 
+                                   value="<%= course.title || '' %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" name="description" rows="3" 
+                                      required><%= course.description || '' %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Experiência do Curso</label>
+                            <input type="number" class="form-control" name="experiencePoints" 
+                                   value="<%= course.experiencePoints || 100 %>" required>
+                        </div>
+
+                        <div id="modulesContainer">
+                            <h4 class="mb-3">Módulo</h4>
+                            <% const modules = course.modules || [{ title: '', lessons: [{ title: '', videoUrl: '', duration: '' }] }] %>
+                            
+                            <% modules.forEach((module, moduleIndex) => { %>
+                                <div class="module-section card mb-3" data-module-id="<%= module._id %>">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="mb-0">Module <%= moduleIndex + 1 %></h5>
+                                            <div class="module-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="editModule('<%= module._id %>')">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-info" onclick="manageSlides('<%= module._id %>')">
+                                                    <i class="fas fa-images"></i> Slides
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteModule('<%= module._id %>')">
+                                                    <i class="fas fa-trash"></i> Excluir
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Nome do módulo</label>
+                                            <input type="text" class="form-control" 
+                                                   name="modules[<%= moduleIndex %>][title]"
+                                                   value="<%= module.title %>" required>
+                                        </div>
+
+                                        <div class="lessons-container">
+                                            <h6 class="mb-3">Aula</h6>
+                                            
+                                            <% module.lessons.forEach((lesson, lessonIndex) => { %>
+                                                <div class="lesson-section card mb-3">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <h6 class="mb-0">Lesson <%= lessonIndex + 1 %></h6>
+                                                            <button type="button" class="btn btn-danger btn-sm remove-lesson">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-md-6 mb-3">
+                                                                <label class="form-label">Título da Aula</label>
+                                                                <input type="text" class="form-control"
+                                                                       name="modules[<%= moduleIndex %>][lessons][<%= lessonIndex %>][title]"
+                                                                       value="<%= lesson.title %>" required>
+                                                            </div>
+                                                            
+                                                            <div class="col-md-4 mb-3">
+                                                                <label class="form-label">Video URL</label>
+                                                                <input type="url" class="form-control"
+                                                                       name="modules[<%= moduleIndex %>][lessons][<%= lessonIndex %>][videoUrl]"
+                                                                       value="<%= lesson.videoUrl %>" required>
+                                                            </div>
+                                                            
+                                                            <div class="col-md-4 mb-3">
+                                                                <label class="form-label">Tipo de Vídeo</label>
+                                                                <select class="form-select"
+                                                                        name="modules[<%= moduleIndex %>][lessons][<%= lessonIndex %>][videoType]"
+                                                                        required>
+                                                                    <option value="local" <%= (lesson.videoType || 'local') === 'local' ? 'selected' : '' %>>Local</option>
+                                                                    <option value="youtube" <%= (lesson.videoType || 'local') === 'youtube' ? 'selected' : '' %>>YouTube</option>
+                                                                    <option value="vimeo" <%= (lesson.videoType || 'local') === 'vimeo' ? 'selected' : '' %>>Vimeo</option>
+                                                                </select>
+                                                            </div>
+                                                            
+                                                            <div class="col-md-2 mb-3">
+                                                                <label class="form-label">Duração (min)</label>
+                                                                <input type="number" class="form-control"
+                                                                       name="modules[<%= moduleIndex %>][lessons][<%= lessonIndex %>][duration]"
+                                                                       value="<%= lesson.duration %>" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+
+                                            <button type="button" class="btn btn-info btn-sm add-lesson">
+                                                <i class="fas fa-plus me-1"></i>Adicionar Aula
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+
+                        <button type="button" class="btn btn-info mb-4" id="addModule">
+                            <i class="fas fa-plus me-2"></i>Adicionar módulo
+                        </button>
+
+                        <div class="text-end">
+                            <a href="/admin/courses" class="btn btn-secondary me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Criar Curso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cover-image-preview {
+    max-width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 2px dashed var(--border-color);
+    background: var(--bg-main);
+}
+
+.cover-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            document.getElementById('coverPreview').src = e.target.result;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Templates para novos módulos e aulas
+const moduleTemplate = (index) => `
+    <div class="module-section card mb-3" data-module-id="new_${index}">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Module ${index + 1}</h5>
+                <div class="module-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editModule('new_${index}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" onclick="manageSlides('new_${index}')">
+                        <i class="fas fa-images"></i> Slides
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteModule('new_${index}')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Nome do módulo</label>
+                <input type="text" class="form-control" 
+                       name="modules[${index}][title]" required>
+            </div>
+
+            <div class="lessons-container">
+                <h6 class="mb-3">Aulas</h6>
+                <button type="button" class="btn btn-info btn-sm add-lesson">
+                    <i class="fas fa-plus me-1"></i>Adicionar Aula
+                </button>
+            </div>
+        </div>
+    </div>
+`;
+
+const lessonTemplate = (moduleIndex, lessonIndex) => `
+    <div class="lesson-section card mb-3">
+        <div class="card-body">
+           <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Lesson ${lessonIndex + 1}</h6>
+                <button type="button" class="btn btn-danger btn-sm remove-lesson">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lesson Title</label>
+                    <input type="text" class="form-control"
+                           name="modules[${moduleIndex}][lessons][${lessonIndex}][title]"
+                           required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Video URL</label>
+                    <input type="url" class="form-control"
+                           name="modules[${moduleIndex}][lessons][${lessonIndex}][videoUrl]"
+                           required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Tipo de Vídeo</label>
+                    <select class="form-select"
+                            name="modules[${moduleIndex}][lessons][${lessonIndex}][videoType]"
+                            required>
+                        <option value="local">Local</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="vimeo">Vimeo</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Duration (min)</label>
+                    <input type="number" class="form-control"
+                           name="modules[${moduleIndex}][lessons][${lessonIndex}][duration]"
+                           required>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+
+// Contador global para módulos
+let moduleCount = <%= modules.length %>;
+
+// Função para adicionar módulo
+document.getElementById('addModule').addEventListener('click', function() {
+    const container = document.getElementById('modulesContainer');
+    container.insertAdjacentHTML('beforeend', moduleTemplate(moduleCount));
+    moduleCount++;
+    initializeEventListeners();
+});
+
+// Função para inicializar event listeners
+function initializeEventListeners() {
+    // Listeners para adicionar aulas
+    document.querySelectorAll('.add-lesson').forEach(button => {
+        button.onclick = function() {
+            const moduleSection = this.closest('.module-section');
+            const moduleIndex = Array.from(document.querySelectorAll('.module-section')).indexOf(moduleSection);
+            const lessonsContainer = moduleSection.querySelector('.lessons-container');
+            const lessonCount = lessonsContainer.querySelectorAll('.lesson-section').length;
+            
+            // Inserir nova aula antes do botão de adicionar
+            this.insertAdjacentHTML('beforebegin', lessonTemplate(moduleIndex, lessonCount));
+            initializeEventListeners();
+        };
+    });
+
+    // Listeners para remover módulos
+    document.querySelectorAll('.remove-module').forEach(button => {
+        button.onclick = function() {
+            const modules = document.querySelectorAll('.module-section');
+            if (modules.length > 1) {
+                this.closest('.module-section').remove();
+                updateModuleIndexes();
+            } else {
+                alert('Course must have at least one module!');
+            }
+        };
+    });
+
+    // Listeners para remover aulas
+    document.querySelectorAll('.remove-lesson').forEach(button => {
+        button.onclick = function() {
+            const lessonsContainer = this.closest('.lessons-container');
+            const lessons = lessonsContainer.querySelectorAll('.lesson-section');
+            if (lessons.length > 1) {
+                this.closest('.lesson-section').remove();
+                updateLessonIndexes(this.closest('.module-section'));
+            } else {
+                alert('Module must have at least one lesson!');
+            }
+        };
+    });
+}
+
+// Função para atualizar índices dos módulos
+function updateModuleIndexes() {
+    document.querySelectorAll('.module-section').forEach((module, moduleIndex) => {
+        // Atualizar título do módulo
+        module.querySelector('h5').textContent = `Module ${moduleIndex + 1}`;
+        
+        // Atualizar input do título do módulo
+        const moduleInput = module.querySelector('input[name*="[title]"]');
+        moduleInput.name = `modules[${moduleIndex}][title]`;
+        
+        // Atualizar aulas do módulo
+        updateLessonIndexes(module, moduleIndex);
+    });
+}
+
+// Função para atualizar índices das aulas
+function updateLessonIndexes(moduleSection) {
+    const moduleIndex = Array.from(document.querySelectorAll('.module-section')).indexOf(moduleSection);
+    moduleSection.querySelectorAll('.lesson-section').forEach((lesson, lessonIndex) => {
+        // Atualizar título da aula
+        lesson.querySelector('h6').textContent = `Lesson ${lessonIndex + 1}`;
+        
+        // Atualizar inputs da aula
+        lesson.querySelectorAll('input').forEach(input => {
+            const inputName = input.name.split('][').pop();
+            input.name = `modules[${moduleIndex}][lessons][${lessonIndex}]${inputName}`;
+        });
+    });
+}
+
+// Configurar validação do formulário
+document.getElementById('courseForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Verificar se há pelo menos um módulo
+    if (document.querySelectorAll('.module-section').length === 0) {
+        alert('Course must have at least one module!');
+        return;
+    }
+    
+    // Verificar se cada módulo tem pelo menos uma aula
+    let isValid = true;
+    document.querySelectorAll('.module-section').forEach(module => {
+        if (module.querySelectorAll('.lesson-section').length === 0) {
+            alert('Each module must have at least one lesson!');
+            isValid = false;
+        }
+    });
+    
+    if (isValid) {
+        this.submit();
+    }
+});
+
+// Inicializar event listeners quando o documento carregar
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    
+    // Log para debug
+    console.log('Form initialized with', moduleCount, 'modules');
+});
+
+// Função para carregar slides existentes
+async function loadSlides(moduleId) {
+    try {
+        const response = await fetch(`/admin/courses/modules/${moduleId}/slides`);
+        const slides = await response.json();
+        
+        const slidesList = document.getElementById('slidesList');
+        slidesList.innerHTML = slides.map((slide, index) => `
+            <tr>
+                <td>${slide.order}</td>
+                <td>${slide.title}</td>
+                <td>
+                    <img src="${slide.imageUrl}" alt="${slide.title}" 
+                         class="slide-preview" onclick="previewSlide('${slide.imageUrl}')">
+                </td>
+                <td>
+                    <div class="slide-actions">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="editSlide('${slide._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteSlide('${slide._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Erro ao carregar slides:', error);
+        toastr.error('Erro ao carregar slides');
+    }
+}
+
+// Função para abrir o modal de gerenciamento de slides
+function manageSlides(moduleId) {
+    document.getElementById('currentModuleId').value = moduleId;
+    loadSlides(moduleId);
+    const modal = new bootstrap.Modal(document.getElementById('manageSlidesModal'));
+    modal.show();
+}
+
+// Funções para gerenciamento de módulos
+async function editModule(moduleId) {
+    try {
+        const moduleSection = document.querySelector(`.module-section[data-module-id="${moduleId}"]`);
+        if (!moduleSection) {
+            throw new Error('Módulo não encontrado');
+        }
+
+        const titleInput = moduleSection.querySelector('input[name*="[title]"]');
+        const currentTitle = titleInput.value;
+
+        const { value: newTitle } = await Swal.fire({
+            title: 'Editar Módulo',
+            input: 'text',
+            inputLabel: 'Título do Módulo',
+            inputValue: currentTitle,
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Salvar',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'O título do módulo é obrigatório';
+                }
+            }
+        });
+
+        if (newTitle) {
+            titleInput.value = newTitle;
+            toastr.success('Módulo atualizado com sucesso');
+        }
+    } catch (error) {
+        console.error('Erro ao editar módulo:', error);
+        toastr.error('Erro ao editar módulo');
+    }
+}
+
+async function deleteModule(moduleId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Confirmar exclusão',
+            text: 'Tem certeza que deseja excluir este módulo? Esta ação não pode ser desfeita.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, excluir',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            const moduleSection = document.querySelector(`.module-section[data-module-id="${moduleId}"]`);
+            if (!moduleSection) {
+                throw new Error('Módulo não encontrado');
+            }
+
+            const modules = document.querySelectorAll('.module-section');
+            if (modules.length > 1) {
+                moduleSection.remove();
+                updateModuleIndexes();
+                toastr.success('Módulo excluído com sucesso');
+            } else {
+                toastr.error('O curso deve ter pelo menos um módulo');
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao excluir módulo:', error);
+        toastr.error('Erro ao excluir módulo');
+    }
+}
+
+</script>
+
+<%- include('./module-slides') %>

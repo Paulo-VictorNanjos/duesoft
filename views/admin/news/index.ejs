@@ -1,0 +1,404 @@
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Gerenciar Novidades</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewsModal">
+            <i class="fas fa-plus"></i> Nova Novidade
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <select class="form-select" id="typeFilter">
+                            <option value="">Todos os tipos</option>
+                            <option value="event">Eventos</option>
+                            <option value="update">Atualizações</option>
+                            <option value="notice">Avisos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Todos os status</option>
+                            <option value="true">Ativo</option>
+                            <option value="false">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Imagem</th>
+                            <th>Título</th>
+                            <th>Tipo</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th style="width: 150px">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (news && news.length > 0) { %>
+                            <% news.forEach(item => { %>
+                                <tr>
+                                    <td>
+                                        <img src="<%= item.image_url %>" alt="<%= item.title %>" 
+                                             class="img-thumbnail" style="width: 80px; height: 45px; object-fit: cover;">
+                                    </td>
+                                    <td>
+                                        <div><%= item.title %></div>
+                                        <small class="text-muted"><%= item.description %></small>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= 
+                                            item.type === 'event' ? 'bg-primary' : 
+                                            item.type === 'update' ? 'bg-success' : 
+                                            'bg-warning' %>">
+                                            <%= item.type === 'event' ? 'Evento' : 
+                                               item.type === 'update' ? 'Atualização' : 
+                                               'Aviso' %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(item.event_date).toLocaleDateString() %></td>
+                                    <td>
+                                        <span class="badge <%= item.status === 'active' ? 'bg-success' : 'bg-danger' %>">
+                                            <%= item.status === 'active' ? 'Ativo' : 'Inativo' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="editNews('<%= item._id %>')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteNews('<%= item._id %>')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="empty-state">
+                                        <i class="fas fa-newspaper mb-3"></i>
+                                        <h4>Nenhuma novidade cadastrada</h4>
+                                        <p>Clique no botão "Nova Novidade" para começar.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addNewsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nova Novidade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNewsForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Conteúdo Completo</label>
+                        <textarea class="form-control" name="content" rows="5"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="event">Evento</option>
+                                    <option value="update">Atualização</option>
+                                    <option value="notice">Aviso</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Data do Evento</label>
+                                <input type="date" class="form-control" name="date" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Link (opcional)</label>
+                        <input type="url" class="form-control" name="link">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imagem</label>
+                        <input type="file" class="form-control" name="image" accept="image/*" required>
+                        <small class="text-muted">Tamanho recomendado: 800x400 pixels</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="active" required>
+                            <option value="true">Ativo</option>
+                            <option value="false">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="createNews()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edição -->
+<div class="modal fade" id="editNewsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Novidade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editNewsForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Conteúdo Completo</label>
+                        <textarea class="form-control" name="content" rows="5"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="event">Evento</option>
+                                    <option value="update">Atualização</option>
+                                    <option value="notice">Aviso</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Data do Evento</label>
+                                <input type="date" class="form-control" name="date" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Link (opcional)</label>
+                        <input type="url" class="form-control" name="link">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imagem</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <small class="text-muted">Deixe em branco para manter a imagem atual</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="active" required>
+                            <option value="true">Ativo</option>
+                            <option value="false">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="updateNews()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingId = null;
+
+async function editNews(id) {
+    try {
+        const response = await fetch(`/admin/news/${id}`);
+        if (!response.ok) {
+            throw new Error('Erro ao carregar novidade');
+        }
+        
+        const news = await response.json();
+        editingId = id;
+        
+        const form = document.getElementById('editNewsForm');
+        form.title.value = news.title;
+        form.description.value = news.description;
+        form.content.value = news.content || '';
+        form.type.value = news.type;
+        form.date.value = news.event_date ? new Date(news.event_date).toISOString().split('T')[0] : '';
+        form.link.value = news.link || '';
+        form.active.value = news.status === 'active' ? 'true' : 'false';
+        
+        const modal = new bootstrap.Modal(document.getElementById('editNewsModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Erro ao carregar novidade:', error);
+        alert('Erro ao carregar novidade');
+    }
+}
+
+async function updateNews() {
+    if (!editingId) return;
+
+    const form = document.getElementById('editNewsForm');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch(`/admin/news/${editingId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Erro ao atualizar novidade');
+        }
+
+        // Fechar o modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editNewsModal'));
+        modal.hide();
+        
+        // Recarregar a página
+        window.location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(error.message);
+    }
+}
+
+function deleteNews(id) {
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não pode ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, deletar!',
+        cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/news/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    toastr.success('Novidade deletada com sucesso!');
+                    location.reload();
+                } else {
+                    throw new Error('Erro ao deletar novidade');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                toastr.error('Erro ao deletar novidade');
+            }
+        }
+    });
+}
+
+document.getElementById('typeFilter').addEventListener('change', filterTable);
+document.getElementById('statusFilter').addEventListener('change', filterTable);
+
+function filterTable() {
+    const typeFilter = document.getElementById('typeFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const type = row.querySelector('td:nth-child(3) .badge').textContent.trim().toLowerCase();
+        const status = row.querySelector('td:nth-child(5) .badge').textContent.trim().toLowerCase() === 'ativo';
+        
+        const typeMatch = !typeFilter || type.includes(typeFilter);
+        const statusMatch = statusFilter === '' || status.toString() === statusFilter;
+
+        row.style.display = typeMatch && statusMatch ? '' : 'none';
+    });
+}
+
+async function createNews() {
+    const form = document.getElementById('addNewsForm');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/admin/news', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Erro ao criar novidade');
+        }
+
+        const result = await response.json();
+        
+        // Fechar o modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addNewsModal'));
+        modal.hide();
+        
+        // Limpar o formulário
+        form.reset();
+        
+        // Recarregar a página para mostrar a nova novidade
+        window.location.reload();
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(error.message);
+    }
+}
+
+async function deleteNews(id) {
+    if (!confirm('Tem certeza que deseja excluir esta novidade?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/news/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao excluir novidade');
+        }
+
+        window.location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(error.message);
+    }
+}
+</script> 

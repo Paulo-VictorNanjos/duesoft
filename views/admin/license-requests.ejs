@@ -1,0 +1,34 @@
+<script>
+async function processLicenseRequest(id, status) {
+    try {
+        console.log('Processando licença:', id, status);
+        console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
+        
+        const response = await fetch(`/admin/license-requests/${id}/process`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'XSRF-TOKEN': document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN'))?.split('=')[1]
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ status })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Erro ao processar licença');
+        }
+
+        // Recarregar a página após sucesso
+        window.location.reload();
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao processar licença: ' + error.message);
+    }
+}
+</script>
+
+<!-- Adicionar meta tag CSRF -->
+<meta name="csrf-token" content="<%= csrfToken %>" /> 
